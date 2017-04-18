@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 	using namespace std::literals::string_literals;
 
 	//Data root directory
-	auto path = fs::path{"/home/eike/CurrentStuff/weatherdata/"s};
+	auto path = fs::path{"/home/eike/CurrentStuff/bachelor/weatherdata"s};
 
 	if(fs::is_directory(path))
 	{
@@ -37,18 +37,18 @@ int main(int argc, char *argv[])
 
 		auto tstepBuffer = std::vector<vis::Timestep>(numDirs(path));
 
-		for(unsigned i = 0; i < numDirs(path); ++i)
+		unsigned numStepsPerSim = unsigned(dataFiles.size()/numDirs(path));
+		auto analyzedSteps = std::vector<std::unique_ptr<vis::Timestep>>(numStepsPerSim);
+
+		for(unsigned file = 0; file < numStepsPerSim; ++file)
 		{
-			auto ifs = std::ifstream{dataFiles[i]};
-			tstepBuffer[i] = vis::Timestep{ifs};
+			for(unsigned dir = 0; dir < numDirs(path); ++dir)
+			{
+				auto ifs = std::ifstream{dataFiles[file*numDirs(path) + dir]};
+				tstepBuffer[dir] = vis::Timestep{ifs};
+				std::cout << dataFiles[file*numDirs(path) + dir] << std::endl;
+			}
+			analyzedSteps[file] = std::make_unique<vis::Timestep>(tstepBuffer);
 		}
-
-
-
-//		for(auto& cur : dataFiles)
-//		{
-//			auto ifs = std::ifstream{cur};
-//			steps.push_back(std::make_unique<vis::Timestep>(ifs));
-//		}
 	}
 }

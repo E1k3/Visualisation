@@ -51,7 +51,6 @@ namespace vis
 			_data[i] = std::stof(line);
 
 			unsigned field = i/scalarsPerField();
-
 			if(_data[i] < _scalarFieldMin[field])
 			{
 				_scalarFieldMin[field] = _data[i];
@@ -80,8 +79,8 @@ namespace vis
 
 		//Set format to the same as the timesteps in tsteps
 		_xSize = tsteps.front().xSize();
-		_ySize = tsteps.front().xSize();
-		_zSize = tsteps.front().xSize();
+		_ySize = tsteps.front().ySize();
+		_zSize = tsteps.front().zSize();
 		//Double the number of scalar fields to store average and variance
 		_numScalarFields = 2 * tsteps.front().numScalarFields();
 
@@ -97,7 +96,6 @@ namespace vis
 		_scalarFieldMin.reserve(_numScalarFields);
 		_scalarFieldMax.reserve(_numScalarFields);
 
-
 		for(unsigned i = 0; i < totalPoints(); ++i)
 		{
 			//Calculate sum
@@ -110,8 +108,7 @@ namespace vis
 			else
 			{
 				for(auto& step : tsteps)
-					_data[i] += std::fabs(_data[i - totalPoints()/2] -
-								step.data()[i - totalPoints()/2]);
+					_data[i] += std::fabs(_data[i - totalPoints()/2] - step.data()[i - totalPoints()/2]);
 			}
 
 			//Average
