@@ -23,8 +23,6 @@ int main(int argc, char *argv[])
 	using namespace vis;
 	using namespace std::literals::string_literals;
 
-	Logger::instance() << Logger::Severity::DEBUG << "lol" << std::endl;
-
 	//Data root directory
 	auto path = fs::path{"/home/eike/CurrentStuff/bachelor/weatherdata"s};
 
@@ -41,17 +39,19 @@ int main(int argc, char *argv[])
 
 		auto tstepBuffer = std::vector<Timestep>(numDirs(path));
 		unsigned numStepsPerSim = unsigned(dataFiles.size()/numDirs(path));
-		auto analyzedSteps = std::vector<std::unique_ptr<Timestep>>(numStepsPerSim);
+		auto analyzedSteps = std::vector<std::unique_ptr<Timestep>>();
+		analyzedSteps.reserve(numStepsPerSim);
 		for(unsigned file = 0; file < numStepsPerSim; ++file)
 		{
 			for(unsigned dir = 0; dir < numDirs(path); ++dir)
 			{
 				auto ifs = std::ifstream{dataFiles[file*numDirs(path) + dir]};
 				tstepBuffer[dir] = Timestep{ifs};
-				std::cout << dataFiles[file*numDirs(path) + dir] << "\n";
+				Logger::instance() << Logger::Severity::DEBUG
+								   << dataFiles[file*numDirs(path) + dir]
+								   << "\n";
 			}
-			analyzedSteps[file] = std::make_unique<Timestep>(tstepBuffer);
+			analyzedSteps.push_back(std::make_unique<Timestep>(tstepBuffer));
 		}
-		std::cout << std::endl;
 	}
 }
