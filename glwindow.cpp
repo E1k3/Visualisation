@@ -1,6 +1,9 @@
 #include "glwindow.h"
 
-GLWindow::GLWindow()
+namespace vis
 {
+	GLWindow::GLWindow()
+	{
 
+	}
 }

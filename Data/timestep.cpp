@@ -1,6 +1,5 @@
 #include "timestep.h"
 
-#include <iostream>
 #include <sstream>
 #include <algorithm>
 #include <cmath>

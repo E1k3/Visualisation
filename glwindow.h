@@ -1,11 +1,13 @@
 #ifndef GLWINDOW_H
 #define GLWINDOW_H
 
-
-class GLWindow
+namespace vis
 {
-public:
-    GLWindow();
-};
+	class GLWindow
+	{
+	public:
+		GLWindow();
+	};
+}
 
 #endif // GLWINDOW_H

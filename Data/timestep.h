@@ -66,10 +66,15 @@ namespace vis
 		///Number of scalar fields.
 		unsigned _numScalarFields{0};
 		///Names of scalar fields.
+
+		/// Size should always equal _numScalarFields
 		std::vector<std::string> _scalarFieldNames{};
-		///Smallest value per scalar field.
+
+		/// Smallest value of each scalar field.
+		/// Size should always equal _numScalarFields
 		std::vector<float> _scalarFieldMin{};
-		///Largest value per scalar field.
+		/// Largest value of each scalar field.
+		/// Size should always equal _numScalarFields
 		std::vector<float> _scalarFieldMax{};
 
 		///Raw data in floats. All scalarfields after each other.
