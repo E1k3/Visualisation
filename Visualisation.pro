@@ -10,9 +10,9 @@ LIBS += -lGL \
         -lstdc++fs
 
 SOURCES += main.cpp \
-    glwindow.cpp \
-    Data/timestep.cpp
+    Data/timestep.cpp \
+    logger.cpp
 
 HEADERS += \
-    glwindow.h \
-    Data/timestep.h
+    Data/timestep.h \
+    logger.h
