@@ -11,8 +11,13 @@ LIBS += -lGL \
 
 SOURCES += main.cpp \
     Data/timestep.cpp \
-    logger.cpp
+    logger.cpp \
+    Data/ensemble.cpp \
+    Data/gaussiananalyzer.cpp
 
 HEADERS += \
     Data/timestep.h \
-    logger.h
+    logger.h \
+    Data/ensemble.h \
+    Data/gaussiananalyzer.h \
+    Data/analyzerinterface.h

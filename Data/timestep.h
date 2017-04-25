@@ -5,11 +5,16 @@
 #include <string>
 #include <istream>
 #include <limits>
+#include <memory>
+
+#include "gaussiananalyzer.h"
 
 namespace vis
 {
 	class Timestep
 	{
+
+		friend std::unique_ptr<Timestep> GaussianAnalyzer::analyze(std::vector<Timestep>&); //Befriend analyzer classes so they can construct timesteps from their data.
 	public:
 		explicit Timestep();
 		/**
@@ -48,7 +53,9 @@ namespace vis
 		 * The data is expected to follow the size and format defined by the dimensions and fields.
 		 * TODO:describe format
 		 */
-		const std::vector<float>& data();
+		const std::vector<float>& data_const();
+
+		std::vector<float>& data();
 
 		/**
 		 * @brief scalarFieldNames Contains names of the scalar fields of this step.

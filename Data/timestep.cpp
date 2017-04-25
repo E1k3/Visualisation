@@ -172,7 +172,12 @@ namespace vis
 		return _numScalarFields * scalarsPerField();
 	}
 
-	const std::vector<float>& Timestep::data()
+	const std::vector<float>& Timestep::data_const()
+	{
+		return _data;
+	}
+
+	std::vector<float>& Timestep::data()
 	{
 		return _data;
 	}
