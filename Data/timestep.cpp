@@ -6,54 +6,6 @@
 
 namespace vis
 {
-	Timestep::Timestep(std::istream& instream)
-	{
-		using namespace std::literals::string_literals;
-
-		auto line = ""s;
-		auto linestream = std::stringstream{};
-
-		// Read dimensions header
-		std::getline(instream, line, '\n');
-		linestream.str(line);
-		linestream >> _xSize >> _ySize >> _zSize;
-
-		// Read scalar field header
-		std::getline(instream, line, '\n');
-		linestream.str(line);
-		linestream >> _numScalarFields;
-
-		_scalarFieldNames.resize(_numScalarFields);
-
-		for(unsigned i = 0; i < _numScalarFields; ++i)
-		{
-			linestream >> _scalarFieldNames[i];
-		}
-
-		// Skip vector fields header
-		instream.ignore(256, '\n'); // This line should not be longer than 256 characters.
-
-		_scalarFieldMin.resize(_numScalarFields, std::numeric_limits<float>::infinity());
-		_scalarFieldMax.resize(_numScalarFields, -std::numeric_limits<float>::infinity());
-		_data.resize(scalarsPerField()*_numScalarFields);
-
-		// Read data
-		for(unsigned i = 0; i < scalarsPerField()*_numScalarFields; ++i)
-		{
-			// Using instream >> _data[i] takes about twice as long.
-			std::getline(instream, line, ' ');
-			_data[i] = std::stof(line);
-
-			// Calculate min and max per scalr field for normalization
-			unsigned field = i/scalarsPerField();
-			if(_data[i] < _scalarFieldMin[field])
-				_scalarFieldMin[field] = _data[i];
-			if(_data[i] > _scalarFieldMax[field])
-				_scalarFieldMax[field] = _data[i];
-		}
-	}
-
-
 	std::unique_ptr<Timestep> Timestep::buildFromGaussianAnalysis(std::vector<Timestep>& ensemble)
 	{
 		using namespace std::literals::string_literals;
@@ -114,7 +66,57 @@ namespace vis
 		return step;
 	}
 
+	Timestep::Timestep()
+	{
 
+	}
+
+	Timestep::Timestep(std::istream& instream)
+	{
+		using namespace std::literals::string_literals;
+
+		auto line = ""s;
+		auto linestream = std::stringstream{};
+
+		// Read dimensions header
+		std::getline(instream, line, '\n');
+		linestream.str(line);
+		linestream >> _xSize >> _ySize >> _zSize;
+
+		// Read scalar field header
+		std::getline(instream, line, '\n');
+		linestream.str(line);
+		linestream >> _numScalarFields;
+
+		_scalarFieldNames.resize(_numScalarFields);
+
+		for(unsigned i = 0; i < _numScalarFields; ++i)
+		{
+			linestream >> _scalarFieldNames[i];
+		}
+
+		// Skip vector fields header
+		instream.ignore(256, '\n'); // This line should not be longer than 256 characters.
+
+		_scalarFieldMin.resize(_numScalarFields, std::numeric_limits<float>::infinity());
+		_scalarFieldMax.resize(_numScalarFields, -std::numeric_limits<float>::infinity());
+		_data.resize(scalarsPerField()*_numScalarFields);
+
+		// Read data
+		for(unsigned i = 0; i < scalarsPerField()*_numScalarFields; ++i)
+		{
+			// Using instream >> _data[i] takes about twice as long.
+			std::getline(instream, line, ' ');
+			_data[i] = std::stof(line);
+
+			// Calculate min and max per scalr field for normalization
+			unsigned field = i/scalarsPerField();
+			if(_data[i] < _scalarFieldMin[field])
+				_scalarFieldMin[field] = _data[i];
+			if(_data[i] > _scalarFieldMax[field])
+				_scalarFieldMax[field] = _data[i];
+		}
+	}
 
 	bool Timestep::matchingFormat(Timestep& other) const
 	{
@@ -170,7 +172,7 @@ namespace vis
 		return _data;
 	}
 
-	const std::vector<std::string> Timestep::scalarFieldNames() const
+	const std::vector<std::string>& Timestep::scalarFieldNames() const
 	{
 		return _scalarFieldNames;
 	}

@@ -12,13 +12,20 @@ namespace vis
 	class Timestep
 	{
 	public:
+		using UPtr = std::unique_ptr<Timestep>;
+
 		/**
 		 * @brief fromGaussianAnalysis Constructs a new timestep from the results of analysing an ensemble of other timesteps.
 		 * The new timestep will contain scalar fields for average and empirical variance of the analysed timesteps.
 		 * @param ensemble The ensemble of timesteps that are analysed.
 		 * @return Smartpointer to the newly constructed Timestep.
 		 */
-		static std::unique_ptr<Timestep> buildFromGaussianAnalysis(std::vector<Timestep>& ensemble);
+		static UPtr buildFromGaussianAnalysis(std::vector<Timestep>& ensemble);
+
+		/**
+		 * @brief Timestep Empty constructor. Leaves everything as default.
+		 */
+		explicit Timestep();
 
 		/**
 		 * @brief Timestep from text. Parses input from @param instream.
@@ -70,7 +77,7 @@ namespace vis
 		/**
 		 * @brief scalarFieldNames Contains names of the scalar fields of this step.
 		 */
-		const std::vector<std::string> scalarFieldNames() const;
+		const std::vector<std::string>& scalarFieldNames() const;
 
 	private:
 		///Number of data points in x direction.
