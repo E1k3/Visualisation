@@ -12,12 +12,9 @@ LIBS += -lGL \
 SOURCES += main.cpp \
     Data/timestep.cpp \
     logger.cpp \
-    Data/ensemble.cpp \
-    Data/gaussiananalyzer.cpp
+    Data/ensemble.cpp
 
 HEADERS += \
     Data/timestep.h \
     logger.h \
-    Data/ensemble.h \
-    Data/gaussiananalyzer.h \
-    Data/analyzerinterface.h
+    Data/ensemble.h

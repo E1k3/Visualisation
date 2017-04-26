@@ -7,16 +7,19 @@
 #include <limits>
 #include <memory>
 
-#include "gaussiananalyzer.h"
-
 namespace vis
 {
 	class Timestep
 	{
-
-		friend std::unique_ptr<Timestep> GaussianAnalyzer::analyze(std::vector<Timestep>&); //Befriend analyzer classes so they can construct timesteps from their data.
 	public:
-		explicit Timestep();
+		/**
+		 * @brief fromGaussianAnalysis Constructs a new timestep from the results of analysing an ensemble of other timesteps.
+		 * The new timestep will contain scalar fields for average and empirical variance of the analysed timesteps.
+		 * @param ensemble The ensemble of timesteps that are analysed.
+		 * @return Smartpointer to the newly constructed Timestep.
+		 */
+		static std::unique_ptr<Timestep> buildFromGaussianAnalysis(std::vector<Timestep>& ensemble);
+
 		/**
 		 * @brief Timestep from text. Parses input from @param instream.
 		 * TODO:describe text format
@@ -28,39 +31,46 @@ namespace vis
 		 * Computes average and empirical variance of @param tsteps
 		 * and stores the results in adequately named scalar fields.
 		 */
-		explicit Timestep(std::vector<Timestep>& tsteps);
+		explicit Timestep(std::vector<Timestep>& ensemble);
 
-		//Dimensions TODO:doc
-		unsigned xSize();
-		unsigned ySize();
-		unsigned zSize();
-		unsigned scalarsPerField();
-		unsigned numScalarFields();
-		unsigned totalPoints();
+		// Dimensions TODO:doc
+		unsigned xSize() const;
+		unsigned ySize() const;
+		unsigned zSize() const;
+		unsigned scalarsPerField() const;
+		unsigned numScalarFields() const;
+		unsigned totalPoints() const;
 
 		/**
-		 * @brief sameDimensions Returns true if @param other has the same dimensions and fields.
+		 * @brief sameDimensions Compares format to another timestep
+		 * @param other Timestep to compare to.
+		 * @return Bool that is true, if the format matches.
 		 */
-		bool matchingFormat(Timestep& other);
+		bool matchingFormat(Timestep& other) const;
 
 		/**
-		 * @brief empty Returns true if all dimensions and # of fields are 0.
+		 * @brief empty Checks if all dimensions and # of fields are 0.
+		 * Does not check if any data is present.
 		 */
 		bool empty();
 
 		/**
-		 * @brief data Returns a reference to the raw float data of this step.
+		 * @brief data Getter for a const reference to the raw float data.
 		 * The data is expected to follow the size and format defined by the dimensions and fields.
 		 * TODO:describe format
 		 */
-		const std::vector<float>& data_const();
+		const std::vector<float>& const_data() const;
 
+		/**
+		 * @brief data Returns a reference to the raw float data of this step.
+		 * @sa @link Timestep::const_data
+		 */
 		std::vector<float>& data();
 
 		/**
 		 * @brief scalarFieldNames Contains names of the scalar fields of this step.
 		 */
-		std::vector<std::string> scalarFieldNames();
+		const std::vector<std::string> scalarFieldNames() const;
 
 	private:
 		///Number of data points in x direction.
@@ -84,7 +94,7 @@ namespace vis
 		/// Size should always equal _numScalarFields
 		std::vector<float> _scalarFieldMax{};
 
-		///Raw data in floats. All scalarfields after each other.
+		/// Raw data in floats. All scalarfields after each other.
 		std::vector<float> _data{};
 	};
 }

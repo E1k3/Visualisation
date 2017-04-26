@@ -25,22 +25,22 @@ void glfw_error_callback(int error, const char* description)
 {
 	Logger::instance() << Logger::Severity::ERROR << "GLFW ERROR: "s << error << " " << description << std::endl;
 
-	//TODO:ERROR handling
+	// TODO:ERROR handling
 	std::runtime_error("GLFW ERROR"s);
 }
 
 int main(int argc, char *argv[])
 {
-	//Data root directory
+	// Data root directory
 	auto path = fs::path{"/home/eike/CurrentStuff/bachelor/weatherdata"s};
 
 	if(fs::is_directory(path))
 	{
 		auto dataFiles = std::vector<fs::path>{};
-		//Copy all directories
+		// Copy all directories
 		std::copy_if(fs::recursive_directory_iterator{path}, fs::recursive_directory_iterator{}, std::back_inserter(dataFiles),
 					 [] (const fs::path& p) { return fs::is_regular_file(p); });
-		//Sort by path, then stably by name
+		// Sort by path, then stably by name
 		std::sort(dataFiles.begin(), dataFiles.end());
 		std::stable_sort(dataFiles.begin(), dataFiles.end(),
 						 [] (const fs::path& a, const fs::path& b) { return a.filename() < b.filename(); });
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 		auto tstepBuffer = std::vector<Timestep>(numDirs(path));
 		unsigned numStepsPerSim = unsigned(dataFiles.size()/numDirs(path));
 		auto analyzedSteps = std::vector<std::unique_ptr<Timestep>>();
-		//analyzedSteps.reserve(numStepsPerSim);
+		// analyzedSteps.reserve(numStepsPerSim);
 		for(unsigned file = 0; file < numStepsPerSim; ++file)
 		{
 			for(unsigned dir = 0; dir < numDirs(path); ++dir)
@@ -64,13 +64,13 @@ int main(int argc, char *argv[])
 	}
 
 
-	//OpenGL context and window creation
+	// OpenGL context and window creation
 	glfwSetErrorCallback(glfw_error_callback);
 
 	if(!glfwInit())
 	{
 		Logger::instance() << Logger::Severity::ERROR << "GLFW init failed" << std::endl;
-		//TODO:ERROR handling
+		// TODO:ERROR handling
 		std::runtime_error("GLFW init failed");
 	}
 
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 	if(!window)
 	{
 		Logger::instance() << Logger::Severity::ERROR << "GLFW window creation failed" << std::endl;
-		//TODO:ERROR handling
+		// TODO:ERROR handling
 		std::runtime_error("GLFW window creation failed");
 	}
 	glfwMakeContextCurrent(window);
@@ -94,18 +94,18 @@ int main(int argc, char *argv[])
 	{
 		Logger::instance() << Logger::Severity::ERROR << "GLEW init failed: "
 						   << reinterpret_cast<const char*>(glewGetErrorString(status)) << std::endl;
-		//TODO:ERROR handling
+		// TODO:ERROR handling
 		std::runtime_error("GLEW init failed");
 	}
 
 
-	//Upload to GPU
+	// Upload to GPU
 
 
-	//Draw stuff
+	// Draw stuff
 
 
-	//DESTRUCTION!!
+	// DESTRUCTION!!
 	glfwDestroyWindow(window);
 	glfwTerminate();
 }
