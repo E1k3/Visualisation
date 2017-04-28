@@ -14,6 +14,7 @@ namespace vis
 				|| (_numSims = countDirs(path)) == 0
 				|| std::adjacent_find(fs::directory_iterator{path}, fs::directory_iterator{}, comparator) != fs::directory_iterator{})
 		{
+			throw std::runtime_error("Ensemble Manager Error");
 			// TODO:ERROR handling. Path is not a directory, has no subdirectories or the subdirectories have a different number of files.
 		}
 
@@ -37,6 +38,10 @@ namespace vis
 
 		if(index >= stepsPerSim)
 		{
+			Logger::instance() << Logger::Severity::ERROR
+							   << "Index of step to process is out of range: "
+							   << "#steps:" << stepsPerSim << " index:" << index << std::endl;
+			throw std::runtime_error("Processing Step Error");
 			// TODO:ERROR handling. Index out of range.
 		}
 
@@ -49,7 +54,8 @@ namespace vis
 			Logger::instance() << Logger::Severity::DEBUG
 							   << "i: " << i
 							   << " sim: " << i/_numSims
-							   << "\nfile: " << _files.at(i) << std::endl;
+							   << " file: " << _files.at(i) << std::endl;
+
 			auto ifs = std::ifstream{_files[i]};
 			buffer.push_back(Timestep{ifs});
 		}
@@ -66,6 +72,7 @@ namespace vis
 	{
 		if(!fs::is_directory(path))
 		{
+			throw std::runtime_error("Count Dirs Error");
 			//TODO:ERROR handling. Path is not a directory.
 		}
 		return static_cast<unsigned>(std::count_if(fs::directory_iterator(path), fs::directory_iterator{},
@@ -76,6 +83,7 @@ namespace vis
 	{
 		if(!fs::is_directory(path))
 		{
+			throw std::runtime_error("Count Files Error");
 			//TODO:ERROR handling. Path is not a directory.
 		}
 		return static_cast<unsigned>(std::count_if(fs::directory_iterator(path), fs::directory_iterator{},

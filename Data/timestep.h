@@ -20,7 +20,7 @@ namespace vis
 		 * @param ensemble The ensemble of timesteps that are analysed.
 		 * @return Smartpointer to the newly constructed Timestep.
 		 */
-		static UPtr buildFromGaussianAnalysis(std::vector<Timestep>& ensemble);
+		static UPtr buildFromGaussianAnalysis(const std::vector<Timestep>& ensemble);
 
 		/**
 		 * @brief Timestep Empty constructor. Leaves everything as default.
@@ -34,11 +34,17 @@ namespace vis
 		explicit Timestep(std::istream& instream);
 
 		/**
-		 * @brief Timestep from analysis of other steps.
-		 * Computes average and empirical variance of @param tsteps
-		 * and stores the results in adequately named scalar fields.
+		 * @brief normalizeAll Normalizes all scalar fields from [min, max] to [0.0, 1.0].
 		 */
-		explicit Timestep(std::vector<Timestep>& ensemble);
+		void normalizeAll();
+
+		/**
+		 * @brief normalize Normalizes a scalar field relative to the bounds of a (different) field.
+		 * From [field.min, field.max] to [0.0, 1.0] <- relative to [boundsField.min, boundsField.max].
+		 * @param field The field that is being normalized.
+		 * @param boundsField The bounds of this field will be used to normalize.
+		 */
+		void normalize(unsigned field, unsigned boundsField);
 
 		// Dimensions TODO:doc
 		unsigned xSize() const;
@@ -53,26 +59,34 @@ namespace vis
 		 * @param other Timestep to compare to.
 		 * @return Bool that is true, if the format matches.
 		 */
-		bool matchingFormat(Timestep& other) const;
+		bool matchingFormat(const Timestep& other) const;
 
 		/**
 		 * @brief empty Checks if all dimensions and # of fields are 0.
 		 * Does not check if any data is present.
 		 */
-		bool empty();
+		bool empty() const;
 
 		/**
 		 * @brief data Getter for a const reference to the raw float data.
 		 * The data is expected to follow the size and format defined by the dimensions and fields.
 		 * TODO:describe format
 		 */
-		const std::vector<float>& const_data() const;
+		const std::vector<float>& data() const;
 
 		/**
 		 * @brief data Returns a reference to the raw float data of this step.
-		 * @sa @link Timestep::const_data
+		 * @sa @link Timestep::data
 		 */
 		std::vector<float>& data();
+
+		/**
+		 * @brief scalarFieldStart Gets start of a scalar field inside the raw data.
+		 * Only checks bounds of index, assumes the data to follow the dimensions.
+		 * @param index The index of the scalar field.
+		 * @return Pointer to the first float that is part of the scalar field.
+		 */
+		const float* scalarFieldStart(unsigned index) const;
 
 		/**
 		 * @brief scalarFieldNames Contains names of the scalar fields of this step.
@@ -80,6 +94,12 @@ namespace vis
 		const std::vector<std::string>& scalarFieldNames() const;
 
 	private:
+		/**
+		 * @brief calcBounds Calculates the bounds of each scalar field.
+		 * Erases everything that is currently stored inside the mins, maxs vectors.
+		 */
+		void calcBounds(std::vector<float>& mins, std::vector<float>& maxs);
+
 		///Number of data points in x direction.
 		unsigned _xSize{0};
 		///Number of data points in y direction.
@@ -93,13 +113,6 @@ namespace vis
 
 		/// Size should always equal _numScalarFields
 		std::vector<std::string> _scalarFieldNames{};
-
-		/// Smallest value of each scalar field.
-		/// Size should always equal _numScalarFields
-		std::vector<float> _scalarFieldMin{};
-		/// Largest value of each scalar field.
-		/// Size should always equal _numScalarFields
-		std::vector<float> _scalarFieldMax{};
 
 		/// Raw data in floats. All scalarfields after each other.
 		std::vector<float> _data{};

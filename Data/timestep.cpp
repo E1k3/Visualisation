@@ -4,19 +4,23 @@
 #include <algorithm>
 #include <cmath>
 
+#include "logger.h"
+
 namespace vis
 {
-	std::unique_ptr<Timestep> Timestep::buildFromGaussianAnalysis(std::vector<Timestep>& ensemble)
+	Timestep::UPtr Timestep::buildFromGaussianAnalysis(const std::vector<Timestep>& ensemble)
 	{
 		using namespace std::literals::string_literals;
 
 		// Validate ensemble to only have elements of the same format
 		if(ensemble.empty() ||
 				std::adjacent_find(ensemble.begin(), ensemble.end(),
-								   [] (Timestep& a, Timestep& b) {return !a.matchingFormat(b);} )
+								   [] (const Timestep& a, const Timestep& b) {return !a.matchingFormat(b);} )
 				!= ensemble.end())
 		{
-			return std::unique_ptr<Timestep>{nullptr};
+			Logger::instance() << Logger::Severity::ERROR
+							   << "Ensemble has elements with varying format" << std::endl;
+			throw std::runtime_error("Gaussian Analysis Error");
 			// TODO:ERROR handling no timesteps or they do not have the same dimensions
 		}
 
@@ -35,11 +39,7 @@ namespace vis
 		for(auto& name : ensemble.front().scalarFieldNames())
 			step->_scalarFieldNames.push_back(name + "_var"s);
 
-
 		step->_data.resize(step->totalPoints(), 0.0f);
-		step->_scalarFieldMin.reserve(step->_numScalarFields);
-		step->_scalarFieldMax.reserve(step->_numScalarFields);
-
 		for(unsigned i = 0; i < step->totalPoints(); ++i)
 		{
 			if(i < step->totalPoints()/2)	// Calculate sum
@@ -50,19 +50,15 @@ namespace vis
 			else							// Calculate sum of distance
 			{
 				for(auto& curstep : ensemble)
-					step->_data[i] += std::fabs(step->_data[i - step->totalPoints()/2] - curstep.data()[i - step->totalPoints()/2]);
+				{
+					step->_data[i] += std::fabs(step->_data[i - (step->totalPoints()/2)] - curstep.data()[i - (step->totalPoints()/2)]);
+				}
 			}
 
 			// Average
 			step->_data[i] /= ensemble.size();
-
-			// Calculate min and max per scalar field for normalization
-			unsigned field = i/step->scalarsPerField();
-			if(step->_data[i] < step->_scalarFieldMin[field])
-				step->_scalarFieldMin[field] = step->_data[i];
-			if(step->_data[i] > step->_scalarFieldMax[field])
-				step->_scalarFieldMax[field] = step->_data[i];
 		}
+
 		return step;
 	}
 
@@ -98,27 +94,80 @@ namespace vis
 		// Skip vector fields header
 		instream.ignore(256, '\n'); // This line should not be longer than 256 characters.
 
-		_scalarFieldMin.resize(_numScalarFields, std::numeric_limits<float>::infinity());
-		_scalarFieldMax.resize(_numScalarFields, -std::numeric_limits<float>::infinity());
 		_data.resize(scalarsPerField()*_numScalarFields);
-
 		// Read data
 		for(unsigned i = 0; i < scalarsPerField()*_numScalarFields; ++i)
 		{
 			// Using instream >> _data[i] takes about twice as long.
 			std::getline(instream, line, ' ');
 			_data[i] = std::stof(line);
-
-			// Calculate min and max per scalr field for normalization
-			unsigned field = i/scalarsPerField();
-			if(_data[i] < _scalarFieldMin[field])
-				_scalarFieldMin[field] = _data[i];
-			if(_data[i] > _scalarFieldMax[field])
-				_scalarFieldMax[field] = _data[i];
 		}
 	}
 
-	bool Timestep::matchingFormat(Timestep& other) const
+	void Timestep::normalizeAll()
+	{
+		auto mins = std::vector<float>{};
+		auto maxs = std::vector<float>{};
+		calcBounds(mins, maxs);	// Calculate min and max per scalar field and store in min, max
+
+		for(unsigned field = 0; field < _numScalarFields; ++field)
+		{
+			for(unsigned scalar = 0; scalar < scalarsPerField(); ++scalar)
+			{
+				unsigned i = (field*scalarsPerField()) + scalar;
+				_data[i] = (_data[i] - mins[field]) / (maxs[field] - mins[field]);
+			}
+		}
+	}
+
+	void Timestep::normalize(unsigned field, unsigned boundsField)
+	{
+		auto mins = std::vector<float>{};
+		auto maxs = std::vector<float>{};
+		calcBounds(mins, maxs);	// Calculate min and max per scalar field and store in min, max
+
+		if(field >= _numScalarFields || boundsField >= _numScalarFields)
+		{
+			throw std::runtime_error("Normalize Error");
+			//TODO:ERROR handling. Fields are out of bounds.
+		}
+
+		for(unsigned i = field * scalarsPerField(); i < (field+1) * scalarsPerField(); ++i)
+		{
+			_data[i] = (_data[i] - mins[boundsField]) / (maxs[boundsField] - mins[boundsField]);
+		}
+	}
+
+	void Timestep::calcBounds(std::vector<float>& mins, std::vector<float>& maxs)
+	{
+		mins.clear();
+		maxs.clear();
+		mins.resize(_numScalarFields, std::numeric_limits<float>::infinity());
+		maxs.resize(_numScalarFields, -std::numeric_limits<float>::infinity());
+
+		for(unsigned field = 0; field < _numScalarFields; ++field)
+		{
+			for(unsigned scalar = 0; scalar < scalarsPerField(); ++scalar)
+			{
+				unsigned i = (field*scalarsPerField()) + scalar;
+				if(_data[i] < mins[field])
+					mins[field] = _data[i];
+				if(_data[i] > maxs[field])
+					maxs[field] = _data[i];
+			}
+		}
+		for(auto& min : mins)
+		{
+			Logger::instance() << Logger::Severity::DEBUG << "min:" << min << std::endl;
+		}
+
+		for(auto& max : maxs)
+		{
+			Logger::instance() << Logger::Severity::DEBUG << "max:" << max << std::endl;
+		}
+	}
+
+	bool Timestep::matchingFormat(const Timestep& other) const
 	{
 		return other.xSize() == _xSize &&
 				other.ySize() == _ySize &&
@@ -127,7 +176,7 @@ namespace vis
 				other.scalarFieldNames() == _scalarFieldNames;
 	}
 
-	bool Timestep::empty()
+	bool Timestep::empty() const
 	{
 		return _xSize == 0 && _ySize == 0 && _zSize == 0 && _numScalarFields == 0;
 	}
@@ -162,7 +211,7 @@ namespace vis
 		return _numScalarFields * scalarsPerField();
 	}
 
-	const std::vector<float>& Timestep::const_data() const
+	const std::vector<float>& Timestep::data() const
 	{
 		return _data;
 	}
@@ -170,6 +219,19 @@ namespace vis
 	std::vector<float>& Timestep::data()
 	{
 		return _data;
+	}
+
+	const float* Timestep::scalarFieldStart(unsigned index) const
+	{
+		if(index >= _numScalarFields)
+		{
+			Logger::instance() << Logger::Severity::ERROR
+							   << "Index out of range. #Fields:"
+							   << _numScalarFields << " Index:" << index << std::endl;
+			throw std::runtime_error("Scalar Field Start Error");
+			// TODO:ERROR handling. Index is out of bounds.
+		}
+		return &_data[index * scalarsPerField()];
 	}
 
 	const std::vector<std::string>& Timestep::scalarFieldNames() const
