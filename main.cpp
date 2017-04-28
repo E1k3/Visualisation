@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 	auto ensemblemngr = EnsembleManager(path);
 	ensemblemngr.processSingleStep(0);
 	auto step = ensemblemngr.currentStep();
-	step.normalizeAll();
+	step.normaliseAll();
 
 
 	// OpenGL context and window creation
