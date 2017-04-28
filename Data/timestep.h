@@ -36,7 +36,7 @@ namespace vis
 		/**
 		 * @brief normalizeAll Normalizes all scalar fields from [min, max] to [0.0, 1.0].
 		 */
-		void normalizeAll();
+		void normaliseAll();
 
 		/**
 		 * @brief normalize Normalizes a scalar field relative to the bounds of a (different) field.
@@ -44,7 +44,7 @@ namespace vis
 		 * @param field The field that is being normalized.
 		 * @param boundsField The bounds of this field will be used to normalize.
 		 */
-		void normalize(unsigned field, unsigned boundsField);
+		void normalise(unsigned field, unsigned boundsField);
 
 		// Dimensions TODO:doc
 		unsigned xSize() const;

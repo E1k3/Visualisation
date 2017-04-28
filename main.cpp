@@ -209,6 +209,7 @@ int main(int argc, char *argv[])
 	glDeleteShader(fs);
 
 	glDeleteBuffers(2, vbos);
+	glDeleteVertexArrays(1, &vao);
 
 	glfwDestroyWindow(window);
 	glfwTerminate();

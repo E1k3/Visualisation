@@ -104,7 +104,7 @@ namespace vis
 		}
 	}
 
-	void Timestep::normalizeAll()
+	void Timestep::normaliseAll()
 	{
 		auto mins = std::vector<float>{};
 		auto maxs = std::vector<float>{};
@@ -120,7 +120,7 @@ namespace vis
 		}
 	}
 
-	void Timestep::normalize(unsigned field, unsigned boundsField)
+	void Timestep::normalise(unsigned field, unsigned boundsField)
 	{
 		auto mins = std::vector<float>{};
 		auto maxs = std::vector<float>{};
@@ -155,15 +155,6 @@ namespace vis
 				if(_data[i] > maxs[field])
 					maxs[field] = _data[i];
 			}
-		}
-		for(auto& min : mins)
-		{
-			Logger::instance() << Logger::Severity::DEBUG << "min:" << min << std::endl;
-		}
-
-		for(auto& max : maxs)
-		{
-			Logger::instance() << Logger::Severity::DEBUG << "max:" << max << std::endl;
 		}
 	}
 
