@@ -25,13 +25,18 @@ void glfw_error_callback(int error, const char* description)
 	throw std::runtime_error("GLFW ERROR");
 }
 
+void glfw_framebuffsize_callback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
 int main(int argc, char *argv[])
 {
 	// Data root directory
 	auto path = fs::path{"/home/eike/CurrentStuff/bachelor/weatherdata"s};
 
 	auto ensemblemngr = EnsembleManager(path);
-	ensemblemngr.processSingleStep(0);
+	ensemblemngr.processSingleStep(256);
 	auto step = ensemblemngr.currentStep();
 	step.normaliseAll();
 
@@ -59,6 +64,7 @@ int main(int argc, char *argv[])
 		throw std::runtime_error("GLFW window creation failed");
 	}
 	glfwMakeContextCurrent(window);
+	glfwSetFramebufferSizeCallback(window, glfw_framebuffsize_callback);
 
 	glewExperimental = GL_TRUE;
 	GLenum status = glewInit();
@@ -97,7 +103,7 @@ int main(int argc, char *argv[])
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, static_cast<int>(step.xSize()), static_cast<int>(step.ySize()), 0, GL_RED, GL_FLOAT, static_cast<const void*>(step.scalarFieldStart(0)));
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, static_cast<int>(step.xSize()), static_cast<int>(step.ySize()), 0, GL_RED, GL_FLOAT, static_cast<const void*>(step.scalarFieldStart(8)));
 
 	// Shader
 	const char* vs_code = R"glsl(
@@ -123,7 +129,7 @@ int main(int argc, char *argv[])
 
 		void main()
 		{
-			color = vec4(texture(tex, uv).rgb, 1.f);
+			color = vec4(texture(tex, uv).r, 0.f, .2f, 1.f);
 		}
 		)glsl";
 
