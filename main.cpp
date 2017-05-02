@@ -8,8 +8,6 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-
 
 #include "Data/ensemblemanager.h"
 #include "logger.h"
@@ -17,9 +15,9 @@
 using namespace std::literals::string_literals;
 using namespace vis;
 
-void glfw_error_callback(int error, const char* description)
+[[noreturn]] void glfw_error_callback(int error, const char* description)
 {
-	Logger::instance() << Logger::Severity::ERROR << "GLFW ERROR: "s << error << " " << description << std::endl;
+	Logger::instance() << Logger::Severity::ERROR << "GLFW ERROR: " << error << " " << description << std::endl;
 
 	// TODO:ERROR handling
 	throw std::runtime_error("GLFW ERROR");
@@ -27,13 +25,85 @@ void glfw_error_callback(int error, const char* description)
 
 void glfw_framebuffsize_callback(GLFWwindow* window, int width, int height)
 {
+	(void)window; // UNUSED
 	glViewport(0, 0, width, height);
+}
+
+struct Vec4
+{
+	Vec4()
+	{
+
+	}
+
+	Vec4(float x, float y, float z, float w) :
+		_x{x}, _y{y}, _z{z}, _w{w}
+	{
+
+	}
+
+	float _x{0.f}, _y{0.f}, _z{0.f}, _w{0.f};
+};
+
+/**
+ * @brief genGrid Generates a grid with points spanning from [0, 0] to [1, 1].
+ * @param width Number of points per row.
+ * @param height Number of points per column
+ * @return A vector containing all points, row wise.
+ */
+std::vector<Vec4> genGrid(unsigned width, unsigned height)
+{
+	auto grid = std::vector<Vec4>(width * height);
+
+	if(width*height == 0)
+		return grid;	// TODO:error handling?
+
+	for(unsigned row = 0; row < height; ++row)
+	{
+		for(unsigned col = 0; col < width; ++col)
+		{
+			float x = static_cast<float>(col)/(width-1);
+			float y = static_cast<float>(row)/(height-1);
+			grid[row*width + col] = Vec4{x*2 -1, y*2 -1, x, 1-y};
+		}
+	}
+	return grid;
+}
+
+/**
+ * @brief genIndices Generates indices to be used to draw a grid with element buffer.
+ * @param width The width of the grid.
+ * @param height The height of the grid.
+ * @return A vector containing all indices.
+ */
+std::vector<unsigned> genIndices(unsigned width, unsigned height)
+{
+	auto indices = std::vector<unsigned>{};
+	if(width*height <= 2)
+		return indices;	// TODO:error handling?
+	for(unsigned y = 0; y < height-1; ++y)
+	{
+		for(unsigned x = 0; x < width-1; ++x)
+		{
+			unsigned i = y*width + x;
+			indices.push_back(i);
+			indices.push_back(i+1);
+			indices.push_back(i+width+1);
+			indices.push_back(i);
+			indices.push_back(i+width+1);
+			indices.push_back(i+width);
+		}
+	}
+	return indices;
 }
 
 int main(int argc, char *argv[])
 {
+	(void)argc;	// UNUSED
+	(void)argv;	// UNUSED
+
 	// Data root directory
-	auto path = fs::path{"/home/eike/CurrentStuff/bachelor/weatherdata"s};
+	auto path = fs::path{"/home/eike/CurrentStuff/bachelor/weatherdata"};
 
 	auto ensemblemngr = EnsembleManager(path);
 	ensemblemngr.processSingleStep(256);
@@ -103,7 +173,8 @@ int main(int argc, char *argv[])
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, static_cast<int>(step.xSize()), static_cast<int>(step.ySize()), 0, GL_RED, GL_FLOAT, static_cast<const void*>(step.scalarFieldStart(8)));
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, static_cast<int>(step.xSize()), static_cast<int>(step.ySize()),
+				 0, GL_RED, GL_FLOAT, static_cast<const void*>(step.scalarFieldStart(3))); // Target, level, int_format, width, height, border, format, data
 
 	// Shader
 	const char* vs_code = R"glsl(
@@ -129,7 +200,7 @@ int main(int argc, char *argv[])
 
 		void main()
 		{
-			color = vec4(texture(tex, uv).r, 0.f, .2f, 1.f);
+			color = vec4(texture(tex, uv).r, 0.f, 1-texture(tex, uv).r, 1.f);
 		}
 		)glsl";
 

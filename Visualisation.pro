@@ -12,9 +12,11 @@ LIBS += -lGL \
 SOURCES += main.cpp \
     Data/timestep.cpp \
     logger.cpp \
-    Data/ensemblemanager.cpp
+    Data/ensemblemanager.cpp \
+    renderer.cpp
 
 HEADERS += \
     Data/timestep.h \
     logger.h \
-    Data/ensemblemanager.h
+    Data/ensemblemanager.h \
+    renderer.h
