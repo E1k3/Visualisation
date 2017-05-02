@@ -64,7 +64,7 @@ namespace vis
 
 	const Timestep& EnsembleManager::currentStep() const
 	{
-		return *_buffer;
+		return _buffer;
 	}
 
 

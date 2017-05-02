@@ -52,7 +52,7 @@ namespace vis
 
 		/// Buffer to store the analyzed timestep.
 		/// TODO:maybe add size management/change to circular buffer?
-		Timestep::UPtr _buffer{};
+		Timestep _buffer{};
 	};
 }
 

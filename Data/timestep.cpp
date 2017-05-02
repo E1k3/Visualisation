@@ -8,7 +8,7 @@
 
 namespace vis
 {
-	Timestep::UPtr Timestep::buildFromGaussianAnalysis(const std::vector<Timestep>& ensemble)
+	Timestep Timestep::buildFromGaussianAnalysis(const std::vector<Timestep>& ensemble)
 	{
 		using namespace std::literals::string_literals;
 
@@ -24,39 +24,39 @@ namespace vis
 			// TODO:ERROR handling no timesteps or they do not have the same dimensions
 		}
 
-		auto step = std::make_unique<Timestep>();
+		auto step = Timestep();
 
 		// Set format to the same as the timesteps in tsteps
-		step->_xSize = ensemble.front().xSize();
-		step->_ySize = ensemble.front().ySize();
-		step->_zSize = ensemble.front().zSize();
-		step->_numScalarFields = ensemble.front().numScalarFields() * 2; // *2 to store average and variance for every field
+		step._xSize = ensemble.front().xSize();
+		step._ySize = ensemble.front().ySize();
+		step._zSize = ensemble.front().zSize();
+		step._numScalarFields = ensemble.front().numScalarFields() * 2; // *2 to store average and variance for every field
 
 		// Copy scalar field names twice (for average and variance)
-		step->_scalarFieldNames.reserve(step->_numScalarFields);
+		step._scalarFieldNames.reserve(step._numScalarFields);
 		for(auto& name : ensemble.front().scalarFieldNames())
-			step->_scalarFieldNames.push_back(name + "_avg"s);
+			step._scalarFieldNames.push_back(name + "_avg"s);
 		for(auto& name : ensemble.front().scalarFieldNames())
-			step->_scalarFieldNames.push_back(name + "_var"s);
+			step._scalarFieldNames.push_back(name + "_var"s);
 
-		step->_data.resize(step->totalPoints(), 0.0f);
-		for(unsigned i = 0; i < step->totalPoints(); ++i)
+		step._data.resize(step.totalPoints(), 0.0f);
+		for(unsigned i = 0; i < step.totalPoints(); ++i)
 		{
-			if(i < step->totalPoints()/2)	// Calculate sum
+			if(i < step.totalPoints()/2)	// Calculate sum
 			{
 				for(auto& curstep : ensemble)
-					step->_data[i] += curstep.data()[i];
+					step._data[i] += curstep.data()[i];
 			}
 			else							// Calculate sum of distance
 			{
 				for(auto& curstep : ensemble)
 				{
-					step->_data[i] += std::fabs(step->_data[i - (step->totalPoints()/2)] - curstep.data()[i - (step->totalPoints()/2)]);
+					step._data[i] += std::fabs(step._data[i - (step.totalPoints()/2)] - curstep.data()[i - (step.totalPoints()/2)]);
 				}
 			}
 
 			// Average
-			step->_data[i] /= ensemble.size();
+			step._data[i] /= ensemble.size();
 		}
 
 		return step;

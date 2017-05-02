@@ -5,22 +5,19 @@
 #include <string>
 #include <istream>
 #include <limits>
-#include <memory>
 
 namespace vis
 {
 	class Timestep
 	{
 	public:
-		using UPtr = std::unique_ptr<Timestep>;
-
 		/**
 		 * @brief fromGaussianAnalysis Constructs a new timestep from the results of analysing an ensemble of other timesteps.
 		 * The new timestep will contain scalar fields for average and empirical variance of the analysed timesteps.
 		 * @param ensemble The ensemble of timesteps that are analysed.
-		 * @return Smartpointer to the newly constructed Timestep.
+		 * @return The newly constructed Timestep.
 		 */
-		static UPtr buildFromGaussianAnalysis(const std::vector<Timestep>& ensemble);
+		static Timestep buildFromGaussianAnalysis(const std::vector<Timestep>& ensemble);
 
 		/**
 		 * @brief Timestep Empty constructor. Leaves everything as default.
