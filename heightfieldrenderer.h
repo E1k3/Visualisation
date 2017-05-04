@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <string>
+#include <chrono>
 
 #include "renderer.h"
 #include "Data/ensemblemanager.h"
@@ -23,6 +24,8 @@ namespace vis
 		/// @brief operator = Move assignment operator.
 		HeightfieldRenderer& operator=(HeightfieldRenderer&& other) noexcept;
 
+		virtual ~HeightfieldRenderer() = default;
+
 		/**
 		 * @brief swap Swaps state of two HeightfieldRenderers.
 		 */
@@ -37,6 +40,8 @@ namespace vis
 
 	private:
 		EnsembleManager& _ensemble;
+
+		int _mvp_uniform;
 	};
 }
 

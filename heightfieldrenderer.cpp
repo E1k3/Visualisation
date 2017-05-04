@@ -3,7 +3,12 @@
 #include "Data/timestep.h"
 
 #include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <vector>
+#include <chrono>
 
 namespace vis
 {
@@ -31,7 +36,7 @@ namespace vis
 		// Variance (height)
 		glBindBuffer(GL_ARRAY_BUFFER, _buffers[1]);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*step.scalarsPerField(),
-					 step.scalarFieldStart(field), GL_STATIC_DRAW);
+					 step.scalarFieldStart(field+6), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
 
@@ -48,7 +53,7 @@ namespace vis
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, static_cast<int>(step.xSize()), static_cast<int>(step.ySize()), 0, GL_RED, GL_FLOAT, step.scalarFieldStart(field+6));
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, static_cast<int>(step.xSize()), static_cast<int>(step.ySize()), 0, GL_RED, GL_FLOAT, step.scalarFieldStart(field));
 
 		auto vertex_shader = Renderer::loadShader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_vs.glsl",
 												  GL_VERTEX_SHADER);
@@ -67,6 +72,7 @@ namespace vis
 		glDeleteShader(fragment_shader);
 
 		glUseProgram(_program);
+		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 	}
 
 	HeightfieldRenderer::HeightfieldRenderer(HeightfieldRenderer&& other) noexcept
@@ -89,6 +95,13 @@ namespace vis
 
 	void HeightfieldRenderer::draw()
 	{
-		glDrawElements(GL_TRIANGLES, _ensemble.currentStep().scalarsPerField()*6, GL_UNSIGNED_INT, 0);
+		using glm::vec3;
+		using glm::mat4;
+		auto model = glm::mat4{};
+		auto view = glm::lookAt(vec3{1.8f}, vec3{0.f}, vec3{0.f, 0.f, 1.f});
+		auto proj = glm::perspective(glm::radians(45.0f), 16.f / 9.f, 1.0f, 10.0f);
+		auto mvp = proj * view * model;
+		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, glm::value_ptr(mvp));
+		glDrawElements(GL_TRIANGLES, static_cast<int>(_ensemble.currentStep().scalarsPerField()*6), GL_UNSIGNED_INT, 0);
 	}
 }

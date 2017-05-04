@@ -22,7 +22,7 @@ namespace vis
 		/**
 		 * @brief Timestep Empty constructor. Leaves everything as default.
 		 */
-		explicit Timestep();
+		explicit Timestep() = default;
 
 		/**
 		 * @brief Timestep from text. Parses input from @param instream.

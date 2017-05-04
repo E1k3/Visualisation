@@ -62,7 +62,7 @@ namespace vis
 		_buffer = Timestep::buildFromGaussianAnalysis(buffer);
 	}
 
-	const Timestep& EnsembleManager::currentStep() const
+	Timestep& EnsembleManager::currentStep()
 	{
 		return _buffer;
 	}

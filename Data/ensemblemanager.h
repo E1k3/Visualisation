@@ -26,9 +26,9 @@ namespace vis
 
 		/**
 		 * @brief currentStep Getter for the current timestep.
-		 * @return Const reference to the currently buffered step.
+		 * @return Reference to the currently buffered step.
 		 */
-		const Timestep& currentStep() const;
+		Timestep& currentStep();
 
 	private:
 		/**

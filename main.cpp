@@ -31,6 +31,12 @@ void glfw_framebuffsize_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
+void glfw_curserpos_callback(GLFWwindow* window, double x, double y)
+{
+	(void)window;	// UNUSED
+
+}
+
 int main(int argc, char *argv[])
 {
 	(void)argc;	// UNUSED
@@ -41,7 +47,7 @@ int main(int argc, char *argv[])
 
 	auto ensemblemngr = EnsembleManager(path);
 	ensemblemngr.processSingleStep(256);
-	auto step = ensemblemngr.currentStep();
+	Timestep& step = ensemblemngr.currentStep();
 	step.normaliseAll();
 
 	// OpenGL context and window creation
@@ -54,8 +60,8 @@ int main(int argc, char *argv[])
 		throw std::runtime_error("GLFW init failed");
 	}
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	GLFWwindow* window = glfwCreateWindow(1000, 1000, "Test", NULL, NULL);
@@ -68,6 +74,8 @@ int main(int argc, char *argv[])
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, glfw_framebuffsize_callback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, glfw_curserpos_callback);
 
 	glewExperimental = GL_TRUE;
 	GLenum status = glewInit();
@@ -81,7 +89,7 @@ int main(int argc, char *argv[])
 
 
 	HeightfieldRenderer renderer{ensemblemngr};
-	glClearColor(.2f, .2f, .2f, 1.f);
+	glClearColor(0.f, 0.f, 0.f, 1.f);
 
 	while(!glfwWindowShouldClose(window))
 	{

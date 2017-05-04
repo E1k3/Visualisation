@@ -62,11 +62,6 @@ namespace vis
 		return step;
 	}
 
-	Timestep::Timestep()
-	{
-
-	}
-
 	Timestep::Timestep(std::istream& instream)
 	{
 		using namespace std::literals::string_literals;
