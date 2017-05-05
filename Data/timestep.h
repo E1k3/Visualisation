@@ -36,7 +36,7 @@ namespace vis
 		void normaliseAll();
 
 		/**
-		 * @brief normalize Normalizes a scalar field relative to the bounds of a (different) field.
+		 * @brief normalize Normalizes a scalar field relative to the bounds of a  (different) field.
 		 * From [field.min, field.max] to [0.0, 1.0] <- relative to [boundsField.min, boundsField.max].
 		 * @param field The field that is being normalized.
 		 * @param boundsField The bounds of this field will be used to normalize.

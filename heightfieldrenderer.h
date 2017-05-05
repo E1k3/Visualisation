@@ -34,6 +34,7 @@ namespace vis
 			using std::swap;
 			swap(static_cast<Renderer&>(first), static_cast<Renderer&>(second));
 			swap(first._ensemble, second._ensemble);
+			swap(first._mvp_uniform, second._mvp_uniform);
 		}
 
 		void draw();

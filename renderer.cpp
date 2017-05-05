@@ -59,6 +59,33 @@ namespace vis
 		return id;
 	}
 
+	unsigned Renderer::genVao()
+	{
+		_vaos.push_back(0);
+		glGenVertexArrays(1, &_vaos.back());
+		return _vaos.back();
+	}
+
+	unsigned Renderer::genBuffer()
+	{
+		_buffers.push_back(0);
+		glGenBuffers(1, &_buffers.back());
+		return _buffers.back();
+	}
+
+	unsigned Renderer::genTexture()
+	{
+		_textures.push_back(0);
+		glGenTextures(1, &_textures.back());
+		return _textures.back();
+	}
+
+	unsigned Renderer::genProgram()
+	{
+		_programs.push_back(glCreateProgram());
+		return _programs.back();
+	}
+
 	std::vector<float> Renderer::genGrid(unsigned width, unsigned height)
 	{
 		auto grid = std::vector<float>(width * height * 2);
@@ -115,9 +142,10 @@ namespace vis
 
 	Renderer::~Renderer()
 	{
-		glDeleteVertexArrays(1, &_vao);
-		glDeleteBuffers(static_cast<int>(_buffers.size()), &_buffers[0]);
-		glDeleteTextures(static_cast<int>(_textures.size()), &_textures[0]);
-		glDeleteProgram(_program);
+		glDeleteVertexArrays(static_cast<int>(_vaos.size()), _vaos.data());
+		glDeleteBuffers(static_cast<int>(_buffers.size()), _buffers.data());
+		glDeleteTextures(static_cast<int>(_textures.size()), _textures.data());
+		for(auto prog : _programs)
+			glDeleteProgram(prog);
 	}
 }

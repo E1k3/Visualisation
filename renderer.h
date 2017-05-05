@@ -16,6 +16,14 @@ namespace vis
 		 */
 		static unsigned loadShader(std::string path, unsigned type);
 
+		unsigned genVao();
+
+		unsigned genBuffer();
+
+		unsigned genTexture();
+
+		unsigned genProgram();
+
 		static std::vector<float> genGrid(unsigned width, unsigned height);
 
 		static std::vector<unsigned> genGridIndices(unsigned width, unsigned height);
@@ -38,20 +46,21 @@ namespace vis
 		friend void swap(Renderer& first, Renderer& second) noexcept
 		{
 			using std::swap;
-			swap(first._vao, second._vao);
+			swap(first._vaos, second._vaos);
 			swap(first._buffers, second._buffers);
 			swap(first._textures, second._textures);
-			swap(first._program, second._program);
+			swap(first._programs, second._programs);
 		}
 
+	private:
 		/// GL ID of the vertex array object.
-		unsigned _vao{0};
+		std::vector<unsigned> _vaos;
 		/// GL IDs of vertex buffer objects.
 		std::vector<unsigned> _buffers;
 		/// GL IDs of textures.
 		std::vector<unsigned> _textures;
 		/// GL ID of the shader program.
-		unsigned _program{0};
+		std::vector<unsigned> _programs;
 	};
 }
 
