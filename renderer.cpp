@@ -118,11 +118,11 @@ namespace vis
 			{
 				unsigned i = y*width + x;
 				indices.push_back(i);
-				indices.push_back(i+1);
+				indices.push_back(i+width);
 				indices.push_back(i+width+1);
 				indices.push_back(i);
 				indices.push_back(i+width+1);
-				indices.push_back(i+width);
+				indices.push_back(i+1);
 			}
 		}
 		return indices;

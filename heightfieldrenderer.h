@@ -5,6 +5,8 @@
 #include <string>
 #include <chrono>
 
+#include <glm/glm.hpp>
+
 #include "renderer.h"
 #include "Data/ensemblemanager.h"
 
@@ -16,7 +18,7 @@ namespace vis
 		/// @brief HeightfieldRenderer Constructor.
 		explicit HeightfieldRenderer(EnsembleManager& ensemble);
 		/// @brief HeightfieldRenderer Default copy constructor.
-		explicit HeightfieldRenderer(HeightfieldRenderer& other) = default;
+		explicit HeightfieldRenderer(const HeightfieldRenderer& other) = default;
 		/// @brief HeightfieldRenderer Move constructor.
 		explicit HeightfieldRenderer(HeightfieldRenderer&& other) noexcept;
 		/// @brief operator = Copy assignment operator.
@@ -25,6 +27,8 @@ namespace vis
 		HeightfieldRenderer& operator=(HeightfieldRenderer&& other) noexcept;
 
 		virtual ~HeightfieldRenderer() = default;
+
+		void setMVP(glm::mat4 mvp);
 
 		/**
 		 * @brief swap Swaps state of two HeightfieldRenderers.

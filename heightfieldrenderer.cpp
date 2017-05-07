@@ -3,8 +3,6 @@
 #include "Data/timestep.h"
 
 #include <GL/glew.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <vector>
@@ -35,20 +33,18 @@ namespace vis
 		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
 
+		// Average (color)
+		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*step.scalarsPerField(),
+					 step.scalarFieldStart(field), GL_STATIC_DRAW);
+		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(2);
+
 		// Indices (element buffer)
 		auto indices = Renderer::genGridIndices(step.xSize(), step.ySize());
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, genBuffer());
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
 					 &indices[0], GL_STATIC_DRAW);
-
-		// Average (color)
-		glBindTexture(GL_TEXTURE_2D, genTexture());
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, static_cast<int>(step.xSize()), static_cast<int>(step.ySize()),
-					 0, GL_RED, GL_FLOAT, step.scalarFieldStart(field));
 
 		// Shaders
 		auto vertex_shader = Renderer::loadShader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_vs.glsl",
@@ -87,15 +83,13 @@ namespace vis
 		return *this;
 	}
 
+	void HeightfieldRenderer::setMVP(glm::mat4 mvp)
+	{
+		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, glm::value_ptr(mvp));
+	}
+
 	void HeightfieldRenderer::draw()
 	{
-		using glm::vec3;
-		using glm::mat4;
-		auto model = glm::scale(mat4{}, vec3{1.f, 1.f, 1.f});
-		auto view = glm::lookAt(vec3{1.8f}, vec3{0.f}, vec3{0.f, 0.f, 1.f});
-		auto proj = glm::perspective(glm::radians(45.0f), 16.f / 9.f, 1.0f, 10.0f);
-		auto mvp = proj * view * model;
-		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, glm::value_ptr(mvp));
 		glDrawElements(GL_TRIANGLES, static_cast<int>(_ensemble.currentStep().scalarsPerField()*6), GL_UNSIGNED_INT, 0);
 	}
 }

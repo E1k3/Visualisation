@@ -14,7 +14,6 @@ namespace vis
 	{		
 	public:
 		explicit EnsembleManager(fs::path path);
-		explicit EnsembleManager(std::string path);
 
 		/**
 		 * @brief processSingleStep Loads one timestep from all simulations,

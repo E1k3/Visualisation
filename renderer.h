@@ -34,7 +34,7 @@ namespace vis
 		/// @brief Renderer Default constructor.
 		explicit Renderer() = default;
 		/// @brief Renderer Default copy constructor.
-		//explicit Renderer(const Renderer& other) = default;
+		explicit Renderer(const Renderer& other) = default;
 		/// @brief Renderer Move constructor.
 		explicit Renderer(Renderer&& other) noexcept;
 		/// @brief operator= Copy assignment operator.

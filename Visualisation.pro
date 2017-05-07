@@ -14,14 +14,16 @@ SOURCES += main.cpp \
     logger.cpp \
     Data/ensemblemanager.cpp \
     heightfieldrenderer.cpp \
-    renderer.cpp
+    renderer.cpp \
+    application.cpp
 
 HEADERS += \
     Data/timestep.h \
     logger.h \
     Data/ensemblemanager.h \
     heightfieldrenderer.h \
-    renderer.h
+    renderer.h \
+    application.h
 
 DISTFILES += \
     Shader/heightfield_vs.glsl \

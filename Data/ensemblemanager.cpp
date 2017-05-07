@@ -14,6 +14,12 @@ namespace vis
 				|| (_numSims = countDirs(path)) == 0
 				|| std::adjacent_find(fs::directory_iterator{path}, fs::directory_iterator{}, comparator) != fs::directory_iterator{})
 		{
+			//DBG
+			Logger::instance() << Logger::Severity::DEBUG
+							   << "Ensemble root is not a directory or has the wrong filestructure. "
+							   << "Path: " << path
+							   << std::endl;
+
 			throw std::runtime_error("Ensemble Manager Error");
 			// TODO:ERROR handling. Path is not a directory, has no subdirectories or the subdirectories have a different number of files.
 		}
@@ -25,11 +31,6 @@ namespace vis
 		std::sort(_files.begin(), _files.end());
 		std::stable_sort(_files.begin(), _files.end(),
 						 [] (const fs::path& a, const fs::path& b) { return a.filename() < b.filename(); });
-	}
-
-	EnsembleManager::EnsembleManager(std::string path) : EnsembleManager{fs::path{path}}
-	{
-
 	}
 
 	void EnsembleManager::processSingleStep(unsigned index)
