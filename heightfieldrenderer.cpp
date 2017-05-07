@@ -31,7 +31,7 @@ namespace vis
 		// Variance (height)
 		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*step.scalarsPerField(),
-					 step.scalarFieldStart(field), GL_STATIC_DRAW);
+					 step.scalarFieldStart(field+6), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
 
@@ -91,7 +91,7 @@ namespace vis
 	{
 		using glm::vec3;
 		using glm::mat4;
-		auto model = glm::mat4{};
+		auto model = glm::scale(mat4{}, vec3{1.f, 1.f, 1.f});
 		auto view = glm::lookAt(vec3{1.8f}, vec3{0.f}, vec3{0.f, 0.f, 1.f});
 		auto proj = glm::perspective(glm::radians(45.0f), 16.f / 9.f, 1.0f, 10.0f);
 		auto mvp = proj * view * model;

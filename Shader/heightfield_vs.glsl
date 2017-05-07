@@ -10,5 +10,5 @@ uniform mat4 mvp;
 void main()
 {
 	gl_Position = mvp*vec4(pos, height*.2f, 1.f);
-	uv = 0.5f- pos/2.f;
+	uv = (pos+1.f)/2.f;
 }
