@@ -28,7 +28,7 @@ namespace vis
 
 		virtual ~HeightfieldRenderer() = default;
 
-		void setMVP(glm::mat4 mvp);
+		void setMVP(const glm::mat4& mvp) const;
 
 		/**
 		 * @brief swap Swaps state of two HeightfieldRenderers.

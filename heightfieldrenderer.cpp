@@ -83,7 +83,7 @@ namespace vis
 		return *this;
 	}
 
-	void HeightfieldRenderer::setMVP(glm::mat4 mvp)
+	void HeightfieldRenderer::setMVP(const glm::mat4& mvp) const
 	{
 		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, glm::value_ptr(mvp));
 	}

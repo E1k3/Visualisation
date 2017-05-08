@@ -12,5 +12,5 @@ vec3 palette(float x)
 
 void main(void)
 {
-	color = vec4(palette(col), 1.0f);
+        color = vec4(palette(col), 1.0f);
 }
