@@ -90,6 +90,7 @@ namespace vis
 
 	void HeightfieldRenderer::draw(float delta_time)
 	{
+		// Input handling
 		using namespace glm;
 		const float mousespeed = 0.02f;
 		_cam_direction = rotateZ(_cam_direction, radians(_input.get_cursor_offset_x() * mousespeed));
@@ -108,12 +109,14 @@ namespace vis
 		if(_input.get_key(GLFW_KEY_D))
 			_cam_position += normalize(cross(_cam_direction, vec3{0.f, 0.f, 1.f})) * delta_time;
 
+		// MVP calculation
 		auto model = rotate(mat4{1.f}, 0.f, vec3{0.f, 0.f, 1.f});
 		auto view = lookAt(_cam_position, _cam_position+_cam_direction, vec3{0.f, 0.f, 1.f});
 		auto proj = perspective(radians(45.f), 16.f / 9.f, .2f, 10.f);
 		auto mvp = proj * view * model;
-
 		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
+
+		// Draw
 		glDrawElements(GL_TRIANGLES, static_cast<int>(_ensemble.currentStep().scalarsPerField()*6), GL_UNSIGNED_INT, 0);
 	}
 }

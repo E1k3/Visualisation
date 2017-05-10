@@ -54,7 +54,7 @@ namespace vis
 
 		int _mvp_uniform;
 
-		glm::vec3 _cam_position{glm::vec3{1.8f}};
+		glm::vec3 _cam_position{glm::vec3{-1.8f, -1.8f, 1.8f}};
 		glm::vec3 _cam_direction{-_cam_position};
 	};
 }

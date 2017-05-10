@@ -60,7 +60,7 @@ namespace vis
 		glfwSetWindowUserPointer(&*_window, &input);
 		glfwSetFramebufferSizeCallback(&*_window, framebuffer_callback);
 
-		auto key_callback = [] (GLFWwindow* window, int keycode, int scancode, int action, int mods)
+		auto key_callback = [] (GLFWwindow* window, int keycode, int /*scancode*/, int action, int /*mods*/)
 		{
 			auto& input = *static_cast<InputManager*>(glfwGetWindowUserPointer(window));
 			if(action == GLFW_PRESS)
