@@ -53,13 +53,13 @@ namespace vis
 		}
 
 	private:
-		/// GL ID of the vertex array object.
+		/// GL IDs of the vertex array object.
 		std::vector<unsigned> _vaos;
 		/// GL IDs of vertex buffer objects.
 		std::vector<unsigned> _buffers;
 		/// GL IDs of textures.
 		std::vector<unsigned> _textures;
-		/// GL ID of the shader program.
+		/// GL IDs of the shader program.
 		std::vector<unsigned> _programs;
 	};
 }

@@ -9,6 +9,7 @@
 
 #include "renderer.h"
 #include "Data/ensemblemanager.h"
+#include "inputmanager.h"
 
 namespace vis
 {
@@ -16,7 +17,7 @@ namespace vis
 	{
 	public:
 		/// @brief HeightfieldRenderer Constructor.
-		explicit HeightfieldRenderer(EnsembleManager& ensemble);
+		explicit HeightfieldRenderer(EnsembleManager& ensemble, InputManager& input);
 		/// @brief HeightfieldRenderer Default copy constructor.
 		explicit HeightfieldRenderer(const HeightfieldRenderer& other) = default;
 		/// @brief HeightfieldRenderer Move constructor.
@@ -28,8 +29,6 @@ namespace vis
 
 		virtual ~HeightfieldRenderer() = default;
 
-		void setMVP(const glm::mat4& mvp) const;
-
 		/**
 		 * @brief swap Swaps state of two HeightfieldRenderers.
 		 */
@@ -37,16 +36,26 @@ namespace vis
 		{
 			using std::swap;
 			swap(static_cast<Renderer&>(first), static_cast<Renderer&>(second));
+
 			swap(first._ensemble, second._ensemble);
+			swap(first._input, second._input);
+
 			swap(first._mvp_uniform, second._mvp_uniform);
+
+			swap(first._cam_position, second._cam_position);
+			swap(first._cam_direction, second._cam_direction);
 		}
 
-		void draw();
+		void draw(float delta_time);
 
 	private:
 		EnsembleManager& _ensemble;
+		InputManager& _input;
 
 		int _mvp_uniform;
+
+		glm::vec3 _cam_position{glm::vec3{1.8f}};
+		glm::vec3 _cam_direction{-_cam_position};
 	};
 }
 

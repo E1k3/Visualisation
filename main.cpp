@@ -11,5 +11,5 @@ int main(int argc, char *argv[])
 
 	// Data root directory
 	auto app = Application{"/home/eike/CurrentStuff/bachelor/weatherdata"};
-	app.run();
+	app.execute();
 }

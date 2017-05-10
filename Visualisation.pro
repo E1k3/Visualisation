@@ -15,7 +15,8 @@ SOURCES += main.cpp \
     Data/ensemblemanager.cpp \
     heightfieldrenderer.cpp \
     renderer.cpp \
-    application.cpp
+    application.cpp \
+    inputmanager.cpp
 
 HEADERS += \
     Data/timestep.h \
@@ -23,7 +24,8 @@ HEADERS += \
     Data/ensemblemanager.h \
     heightfieldrenderer.h \
     renderer.h \
-    application.h
+    application.h \
+    inputmanager.h
 
 DISTFILES += \
     Shader/heightfield_vs.glsl \

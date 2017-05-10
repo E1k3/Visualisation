@@ -3,15 +3,20 @@
 #include "Data/timestep.h"
 
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 
 #include <vector>
 
 namespace vis
 {
-	HeightfieldRenderer::HeightfieldRenderer(EnsembleManager& ensemble)
+	HeightfieldRenderer::HeightfieldRenderer(EnsembleManager& ensemble, InputManager& input)
 		: Renderer(),
-		  _ensemble{ensemble}
+		  _ensemble{ensemble},
+		  _input{input}
 	{
 		glBindVertexArray(genVao());
 
@@ -66,7 +71,7 @@ namespace vis
 	}
 
 	HeightfieldRenderer::HeightfieldRenderer(HeightfieldRenderer&& other) noexcept
-		: HeightfieldRenderer(other._ensemble)
+		: HeightfieldRenderer(other._ensemble, other._input)
 	{
 		swap(*this, other);
 	}
@@ -83,13 +88,32 @@ namespace vis
 		return *this;
 	}
 
-	void HeightfieldRenderer::setMVP(const glm::mat4& mvp) const
+	void HeightfieldRenderer::draw(float delta_time)
 	{
-		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, glm::value_ptr(mvp));
-	}
+		using namespace glm;
+		const float mousespeed = 0.02f;
+		_cam_direction = rotateZ(_cam_direction, radians(_input.get_cursor_offset_x() * mousespeed));
 
-	void HeightfieldRenderer::draw()
-	{
+		auto y_offset = _input.get_cursor_offset_y();
+		if((_cam_direction.z > -0.99f || y_offset > 0.f) && (_cam_direction.z < 0.99f || y_offset < 0.f))
+			_cam_direction = rotate(_cam_direction, radians(y_offset * mousespeed), cross(_cam_direction, vec3{0.f, 0.f, 1.f}));
+		_cam_direction = normalize(_cam_direction);
+
+		if(_input.get_key(GLFW_KEY_W))
+			_cam_position += _cam_direction * delta_time;
+		if(_input.get_key(GLFW_KEY_A))
+			_cam_position += normalize(cross(_cam_direction, vec3{0.f, 0.f, 1.f})) * -delta_time;
+		if(_input.get_key(GLFW_KEY_S))
+			_cam_position += _cam_direction * -delta_time;
+		if(_input.get_key(GLFW_KEY_D))
+			_cam_position += normalize(cross(_cam_direction, vec3{0.f, 0.f, 1.f})) * delta_time;
+
+		auto model = rotate(mat4{1.f}, 0.f, vec3{0.f, 0.f, 1.f});
+		auto view = lookAt(_cam_position, _cam_position+_cam_direction, vec3{0.f, 0.f, 1.f});
+		auto proj = perspective(radians(45.f), 16.f / 9.f, .2f, 10.f);
+		auto mvp = proj * view * model;
+
+		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
 		glDrawElements(GL_TRIANGLES, static_cast<int>(_ensemble.currentStep().scalarsPerField()*6), GL_UNSIGNED_INT, 0);
 	}
 }

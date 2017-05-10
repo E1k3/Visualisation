@@ -2,13 +2,9 @@
 
 #include <experimental/filesystem>
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/rotate_vector.hpp>
-
 #include "logger.h"
 #include "heightfieldrenderer.h"
+#include "inputmanager.h"
 
 namespace vis
 {
@@ -38,12 +34,7 @@ namespace vis
 			// TODO:ERROR handling
 			throw std::runtime_error("GLFW window creation failed");
 		}
-
 		glfwMakeContextCurrent(&*_window);
-		glfwSetWindowUserPointer(&*_window, this);
-		glfwSetInputMode(&*_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		glfwSetFramebufferSizeCallback(&*_window, framebuffer_callback);
-		glfwSetKeyCallback(&*_window, key_callback);
 
 		// GLEW init
 		glewExperimental = GL_TRUE;
@@ -62,20 +53,37 @@ namespace vis
 		step.normaliseAll();
 	}
 
-	void Application::run()
+	void Application::execute()
 	{
-		HeightfieldRenderer renderer{_ensemble};
+		// Set up input manager
+		auto input = InputManager{};
+		glfwSetWindowUserPointer(&*_window, &input);
+		glfwSetFramebufferSizeCallback(&*_window, framebuffer_callback);
+
+		auto key_callback = [] (GLFWwindow* window, int keycode, int scancode, int action, int mods)
+		{
+			auto& input = *static_cast<InputManager*>(glfwGetWindowUserPointer(window));
+			if(action == GLFW_PRESS)
+				input.press_key(keycode);
+			if(action == GLFW_RELEASE)
+				input.release_key(keycode);
+		};
+		glfwSetKeyCallback(&*_window, key_callback);
+
+		glfwSetInputMode(&*_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		auto cursor_callback = [] (GLFWwindow* window, double x, double y)
+		{
+			auto& input = *static_cast<InputManager*>(glfwGetWindowUserPointer(window));
+			input.set_cursor(static_cast<float>(x), static_cast<float>(y));
+		};
+		glfwSetCursorPosCallback(&*_window, cursor_callback);
+
+		HeightfieldRenderer renderer{_ensemble, input};
 
 		glClearColor(1.f, 1.f, 1.f, 1.f);
 
 		auto time = glfwGetTime();
 		_delta = 0.0;
-
-		using glm::vec3;
-		using glm::mat4;
-
-		_cam_position = vec3{1.5f};
-		_cam_direction = -_cam_position;
 
 		glEnable(GL_DEPTH_TEST);
 
@@ -84,55 +92,11 @@ namespace vis
 			_delta = 2.f * static_cast<float>(glfwGetTime() - time);
 			time = glfwGetTime();
 
-
-			auto model = glm::scale(mat4{}, vec3{1.f, 1.f, 1.f});
-			model = glm::rotate(static_cast<float>(glfwGetTime()*0.2), vec3{0.f, 0.f, 1.f});
-			auto view = glm::lookAt(_cam_position, _cam_position+_cam_direction, vec3{0.f, 0.f, 1.f});
-			auto proj = glm::perspective(glm::radians(45.f), 16.f / 9.f, 1.f, 10.f);
-			auto mvp = proj * view * model;
-			renderer.setMVP(mvp);
-
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			renderer.draw();
+			renderer.draw(_delta);
 
 			glfwSwapBuffers(&*_window);
 			glfwPollEvents();
-		}
-	}
-
-	void Application::cursor_callback(GLFWwindow* window, double x, double y)
-	{
-		auto& app = *static_cast<Application*>(glfwGetWindowUserPointer(window));
-	}
-
-	void Application::key_callback(GLFWwindow* window, int key, int /*scancode*/, int action, int mods)
-	{
-		auto& app = *static_cast<Application*>(glfwGetWindowUserPointer(window));
-		switch(key)
-		{
-		case GLFW_KEY_UP:
-			//[[fallthrough]];
-		case GLFW_KEY_W:
-			app._cam_position += app._delta * glm::normalize(app._cam_direction);
-			break;
-
-		case GLFW_KEY_DOWN:
-			// [[fallthrough]]
-		case GLFW_KEY_S:
-			app._cam_position -= app._delta * glm::normalize(app._cam_direction);
-			break;
-
-		case GLFW_KEY_LEFT:
-			// [[fallthrough]]
-		case GLFW_KEY_A:
-			app._cam_position += app._delta * glm::cross(glm::normalize(app._cam_direction), glm::vec3{0.f, 0.f, -1.f});
-			break;
-
-		case GLFW_KEY_RIGHT:
-			// [[fallthrough]]
-		case GLFW_KEY_D:
-			app._cam_position -= app._delta * glm::cross(glm::normalize(app._cam_direction), glm::vec3{0.f, 0.f, -1.f});
-			break;
 		}
 	}
 
