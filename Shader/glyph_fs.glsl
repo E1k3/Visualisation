@@ -14,11 +14,9 @@ vec3 palette(float x)
 
 void main(void)
 {
-	vec2 pos = position + vec2(0.5f/96.f);
-
 	color = vec4(palette(data.y), 1.f);
-	if(distance(pos, flatpos) < .25f/96.f)
-		color = vec4(palette(1.f-data.y), 1.f);
-	if(distance(pos, flatpos) < .125f/96.f)
+	if(distance(position, flatpos) < .75f/96.f)
+		color = vec4(vec3(1.f)-palette(data.y), 1.f);
+	if(distance(position, flatpos) < .5f/96.f)
 		color = vec4(palette(data.x), 1.f);
 }
