@@ -36,6 +36,11 @@ namespace vis
 		}
 		glfwMakeContextCurrent(&*_window);
 
+		//DBG
+		Logger::instance() << Logger::Severity::DEBUG
+						   << "GLFW initialised."
+						   << std::endl;
+
 		// GLEW init
 		glewExperimental = GL_TRUE;
 		GLenum status = glewInit();
@@ -46,6 +51,11 @@ namespace vis
 			// TODO:ERROR handling
 			throw std::runtime_error("GLEW init failed");
 		}
+
+		//DBG
+		Logger::instance() << Logger::Severity::DEBUG
+						   << "GLEW initialised."
+						   << std::endl;
 
 		// Load data
 		_ensemble.processSingleStep(256);
@@ -78,7 +88,7 @@ namespace vis
 		};
 		glfwSetCursorPosCallback(&*_window, cursor_callback);
 
-		HeightfieldRenderer renderer{_ensemble, input};
+		HeightfieldRenderer renderer{&_ensemble, &input};
 
 		glClearColor(1.f, 1.f, 1.f, 1.f);
 

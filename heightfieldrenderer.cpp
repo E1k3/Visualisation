@@ -13,14 +13,14 @@
 
 namespace vis
 {
-	HeightfieldRenderer::HeightfieldRenderer(EnsembleManager& ensemble, InputManager& input)
-		: Renderer(),
+	HeightfieldRenderer::HeightfieldRenderer(EnsembleManager* ensemble, InputManager* input)
+		: Renderer{},
 		  _ensemble{ensemble},
 		  _input{input}
 	{
 		glBindVertexArray(genVao());
 
-		const Timestep& step = ensemble.currentStep();
+		const auto& step = ensemble->currentStep();
 		const unsigned field = 2;
 
 		// Grid (position)
@@ -71,7 +71,7 @@ namespace vis
 	}
 
 	HeightfieldRenderer::HeightfieldRenderer(HeightfieldRenderer&& other) noexcept
-		: HeightfieldRenderer(other._ensemble, other._input)
+		: HeightfieldRenderer{other._ensemble, other._input}
 	{
 		swap(*this, other);
 	}
@@ -93,20 +93,20 @@ namespace vis
 		// Input handling
 		using namespace glm;
 		const float mousespeed = 0.02f;
-		_cam_direction = rotateZ(_cam_direction, radians(_input.get_cursor_offset_x() * mousespeed));
+		_cam_direction = rotateZ(_cam_direction, radians(_input->get_cursor_offset_x() * mousespeed));
 
-		auto y_offset = _input.get_cursor_offset_y();
+		auto y_offset = _input->get_cursor_offset_y();
 		if((_cam_direction.z > -0.99f || y_offset > 0.f) && (_cam_direction.z < 0.99f || y_offset < 0.f))
 			_cam_direction = rotate(_cam_direction, radians(y_offset * mousespeed), cross(_cam_direction, vec3{0.f, 0.f, 1.f}));
 		_cam_direction = normalize(_cam_direction);
 
-		if(_input.get_key(GLFW_KEY_W))
+		if(_input->get_key(GLFW_KEY_W))
 			_cam_position += _cam_direction * delta_time;
-		if(_input.get_key(GLFW_KEY_A))
+		if(_input->get_key(GLFW_KEY_A))
 			_cam_position += normalize(cross(_cam_direction, vec3{0.f, 0.f, 1.f})) * -delta_time;
-		if(_input.get_key(GLFW_KEY_S))
+		if(_input->get_key(GLFW_KEY_S))
 			_cam_position += _cam_direction * -delta_time;
-		if(_input.get_key(GLFW_KEY_D))
+		if(_input->get_key(GLFW_KEY_D))
 			_cam_position += normalize(cross(_cam_direction, vec3{0.f, 0.f, 1.f})) * delta_time;
 
 		// MVP calculation
@@ -117,6 +117,6 @@ namespace vis
 		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
 
 		// Draw
-		glDrawElements(GL_TRIANGLES, static_cast<int>(_ensemble.currentStep().scalarsPerField()*6), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, static_cast<int>(_ensemble->currentStep().scalarsPerField()*6), GL_UNSIGNED_INT, 0);
 	}
 }

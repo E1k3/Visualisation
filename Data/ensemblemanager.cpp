@@ -53,9 +53,9 @@ namespace vis
 		{
 			//DBG
 			Logger::instance() << Logger::Severity::DEBUG
-							   << "i: " << i
-							   << " sim: " << i/_numSims
-							   << " file: " << _files.at(i) << std::endl;
+							   << "Loading file. Index: " << i
+							   << " Simulation: " << i/_numSims
+							   << " Path: " << _files.at(i) << std::endl;
 
 			auto ifs = std::ifstream{_files[i]};
 			buffer.push_back(Timestep{ifs});

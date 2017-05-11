@@ -17,7 +17,7 @@ namespace vis
 	{
 	public:
 		/// @brief HeightfieldRenderer Constructor.
-		explicit HeightfieldRenderer(EnsembleManager& ensemble, InputManager& input);
+		explicit HeightfieldRenderer(EnsembleManager* ensemble, InputManager* input);
 		/// @brief HeightfieldRenderer Default copy constructor.
 		explicit HeightfieldRenderer(const HeightfieldRenderer& other) = default;
 		/// @brief HeightfieldRenderer Move constructor.
@@ -49,8 +49,8 @@ namespace vis
 		void draw(float delta_time);
 
 	private:
-		EnsembleManager& _ensemble;
-		InputManager& _input;
+		EnsembleManager* _ensemble;
+		InputManager* _input;
 
 		int _mvp_uniform;
 
