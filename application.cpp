@@ -3,6 +3,7 @@
 #include <experimental/filesystem>
 
 #include "logger.h"
+#include "glyphrenderer.h"
 #include "heightfieldrenderer.h"
 #include "inputmanager.h"
 
@@ -88,14 +89,15 @@ namespace vis
 		};
 		glfwSetCursorPosCallback(&*_window, cursor_callback);
 
-		HeightfieldRenderer renderer{&_ensemble, &input};
+		GlyphRenderer renderer{&_ensemble, &input};
 
-		glClearColor(1.f, 1.f, 1.f, 1.f);
+		glClearColor(.2f, .2f, .2f, 1.f);
 
 		auto time = glfwGetTime();
 		_delta = 0.0;
 
 		glEnable(GL_DEPTH_TEST);
+//		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		while(!glfwWindowShouldClose(&*_window))
 		{

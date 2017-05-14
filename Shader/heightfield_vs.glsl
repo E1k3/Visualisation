@@ -10,6 +10,6 @@ uniform mat4 mvp;
 
 void main()
 {
-        gl_Position = mvp*vec4(pos, height*.5f, 1.f);
+	gl_Position = mvp*vec4(pos, height*.5f, 1.f);
 	col = color;
 }

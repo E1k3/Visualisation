@@ -4,9 +4,9 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
 #include <vector>
@@ -24,7 +24,7 @@ namespace vis
 		const unsigned field = 2;
 
 		// Grid (position)
-		auto grid = Renderer::genGrid(step.xSize(), step.ySize());
+		auto grid = genGrid(step.xSize(), step.ySize());
 		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
 		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
@@ -46,16 +46,16 @@ namespace vis
 		glEnableVertexAttribArray(2);
 
 		// Indices (element buffer)
-		auto indices = Renderer::genGridIndices(step.xSize(), step.ySize());
+		auto indices = genGridIndices(step.xSize(), step.ySize());
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, genBuffer());
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
 					 &indices[0], GL_STATIC_DRAW);
 
 		// Shaders
-		auto vertex_shader = Renderer::loadShader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_vs.glsl",
-												  GL_VERTEX_SHADER);
-		auto fragment_shader = Renderer::loadShader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_fs.glsl",
-													GL_FRAGMENT_SHADER);
+		auto vertex_shader = loadShader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_vs.glsl",
+										GL_VERTEX_SHADER);
+		auto fragment_shader = loadShader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_fs.glsl",
+										  GL_FRAGMENT_SHADER);
 		auto prog = genProgram();
 		glAttachShader(prog, vertex_shader);
 		glAttachShader(prog, fragment_shader);
@@ -110,7 +110,7 @@ namespace vis
 			_cam_position += normalize(cross(_cam_direction, vec3{0.f, 0.f, 1.f})) * delta_time;
 
 		// MVP calculation
-		auto model = rotate(mat4{1.f}, 0.f, vec3{0.f, 0.f, 1.f});
+		auto model = scale(mat4{1.f}, vec3{192.f/96.f, 1.f, 1.f});
 		auto view = lookAt(_cam_position, _cam_position+_cam_direction, vec3{0.f, 0.f, 1.f});
 		auto proj = perspective(radians(45.f), 16.f / 9.f, .2f, 10.f);
 		auto mvp = proj * view * model;
