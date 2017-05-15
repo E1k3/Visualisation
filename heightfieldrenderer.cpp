@@ -21,7 +21,7 @@ namespace vis
 		glBindVertexArray(genVao());
 
 		const auto& step = ensemble->currentStep();
-		const unsigned field = 2;
+		const unsigned field = 0;
 
 		// Grid (position)
 		auto grid = genGrid(step.xSize(), step.ySize());
@@ -34,14 +34,14 @@ namespace vis
 		// Variance (height)
 		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*step.scalarsPerField(),
-					 step.scalarFieldStart(field+6), GL_STATIC_DRAW);
+					 step.scalarFieldStart(field), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
 
 		// Average (color)
 		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*step.scalarsPerField(),
-					 step.scalarFieldStart(field), GL_STATIC_DRAW);
+					 step.scalarFieldStart(field+6), GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(2);
 

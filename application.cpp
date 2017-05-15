@@ -59,7 +59,7 @@ namespace vis
 						   << std::endl;
 
 		// Load data
-		_ensemble.processSingleStep(256);
+		_ensemble.processSingleStep(10);
 		auto& step = _ensemble.currentStep();
 		step.normaliseAll();
 	}
@@ -89,7 +89,7 @@ namespace vis
 		};
 		glfwSetCursorPosCallback(&*_window, cursor_callback);
 
-		GlyphRenderer renderer{&_ensemble, &input};
+		HeightfieldRenderer renderer{&_ensemble, &input};
 
 		glClearColor(.2f, .2f, .2f, 1.f);
 

@@ -22,16 +22,19 @@ void main(void)
 	vec2 texcoords = floor(uv*vec2(192, 96))/vec2(192, 96);
 	vec2 mid = texcoords + vec2(.5f/192, .5f/96);
 	float normdist = length((mid - uv) * vec2(192, 96));
+
+	float avg_ = texture(avg, texcoords).r;
+	float var_ = texture(var, texcoords).r;
 	if(normdist < r_inner)
 	{
-		color = vec4(palette(texture(avg, texcoords).r), 1.f);
+		color = vec4(palette(avg_)+palette(var_), 1.f);
 	}
 	else if(normdist < r_outer)
 	{
-		color = vec4(palette(texture(var, texcoords).r), 1.f);
+		color = vec4(palette(avg_), 1.f);
 	}
 	else
 	{
-		color = vec4(1.f - palette(texture(var, texcoords).r), 1.f);
+		color = vec4(palette(avg_)-palette(var_), 1.f);
 	}
 }
