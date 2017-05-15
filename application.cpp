@@ -89,7 +89,7 @@ namespace vis
 		};
 		glfwSetCursorPosCallback(&*_window, cursor_callback);
 
-		HeightfieldRenderer renderer{&_ensemble, &input};
+		GlyphRenderer renderer{&_ensemble, &input};
 
 		glClearColor(.2f, .2f, .2f, 1.f);
 

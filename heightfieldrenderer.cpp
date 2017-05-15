@@ -21,7 +21,7 @@ namespace vis
 		glBindVertexArray(genVao());
 
 		const auto& step = ensemble->currentStep();
-		const unsigned field = 0;
+		const unsigned field = 2;
 
 		// Grid (position)
 		auto grid = genGrid(step.xSize(), step.ySize());

@@ -1,5 +1,7 @@
 #include "glyphrenderer.h"
 
+#include <iostream>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -19,38 +21,45 @@ namespace vis
 		const unsigned field = 2;
 
 		// Grid (position)
-		auto grid = genGrid(step.xSize()+1, step.ySize()+1);
+		auto grid = genGrid(step.xSize(), step.ySize());
 		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
 		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
 
-		// Average (color)
+		// Variance (circle and background)
+		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*step.scalarsPerField(),
+					 step.scalarFieldStart(field), GL_STATIC_DRAW);
+		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(1);
+
+		// Average (ring)
+		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*step.scalarsPerField(),
+					 step.scalarFieldStart(field+6), GL_STATIC_DRAW);
+		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(2);
+
+		// Indices (element buffer)
+		auto indices = genGridIndices(step.xSize(), step.ySize());
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, genBuffer());
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
+					 &indices[0], GL_STATIC_DRAW);
+
+		// Mask (glyph)
+		const unsigned width = 500;
+		const unsigned height = 500;
+		auto mask = genMask(width, height);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, genTexture());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, static_cast<int>(step.xSize()), static_cast<int>(step.ySize()),
-					 0, GL_RED, GL_FLOAT, step.scalarFieldStart(field));
-
-		// Variance (height)
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, genTexture());
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, static_cast<int>(step.xSize()), static_cast<int>(step.ySize()),
-					 0, GL_RED, GL_FLOAT, step.scalarFieldStart(field+6));
-
-		// Indices (element buffer)
-		auto indices = genGridIndices(step.xSize()+1, step.ySize()+1);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, genBuffer());
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
-					 &indices[0], GL_STATIC_DRAW);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, static_cast<int>(width), static_cast<int>(height),
+					 0, GL_RGB, GL_FLOAT, mask.data());
 
 		// Shaders
 		auto vertex_shader = loadShader("/home/eike/Documents/Code/Visualisation/Shader/glyph_vs.glsl",
@@ -71,8 +80,9 @@ namespace vis
 		glUseProgram(prog);
 
 		_mvp_uniform = glGetUniformLocation(prog, "mvp");
-		glUniform1i(glGetUniformLocation(prog, "avg"), 0);
-		glUniform1i(glGetUniformLocation(prog, "var"), 1);
+		glUniform1i(glGetUniformLocation(prog, "mask"), 0);
+		auto size = glm::uvec2{step.xSize(), step.ySize()};
+		glUniform2uiv(glGetUniformLocation(prog, "size"), 1, glm::value_ptr(size));
 	}
 
 	GlyphRenderer::GlyphRenderer(GlyphRenderer&& other) noexcept
@@ -115,8 +125,39 @@ namespace vis
 		auto mvp = proj * view * model;
 		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
 
-		unsigned x = _ensemble->currentStep().xSize() + 1;
-		unsigned y = _ensemble->currentStep().ySize() + 1;
+		unsigned x = _ensemble->currentStep().xSize() ;
+		unsigned y = _ensemble->currentStep().ySize() ;
 		glDrawElements(GL_TRIANGLES, static_cast<int>(x*y*6), GL_UNSIGNED_INT, 0);
+	}
+
+	std::vector<float> GlyphRenderer::genMask(unsigned width, unsigned height) const
+	{
+		auto mask = std::vector<float>(width * height * 3);
+
+		using namespace glm;
+		const float r_outer = sqrt(2.f / (3.f * pi<float>()));
+		const float r_inner = sqrt(r_outer * r_outer / 2.f);
+
+		for(unsigned y = 0; y < height; ++y)
+		{
+			for(unsigned x = 0; x < width; ++x)
+			{
+				unsigned i = (y*width + x) * 3;
+				float dist = distance(vec2(x, y)/vec2(width, height), vec2(.5f, .5f));
+				if(dist < r_inner)
+				{
+					mask[i] = 1.f;
+				}
+				else if(dist < r_outer)
+				{
+					mask[i+1] = 1.f;
+				}
+				else
+				{
+					mask[i+2] = 1.f;
+				}
+			}
+		}
+		return mask;
 	}
 }

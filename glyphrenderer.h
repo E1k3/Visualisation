@@ -1,6 +1,8 @@
 #ifndef GLYPHRENDERER_H
 #define GLYPHRENDERER_H
 
+#include <vector>
+
 #include "renderer.h"
 #include "Data/ensemblemanager.h"
 #include "inputmanager.h"
@@ -32,6 +34,8 @@ namespace vis
 		void draw(float delta_time);
 
 	private:
+		std::vector<float> genMask(unsigned width, unsigned height) const;
+
 		EnsembleManager* _ensemble;
 		InputManager* _input;
 
