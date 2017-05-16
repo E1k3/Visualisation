@@ -15,11 +15,16 @@ vec3 palette(float x)
 	return vec3(sqrt(x), pow(x,3.f), clamp(sin(2.f * pi * x), 0.f, 1.f));
 }
 
+vec3 palette2(float x)
+{
+	return vec3(x, x, x);
+}
+
 void main(void)
 {
 	vec2 fsize = vec2(size.x, size.y);
 	vec2 origin = floor(uv*size)/size;
 	vec2 texpos = (uv-origin)*size;
-	vec3 m = texture(mask, texpos).rgb;
-	color = vec4(m.x*(data.y + data.x) + m.y*data.y + m.z*(data.y - data.x), 0.f, 0.f, 1.f);
+	vec3 mask = texture(mask, texpos).rgb;
+	color = vec4(palette(mask.x*(data.x + data.y) + mask.y*data.x + mask.z*(data.x - data.y)), 1.f);
 }

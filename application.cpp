@@ -61,7 +61,8 @@ namespace vis
 		// Load data
 		_ensemble.processSingleStep(10);
 		auto& step = _ensemble.currentStep();
-		step.normaliseAll();
+		step.normalise(8, 8);
+		step.normalise(2, 2);
 	}
 
 	void Application::execute()

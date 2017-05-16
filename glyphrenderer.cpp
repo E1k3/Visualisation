@@ -31,14 +31,14 @@ namespace vis
 		// Variance (circle and background)
 		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*step.scalarsPerField(),
-					 step.scalarFieldStart(field), GL_STATIC_DRAW);
+					 step.scalarFieldStart(field+6), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
 
 		// Average (ring)
 		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*step.scalarsPerField(),
-					 step.scalarFieldStart(field+6), GL_STATIC_DRAW);
+					 step.scalarFieldStart(field), GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(2);
 
@@ -58,7 +58,7 @@ namespace vis
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, static_cast<int>(width), static_cast<int>(height),
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, static_cast<int>(width), static_cast<int>(height),
 					 0, GL_RGB, GL_FLOAT, mask.data());
 
 		// Shaders
@@ -81,7 +81,7 @@ namespace vis
 
 		_mvp_uniform = glGetUniformLocation(prog, "mvp");
 		glUniform1i(glGetUniformLocation(prog, "mask"), 0);
-		auto size = glm::uvec2{step.xSize(), step.ySize()};
+		auto size = glm::uvec2{step.xSize()-1, step.ySize()-1};
 		glUniform2uiv(glGetUniformLocation(prog, "size"), 1, glm::value_ptr(size));
 	}
 
@@ -121,7 +121,7 @@ namespace vis
 		// MVP calculation
 		auto model = scale(mat4{1.f}, vec3{192.f/96.f, 1.f, 1.f});
 		auto view = lookAt(_cam_position, _cam_position + vec3{0.f, 0.01f, -1.f}, vec3{0.f, 0.f, 1.f});
-		auto proj = perspective(radians(45.f), 16.f / 9.f, .05f, 10.f);
+		auto proj = perspective(radians(45.f), 16.f / 9.f, .05f, 20.f);
 		auto mvp = proj * view * model;
 		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
 

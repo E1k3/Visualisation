@@ -13,5 +13,5 @@ void main()
 {
 	gl_Position = mvp*vec4(pos, 0.f, 1.f);
 	uv = pos*.5f + .5f;
-	data = vec2(var, avg);
+	data = vec2(avg, var);
 }
