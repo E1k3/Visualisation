@@ -49,8 +49,8 @@ namespace vis
 					 &indices[0], GL_STATIC_DRAW);
 
 		// Mask (glyph)
-		const unsigned width = 500;
-		const unsigned height = 500;
+		const unsigned width = 50;
+		const unsigned height = 50;
 		auto mask = genMask(width, height);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, genTexture());
