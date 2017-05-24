@@ -17,7 +17,7 @@ vec3 palette(float x)
 void main(void)
 {
 	vec2 origin = floor(uv*size)/size;
-	vec2 texpos = (uv-origin)*size;
+	vec2 texpos = (uv-origin)*size;	// TODO:change texcoord calculation!
 	vec3 mask = texture(mask, texpos).rgb;
 	color = vec4(palette(mask.r*(data.x + data.y) + mask.g*data.x + mask.b*(data.x - data.y)), 1.f);
 }
