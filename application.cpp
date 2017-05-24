@@ -57,16 +57,14 @@ namespace vis
 		Logger::instance() << Logger::Severity::DEBUG
 						   << "GLEW initialised."
 						   << std::endl;
-
-		// Load data
-		_ensemble.processSingleStep(10);
-		auto& step = _ensemble.currentStep();
-		step.normalise(8, 8);
-		step.normalise(2, 2);
 	}
 
 	void Application::execute()
 	{
+		// Load data
+		_ensemble.processSingleStep(10);
+		auto& step = _ensemble.currentStep();
+
 		// Set up input manager
 		auto input = InputManager{};
 		glfwSetWindowUserPointer(&*_window, &input);

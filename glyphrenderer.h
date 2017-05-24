@@ -39,7 +39,9 @@ namespace vis
 		EnsembleManager* _ensemble;
 		InputManager* _input;
 
+		unsigned _num_vertices;
 		int _mvp_uniform;
+		int _bounds_uniform;
 		glm::vec3 _cam_position{glm::vec3{0.f, 0.f, 1.8f}};
 	};
 }

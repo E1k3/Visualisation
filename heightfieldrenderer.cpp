@@ -1,6 +1,7 @@
 #include "heightfieldrenderer.h"
 
 #include "Data/timestep.h"
+#include "logger.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -20,36 +21,45 @@ namespace vis
 	{
 		glBindVertexArray(genVao());
 
-		const auto& step = ensemble->currentStep();
 		const unsigned field = 2;
+		const auto& avg_field = ensemble->currentStep().fields().at(field);
+		const auto& var_field = ensemble->currentStep().fields().at(field+6);
+		if(!avg_field.same_dimensions(var_field))
+		{
+			Logger::instance() << Logger::Severity::ERROR
+							   << "The average and variance fields have differing sizes." << std::endl;
+			throw std::runtime_error("Heightfield rendering error.");
+			//TODO:ERROR handling. avg and var field have differing size.
+		}
 
 		// Grid (position)
-		auto grid = genGrid(step.xSize(), step.ySize());
+		auto grid = genGrid(avg_field._width, avg_field._height);
 		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
 		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
 
-		// Variance (height)
+		// Average (color)
 		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*step.scalarsPerField(),
-					 step.scalarFieldStart(field), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*avg_field.num_scalars(),
+					 avg_field._data.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
 
-		// Average (color)
+		// Variance (height)
 		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*step.scalarsPerField(),
-					 step.scalarFieldStart(field+6), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*var_field.num_scalars(),
+					 var_field._data.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(2);
 
 		// Indices (element buffer)
-		auto indices = genGridIndices(step.xSize(), step.ySize());
+		auto indices = genGridIndices(avg_field._width, avg_field._height);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, genBuffer());
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
 					 &indices[0], GL_STATIC_DRAW);
+		_num_vertices = avg_field.num_scalars()*6;
 
 		// Shaders
 		auto vertex_shader = loadShader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_vs.glsl",
@@ -68,6 +78,8 @@ namespace vis
 
 		glUseProgram(prog);
 		_mvp_uniform = glGetUniformLocation(prog, "mvp");
+		_bounds_uniform = glGetUniformLocation(prog, "bounds");
+		glUniform4f(_bounds_uniform, avg_field._minimum, avg_field._maximum, var_field._minimum, var_field._maximum); // TODO:Save bounds as renderer state to scale data live.
 	}
 
 	HeightfieldRenderer::HeightfieldRenderer(HeightfieldRenderer&& other) noexcept
@@ -117,6 +129,6 @@ namespace vis
 		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
 
 		// Draw
-		glDrawElements(GL_TRIANGLES, static_cast<int>(_ensemble->currentStep().scalarsPerField()*6), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, static_cast<int>(_num_vertices), GL_UNSIGNED_INT, 0);
 	}
 }

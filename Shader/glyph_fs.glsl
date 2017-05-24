@@ -6,7 +6,6 @@ flat in vec2 data;
 out vec4 color;
 
 uniform uvec2 size;
-
 uniform sampler2D mask;
 
 const float pi = 3.141592653589793238462643383279502884197169399375105820974f;
