@@ -88,6 +88,12 @@ namespace vis
 			input.set_cursor(static_cast<float>(x), static_cast<float>(y));
 		};
 		glfwSetCursorPosCallback(&*_window, cursor_callback);
+		auto scroll_callback = [] (GLFWwindow* window, double x, double y)
+		{
+			auto& input = *static_cast<InputManager*>(glfwGetWindowUserPointer(window));
+			input.add_scroll_offset(static_cast<float>(x), static_cast<float>(y));
+		};
+		glfwSetScrollCallback(&*_window, scroll_callback);
 
 		GlyphRenderer renderer{&_ensemble, &input};
 

@@ -1,5 +1,6 @@
 #include "inputmanager.h"
 
+#include <iostream>
 namespace vis
 {
 	void InputManager::press_key(int keycode)
@@ -52,22 +53,53 @@ namespace vis
 
 	glm::vec2 InputManager::get_cursor_offset()
 	{
-		glm::vec2 offset = _cursor_offset;
+		auto offset = _cursor_offset;
 		_cursor_offset = glm::vec2{};
 		return offset;
 	}
 
 	float InputManager::get_cursor_offset_x()
 	{
-		float x_offset = _cursor_offset.x;
+		auto x_offset = _cursor_offset.x;
 		_cursor_offset.x = 0.f;
 		return x_offset;
 	}
 
 	float InputManager::get_cursor_offset_y()
 	{
-		float y_offset = _cursor_offset.y;
+		auto y_offset = _cursor_offset.y;
 		_cursor_offset.y = 0.f;
 		return y_offset;
+	}
+
+	void InputManager::add_scroll_offset(int x_offset, int y_offset)
+	{
+		_scroll_offset += glm::ivec2(x_offset, y_offset);
+	}
+
+	void InputManager::add_scroll_offset(glm::ivec2 offset)
+	{
+		_scroll_offset += offset;
+	}
+
+	int InputManager::get_scroll_offset_x()
+	{
+		auto x_offset = _scroll_offset.x;
+		_scroll_offset.x = 0;
+		return x_offset;
+	}
+
+	int InputManager::get_scroll_offset_y()
+	{
+		auto y_offset = _scroll_offset.y;
+		_scroll_offset.y = 0;
+		return y_offset;
+	}
+
+	glm::ivec2 InputManager::get_scroll_offset()
+	{
+		auto offset = _scroll_offset;
+		_scroll_offset = glm::ivec2{};
+		return offset;
 	}
 }

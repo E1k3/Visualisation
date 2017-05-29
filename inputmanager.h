@@ -75,12 +75,43 @@ namespace vis
 		 */
 		float get_cursor_offset_y();
 
-	private:
-		std::map<int, bool> _pressed{};
-		std::map<int, bool> _released{};
+		/**
+		 * @brief add_scroll_offset Adds the offset to the stored value.
+		 * The value is stored until it is requested.
+		 * @param x_offset The occuring offset in x direction.
+		 * @param y_offset The occuring offset in y direction.
+		 */
+		void add_scroll_offset(int x_offset, int y_offset);
+		/**
+		 * @brief add_scroll_offset Adds the offset to the stored value.
+		 * The value is stored until it is requested.
+		 * @param offset The occuring offset.
+		 */
+		void add_scroll_offset(glm::ivec2 offset);
+		/**
+		 * @brief get_scroll_offset_x Returns the total scroll offset in x direction since the last request and resets the stored x value.
+		 * @return The x offset.
+		 */
+		int get_scroll_offset_x();
+		/**
+		 * @brief get_scroll_offset_y Returns the total scroll offset in x direction since the last request and resets the stored y value.
+		 * @return The y offset.
+		 */
+		int get_scroll_offset_y();
+		/**
+		 * @brief get_scroll_offset Returns the total scroll offset since the last request and resets the stored value.
+		 * @return The scroll offset.
+		 */
+		glm::ivec2 get_scroll_offset();
 
-		glm::vec2 _cursor_pos{};
-		glm::vec2 _cursor_offset{};
+	private:
+		std::map<int, bool> _pressed;
+		std::map<int, bool> _released;
+
+		glm::vec2 _cursor_pos;
+		glm::vec2 _cursor_offset;
+
+		glm::ivec2 _scroll_offset;
 	};
 }
 

@@ -117,28 +117,27 @@ namespace vis
 		return *this;
 	}
 
-	void GlyphRenderer::draw(float delta_time)
+	void GlyphRenderer::draw(float /*delta_time*/)
 	{
 		// Input handling
 		using namespace glm;
-		const float mousespeed = 0.002f;
+		const float mousespeed = 0.001f;
+		const float scrollspeed = -0.1f;
 
-		auto offset = _input->get_cursor_offset();
-		offset.x = -offset.x;
-		_cam_position += vec3(offset * mousespeed, 0.f);
-		if(_input->get_key(GLFW_KEY_W))
-			_cam_position += vec3(0.f, 0.f, -1.f) * delta_time;
-		if(_input->get_key(GLFW_KEY_S))
-			_cam_position += vec3(0.f, 0.f, 1.f) * delta_time;
-
+		auto trans_offset = _input->get_cursor_offset();
+		trans_offset.x = -trans_offset.x;
+		_translate += vec3(trans_offset * mousespeed * 1.f/_scale, 0.f);
+		auto scale_offset = _input->get_scroll_offset_y();
+		_scale *= 1.f + scale_offset*scrollspeed;
 
 		// MVP calculation
-		auto model = scale(mat4{1.f}, vec3{192.f/96.f, 1.f, 1.f});
-		auto view = lookAt(_cam_position, _cam_position + vec3{0.f, 0.01f, -1.f}, vec3{0.f, 0.f, 1.f});
-		auto proj = perspective(radians(45.f), 16.f / 9.f, .05f, 20.f);
+		auto model = mat4{1.f};
+		auto view = glm::scale(glm::mat4{1.f}, vec3{_scale, _scale, 1.f}) * glm::translate(glm::mat4{1.f}, _translate);
+		auto proj = mat4{1.f};
 		auto mvp = proj * view * model;
 		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
 
+		// Draw
 		glDrawElements(GL_TRIANGLES, static_cast<int>(_num_vertices), GL_UNSIGNED_INT, 0);
 	}
 
