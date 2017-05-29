@@ -13,21 +13,21 @@ SOURCES += main.cpp \
     Data/timestep.cpp \
     logger.cpp \
     Data/ensemblemanager.cpp \
-    heightfieldrenderer.cpp \
-    renderer.cpp \
+    Renderer/heightfieldrenderer.cpp \
+    Renderer/renderer.cpp \
     application.cpp \
     inputmanager.cpp \
-    glyphrenderer.cpp
+    Renderer/glyphrenderer.cpp
 
 HEADERS += \
     Data/timestep.h \
     logger.h \
     Data/ensemblemanager.h \
-    heightfieldrenderer.h \
-    renderer.h \
+    Renderer/heightfieldrenderer.h \
+    Renderer/renderer.h \
     application.h \
     inputmanager.h \
-    glyphrenderer.h
+    Renderer/glyphrenderer.h
 
 DISTFILES += \
     Shader/heightfield_vs.glsl \

@@ -3,8 +3,8 @@
 #include <experimental/filesystem>
 
 #include "logger.h"
-#include "glyphrenderer.h"
-#include "heightfieldrenderer.h"
+#include "Renderer/glyphrenderer.h"
+#include "Renderer/heightfieldrenderer.h"
 #include "inputmanager.h"
 
 namespace vis
