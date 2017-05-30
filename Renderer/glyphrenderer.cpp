@@ -21,13 +21,13 @@ namespace vis
 
 		const unsigned field = 2;
 		const auto& avg_field = ensemble->currentStep().fields().at(field);
-		const auto& var_field = ensemble->currentStep().fields().at(field+6);
-		if(!avg_field.same_dimensions(var_field))
+		const auto& dev_field = ensemble->currentStep().fields().at(field+6);
+		if(!avg_field.same_dimensions(dev_field))
 		{
 			Logger::instance() << Logger::Severity::ERROR
-							   << "The average and variance fields have differing sizes." << std::endl;
+							   << "The average and deviation fields have differing sizes." << std::endl;
 			throw std::runtime_error("Heightfield rendering error.");
-			//TODO:ERROR handling. avg and var field have differing size.
+			//TODO:ERROR handling. avg and dev field have differing size.
 		}
 
 		// Grid (position)
@@ -46,10 +46,10 @@ namespace vis
 		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
 
-		// Variance (circle and background)
+		// Deviation (circle and background)
 		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*var_field.num_scalars(),
-					 var_field._data.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*dev_field.num_scalars(),
+					 dev_field._data.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(2);
 
@@ -96,7 +96,7 @@ namespace vis
 		auto size = glm::uvec2{avg_field._width-1, avg_field._height-1};
 		glUniform2uiv(glGetUniformLocation(prog, "size"), 1, glm::value_ptr(size));
 		_bounds_uniform = glGetUniformLocation(prog, "bounds");
-		glUniform4f(_bounds_uniform, avg_field._minimum, avg_field._maximum, var_field._minimum, var_field._maximum); // TODO:Save bounds as renderer state to scale data live.
+		glUniform4f(_bounds_uniform, avg_field._minimum, avg_field._maximum, dev_field._minimum, dev_field._maximum); // TODO:Save bounds as renderer state to scale data live.
 	}
 
 	GlyphRenderer::GlyphRenderer(GlyphRenderer&& other) noexcept

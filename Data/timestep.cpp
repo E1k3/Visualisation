@@ -27,7 +27,7 @@ namespace vis
 		auto newstep = Timestep();
 		const auto& front = ensemble.front();
 
-		// Create fields of identical format twice, one for average, one for variance.
+		// Create fields of identical format twice, one for average, one for deviation.
 		newstep._fields.reserve(front.num_fields()*2);
 		for(const auto& field : front._fields)
 		{
@@ -38,7 +38,7 @@ namespace vis
 		for(const auto& field : front._fields)
 		{
 			newstep._fields.push_back(ScalarField(field._width, field._height, field._depth));
-			newstep._fields.back()._name = field._name + "_var"s;
+			newstep._fields.back()._name = field._name + "_dev"s;
 		}
 
 		for(unsigned fi = 0; fi < front.num_fields(); ++fi)
@@ -53,14 +53,14 @@ namespace vis
 				if(newstep._fields[fi]._data[i] > newstep._fields[fi]._maximum)
 					newstep._fields[fi]._maximum = newstep._fields[fi]._data[i];
 
-				unsigned fi_var = front.num_fields() + fi;
+				unsigned fi_dev = front.num_fields() + fi;
 				for(const auto& curstep : ensemble)
-					newstep._fields[fi_var]._data[i] += std::fabs(newstep._fields[fi]._data[i] - curstep._fields[fi]._data[i]);
-				newstep._fields[fi_var]._data[i] /= ensemble.size();
-				if(newstep._fields[fi_var]._data[i] < newstep._fields[fi_var]._minimum)
-					newstep._fields[fi_var]._minimum = newstep._fields[fi_var]._data[i];
-				if(newstep._fields[fi_var]._data[i] > newstep._fields[fi_var]._maximum)
-					newstep._fields[fi_var]._maximum = newstep._fields[fi_var]._data[i];
+					newstep._fields[fi_dev]._data[i] += std::fabs(newstep._fields[fi]._data[i] - curstep._fields[fi]._data[i]);
+				newstep._fields[fi_dev]._data[i] /= ensemble.size();
+				if(newstep._fields[fi_dev]._data[i] < newstep._fields[fi_dev]._minimum)
+					newstep._fields[fi_dev]._minimum = newstep._fields[fi_dev]._data[i];
+				if(newstep._fields[fi_dev]._data[i] > newstep._fields[fi_dev]._maximum)
+					newstep._fields[fi_dev]._maximum = newstep._fields[fi_dev]._data[i];
 			}
 		}
 

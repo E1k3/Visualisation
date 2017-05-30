@@ -45,7 +45,7 @@ namespace vis
 
 		/**
 		 * @brief fromGaussianAnalysis Constructs a new timestep from the results of analysing an ensemble of other timesteps.
-		 * The new timestep will contain scalar fields for average and empirical variance of the analysed timesteps.
+		 * The new timestep will contain scalar fields for average and empirical deviation of the analysed timesteps.
 		 * @param ensemble The ensemble of timesteps that are analysed.
 		 * @return The newly constructed Timestep.
 		 */

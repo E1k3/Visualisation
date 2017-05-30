@@ -29,6 +29,12 @@ namespace vis
 
 			swap(first._ensemble, second._ensemble);
 			swap(first._input, second._input);
+
+			swap(first._num_vertices, second._num_vertices);
+			swap(first._mvp_uniform, second._mvp_uniform);
+			swap(first._bounds_uniform, second._bounds_uniform);
+			swap(first._translate, second._translate);
+			swap(first._scale, second._scale);
 		}
 
 		void draw(float delta_time);

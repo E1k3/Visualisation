@@ -1,6 +1,6 @@
 #version 330 core
 
-in float col;
+in float intensity;
 
 out vec4 color;
 
@@ -12,5 +12,5 @@ vec3 palette(float x)
 
 void main(void)
 {
-	color = vec4(palette(col), 1.0f);
+	color = vec4(palette(intensity), 1.0f);
 }

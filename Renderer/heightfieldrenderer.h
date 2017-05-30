@@ -40,7 +40,9 @@ namespace vis
 			swap(first._ensemble, second._ensemble);
 			swap(first._input, second._input);
 
+			swap(first._num_vertices, second._num_vertices);
 			swap(first._mvp_uniform, second._mvp_uniform);
+			swap(first._bounds_uniform, second._bounds_uniform);
 
 			swap(first._cam_position, second._cam_position);
 			swap(first._cam_direction, second._cam_direction);

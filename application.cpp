@@ -64,7 +64,6 @@ namespace vis
 	{
 		// Load data
 		_ensemble.processSingleStep(10);
-		auto& step = _ensemble.currentStep();
 
 		// Set up input manager
 		auto input = InputManager{};
@@ -91,7 +90,7 @@ namespace vis
 		auto scroll_callback = [] (GLFWwindow* window, double x, double y)
 		{
 			auto& input = *static_cast<InputManager*>(glfwGetWindowUserPointer(window));
-			input.add_scroll_offset(static_cast<float>(x), static_cast<float>(y));
+			input.add_scroll_offset(static_cast<int>(x), static_cast<int>(y));
 		};
 		glfwSetScrollCallback(&*_window, scroll_callback);
 
