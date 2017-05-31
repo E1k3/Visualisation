@@ -23,12 +23,13 @@ namespace vis
 			throw std::runtime_error("GLFW init failed");
 		}
 
+		// OpenGL version
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_SAMPLES, 16);
+		glfwWindowHint(GLFW_SAMPLES, 16);	// AA
 
-		auto deleter = [](GLFWwindow* window) {glfwDestroyWindow(window); glfwTerminate();};
+		auto deleter = [](GLFWwindow* window) {glfwDestroyWindow(window); glfwTerminate();};	// Destroy window and terminate GLFW, when _window gets out of scope.
 		_window = std::unique_ptr<GLFWwindow, decltype (deleter)>(glfwCreateWindow(1520, 855, "Test", NULL, NULL), deleter);
 		if(!_window)
 		{
@@ -104,6 +105,7 @@ namespace vis
 		glEnable(GL_DEPTH_TEST);
 //		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+		// Event loop
 		while(!glfwWindowShouldClose(&*_window))
 		{
 			_delta = 2.f * static_cast<float>(glfwGetTime() - time);

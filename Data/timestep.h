@@ -44,12 +44,22 @@ namespace vis
 		};
 
 		/**
-		 * @brief fromGaussianAnalysis Constructs a new timestep from the results of analysing an ensemble of other timesteps.
+		 * @brief gaussianAnalysis Constructs a new timestep from the results of analysing an ensemble of other timesteps.
 		 * The new timestep will contain scalar fields for average and empirical deviation of the analysed timesteps.
-		 * @param ensemble The ensemble of timesteps that are analysed.
+		 * @param ensemble The ensemble of timesteps that are analysed. All steps are expected to have the same format.
 		 * @return The newly constructed Timestep.
 		 */
-		static Timestep buildFromGaussianAnalysis(const std::vector<Timestep>& ensemble);
+		static Timestep gaussianAnalysis(const std::vector<Timestep>& ensemble);
+
+		/**
+		 * @brief gaussianMixtureAnalysis Constructs a new timestep from the results of analysing an ensemble of other timesteps.
+		 * The new timestep will contain scalar fields for average and empirical deviation of the analysed timesteps.
+		 * The fields will contain the average and deviation of all components of the fit GMM using the depth.
+		 * @param ensemble The ensemble that is analysed. All steps are expected to have the same format. Data with depth>1 will be ignored.
+		 * @param num_components The number of components the gaussian mixture model will have.
+		 * @return The newly constructed timestep.
+		 */
+		static Timestep gaussianMixtureAnalysis(const std::vector<Timestep>& ensemble, unsigned num_components = 2);
 
 		/**
 		 * @brief Timestep Empty constructor. Leaves everything as default.

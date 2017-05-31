@@ -8,7 +8,7 @@
 
 namespace vis
 {
-	Timestep Timestep::buildFromGaussianAnalysis(const std::vector<Timestep>& ensemble)
+	Timestep Timestep::gaussianAnalysis(const std::vector<Timestep>& ensemble)
 	{
 		using namespace std::literals::string_literals;
 
@@ -46,21 +46,67 @@ namespace vis
 			for(unsigned i = 0; i < front._fields[fi].num_scalars(); ++i)
 			{
 				for(const auto& curstep : ensemble)
-					newstep._fields[fi]._data[i] += curstep._fields[fi]._data[i];
-				newstep._fields[fi]._data[i] /= ensemble.size();
-				if(newstep._fields[fi]._data[i] < newstep._fields[fi]._minimum)
-					newstep._fields[fi]._minimum = newstep._fields[fi]._data[i];
-				if(newstep._fields[fi]._data[i] > newstep._fields[fi]._maximum)
-					newstep._fields[fi]._maximum = newstep._fields[fi]._data[i];
+					newstep._fields[fi]._data[i] += curstep._fields[fi]._data[i];	// Sum
+				newstep._fields[fi]._data[i] /= ensemble.size();	// Average
 
+				newstep._fields[fi]._minimum = std::min(newstep._fields[fi]._data[i], newstep._fields[fi]._minimum);
+				newstep._fields[fi]._maximum = std::max(newstep._fields[fi]._data[i], newstep._fields[fi]._maximum);
+
+				// Index of the deviation field
 				unsigned fi_dev = front.num_fields() + fi;
 				for(const auto& curstep : ensemble)
-					newstep._fields[fi_dev]._data[i] += std::fabs(newstep._fields[fi]._data[i] - curstep._fields[fi]._data[i]);
-				newstep._fields[fi_dev]._data[i] /= ensemble.size();
-				if(newstep._fields[fi_dev]._data[i] < newstep._fields[fi_dev]._minimum)
-					newstep._fields[fi_dev]._minimum = newstep._fields[fi_dev]._data[i];
-				if(newstep._fields[fi_dev]._data[i] > newstep._fields[fi_dev]._maximum)
-					newstep._fields[fi_dev]._maximum = newstep._fields[fi_dev]._data[i];
+					newstep._fields[fi_dev]._data[i] += std::fabs(newstep._fields[fi]._data[i] - curstep._fields[fi]._data[i]);	// Sum of absolute difference from the average
+				newstep._fields[fi_dev]._data[i] /= ensemble.size();	// Deviation
+
+				newstep._fields[fi_dev]._minimum = std::min(newstep._fields[fi_dev]._data[i], newstep._fields[fi_dev]._minimum);
+				newstep._fields[fi_dev]._maximum = std::max(newstep._fields[fi_dev]._data[i], newstep._fields[fi_dev]._maximum);
+			}
+		}
+
+		return newstep;
+	}
+
+	Timestep Timestep::gaussianMixtureAnalysis(const std::vector<Timestep>& ensemble, unsigned num_components)
+	{
+		using namespace std::literals::string_literals;
+
+		// Validate ensemble to only have elements of the same format
+		if(ensemble.empty() ||
+				std::adjacent_find(ensemble.begin(), ensemble.end(),
+								   [] (const Timestep& a, const Timestep& b) {return !a.same_format(b);} )
+				!= ensemble.end())
+		{
+			Logger::instance() << Logger::Severity::ERROR
+							   << "Ensemble has elements with differing format" << std::endl;
+			throw std::runtime_error("GMM Analysis Error");
+			// TODO:ERROR handling no timesteps or they do not have the same dimensions
+		}
+
+		auto newstep = Timestep();
+		const auto& front = ensemble.front();
+
+		// Create fields of identical format twice, one for average, one for deviation.
+		newstep._fields.reserve(front.num_fields()*2);
+		for(const auto& field : front._fields)
+		{
+			newstep._fields.push_back(ScalarField(field._width, field._height, num_components));
+			newstep._fields.back()._name = field._name + "_avg"s;
+		}
+		for(const auto& field : front._fields)
+		{
+			newstep._fields.push_back(ScalarField(field._width, field._height, num_components));
+			newstep._fields.back()._name = field._name + "_dev"s;
+		}
+
+		for(unsigned fi = 0; fi < front.num_fields(); ++fi)
+		{
+			for(unsigned i = 0; i < front._fields[fi]._width*front._fields[fi]._height; ++i)
+			{
+				// TODO:calc GMM using EM
+				// store subsequent averages and deviations in points with higher depth.
+
+//				newstep._fields[fi]._minimum = std::min(newstep._fields[fi]._data[i], newstep._fields[fi]._minimum);
+//				newstep._fields[fi]._maximum = std::max(newstep._fields[fi]._data[i], newstep._fields[fi]._maximum);
 			}
 		}
 
