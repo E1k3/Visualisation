@@ -90,6 +90,10 @@ namespace vis
 		bool empty() const;
 
 	private:
+		static float normal_density(float x, float mean = 0.f, float variance = 1.f);
+		struct GMMComponent { float _weight; float _mean; float _variance; };
+		static void expectation_maximization(const std::vector<float>& samples, std::vector<GMMComponent>& components);
+
 		std::vector<ScalarField> _fields;
 	};
 }
