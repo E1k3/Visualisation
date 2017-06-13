@@ -6,9 +6,32 @@
 #include <random>
 
 #include "logger.h"
+#include "math_util.h"
 
 namespace vis
 {
+	unsigned Timestep::ScalarField::num_scalars() const
+	{
+		return _width*_height*_depth;
+	}
+
+	bool Timestep::ScalarField::same_dimensions(const Timestep::ScalarField& other) const
+	{
+		return other._width == _width
+				&& other._height == _height
+				&& other._depth == _depth;
+	}
+
+	float Timestep::ScalarField::minimum() const
+	{
+		return *std::min_element(_data.begin(), _data.end());
+	}
+
+	float Timestep::ScalarField::maximum() const
+	{
+		return *std::max_element(_data.begin(), _data.end());
+	}
+
 	Timestep Timestep::gaussianAnalysis(const std::vector<Timestep>& ensemble)
 	{
 		using namespace std::literals::string_literals;
@@ -52,15 +75,9 @@ namespace vis
 					newstep._fields[fi]._data[i] += curstep._fields[fi]._data[i];	// Sum
 				newstep._fields[fi]._data[i] /= ensemble.size();	// Average
 
-				newstep._fields[fi]._minimum = std::min(newstep._fields[fi]._data[i], newstep._fields[fi]._minimum);
-				newstep._fields[fi]._maximum = std::max(newstep._fields[fi]._data[i], newstep._fields[fi]._maximum);
-
 				for(const auto& curstep : ensemble)
 					newstep._fields[fi_dev]._data[i] += std::fabs(newstep._fields[fi]._data[i] - curstep._fields[fi]._data[i]);	// Sum of absolute difference from the average
 				newstep._fields[fi_dev]._data[i] /= ensemble.size();	// Deviation
-
-				newstep._fields[fi_dev]._minimum = std::min(newstep._fields[fi_dev]._data[i], newstep._fields[fi_dev]._minimum);
-				newstep._fields[fi_dev]._maximum = std::max(newstep._fields[fi_dev]._data[i], newstep._fields[fi_dev]._maximum);
 			}
 		}
 
@@ -114,7 +131,7 @@ namespace vis
 			{
 				// EM
 				// Random init
-				newstep._fields[fi]._data[i] = random(re) * (newstep._fields[fi]._maximum - newstep._fields[fi]._minimum) + newstep._fields[fi]._minimum;
+				newstep._fields[fi]._data[i] = random(re) * (newstep._fields[fi].maximum() - newstep._fields[fi].minimum()) + newstep._fields[fi].minimum();
 						// TODO:calc GMM using EM
 						// store subsequent averages and deviations in points with higher depth.
 
@@ -196,42 +213,5 @@ namespace vis
 		for(auto& field : _fields)
 			num_points += field.num_scalars();
 		return num_points == 0;
-	}
-
-	float Timestep::normal_density(float x, float mean, float variance)
-	{
-		const float pi = std::acos(-1.f);
-		return 1 / (std::sqrt( 2 * pi * variance)) * std::exp(-std::pow(x - mean, 2.f) / (2 * variance));
-	}
-
-	void Timestep::expectation_maximization(const std::vector<float>& samples, std::vector<Timestep::GMMComponent>& components)
-	{
-		auto sample_weights = std::vector<float>{};
-		sample_weights.reserve(samples.size() * components.size());
-
-		// E-step
-		sample_weights.clear();
-		for(const auto& samp : samples)
-		{
-			auto i = sample_weights.size();
-			float total_density = 0.f;
-			// Fill sample_weights with the density of the current GMM at samp
-			for(auto& comp : components)
-				total_density += normal_density(samp, comp._mean, comp._variance) * comp._weight;
-			sample_weights.resize(sample_weights.size() + components.size(), total_density);
-
-			for(const auto& comp : components)
-			{
-				// sample_weight_i = COMPONENTdensity(sample)*comp.weight / GMMdensity(sample)
-				sample_weights[i] = normal_density(samp, comp._mean, comp._variance) * comp._weight / sample_weights[i];
-				++i;
-			}
-		}
-
-		// M-step
-		for(unsigned i = 0; i < components.size(); ++i)
-		{
-
-		}
 	}
 }

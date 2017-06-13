@@ -22,25 +22,23 @@ namespace vis
 
 			}
 
-			unsigned num_scalars() const
-			{
-				return _width*_height*_depth;
-			}
+			unsigned num_scalars() const;
+			bool same_dimensions(const ScalarField& other) const;
 
-			bool same_dimensions(const ScalarField& other) const
-			{
-				return other._width == _width
-						&& other._height == _height
-						&& other._depth == _depth;
-			}
+			/**
+			 * @brief minimum Returns the smallest point of the field.
+			 */
+			float minimum() const;
+			/**
+			 * @brief maximum Returns the greatest pointof the field.
+			 */
+			float maximum() const;
 
 			std::string _name{};
 			unsigned _width{0};
 			unsigned _height{0};
 			unsigned _depth{0};
 			std::vector<float> _data{};
-			float _minimum{std::numeric_limits<float>::infinity()};
-			float _maximum{-std::numeric_limits<float>::infinity()};
 		};
 
 		/**
@@ -90,10 +88,6 @@ namespace vis
 		bool empty() const;
 
 	private:
-		static float normal_density(float x, float mean = 0.f, float variance = 1.f);
-		struct GMMComponent { float _weight; float _mean; float _variance; };
-		static void expectation_maximization(const std::vector<float>& samples, std::vector<GMMComponent>& components);
-
 		std::vector<ScalarField> _fields;
 	};
 }

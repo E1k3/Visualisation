@@ -17,7 +17,8 @@ SOURCES += main.cpp \
     Renderer/renderer.cpp \
     application.cpp \
     inputmanager.cpp \
-    Renderer/glyphrenderer.cpp
+    Renderer/glyphrenderer.cpp \
+    Data/math_util.cpp
 
 HEADERS += \
     Data/timestep.h \
@@ -27,7 +28,8 @@ HEADERS += \
     Renderer/renderer.h \
     application.h \
     inputmanager.h \
-    Renderer/glyphrenderer.h
+    Renderer/glyphrenderer.h \
+    Data/math_util.h
 
 DISTFILES += \
     Shader/heightfield_vs.glsl \

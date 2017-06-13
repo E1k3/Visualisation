@@ -96,7 +96,7 @@ namespace vis
 		auto size = glm::uvec2{avg_field._width-1, avg_field._height-1};
 		glUniform2uiv(glGetUniformLocation(prog, "size"), 1, glm::value_ptr(size));
 		_bounds_uniform = glGetUniformLocation(prog, "bounds");
-		glUniform4f(_bounds_uniform, avg_field._minimum, avg_field._maximum, dev_field._minimum, dev_field._maximum); // TODO:Save bounds as renderer state to scale data live.
+		glUniform4f(_bounds_uniform, avg_field.minimum(), avg_field.maximum(), dev_field.minimum(), dev_field.maximum()); // TODO:Save bounds as renderer state to scale data live.
 	}
 
 	GlyphRenderer::GlyphRenderer(GlyphRenderer&& other) noexcept
