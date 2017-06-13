@@ -95,7 +95,7 @@ namespace vis
 		};
 		glfwSetScrollCallback(&*_window, scroll_callback);
 
-		GlyphRenderer renderer{&_ensemble, &input};
+		HeightfieldRenderer renderer{&_ensemble, &input};
 
 		glClearColor(.2f, .2f, .2f, 1.f);
 

@@ -13,4 +13,6 @@ vec3 palette(float x)
 void main(void)
 {
 	color = vec4(palette(intensity), 1.0f);
+	if(intensity < 0.f)
+		discard;
 }

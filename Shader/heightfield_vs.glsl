@@ -14,4 +14,6 @@ void main()
 	float avg_ = (avg-bounds.x)/bounds.y;
 	gl_Position = mvp*vec4(pos, avg_*.5f, 1.f);
 	intensity = (dev-bounds.z)/bounds.w;
+	if(avg == 0.f)
+		intensity = -10.f;
 }
