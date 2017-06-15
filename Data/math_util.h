@@ -37,6 +37,12 @@ namespace vis
 		 * @param components The GMMs components.
 		 */
 		void em_step(const std::vector<float>& samples, std::vector<GMMComponent>& components);
+
+		/**
+		 * @brief count_modes Tries to approximate the number of modes (peaks) in the samples distribution.
+		 * @param samples The samples that are analyzed.
+		 */
+		unsigned count_modes(const std::vector<float>& samples);
 	}
 }
 

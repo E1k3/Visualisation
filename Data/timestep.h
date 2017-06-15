@@ -22,7 +22,9 @@ namespace vis
 
 			}
 
-			unsigned num_scalars() const;
+			inline unsigned volume() const {return area()*_depth;}
+			inline unsigned area() const {return _width*_height;}
+
 			bool same_dimensions(const ScalarField& other) const;
 
 			/**
@@ -43,7 +45,7 @@ namespace vis
 
 		/**
 		 * @brief gaussianAnalysis Constructs a new timestep from the results of analysing an ensemble of other timesteps.
-		 * The new timestep will contain scalar fields for average and empirical deviation of the analysed timesteps.
+		 * The new timestep will contain scalar fields for average and empirical variance of the analysed timesteps.
 		 * @param ensemble The ensemble of timesteps that are analysed. All steps are expected to have the same format.
 		 * @return The newly constructed Timestep.
 		 */
@@ -51,8 +53,8 @@ namespace vis
 
 		/**
 		 * @brief gaussianMixtureAnalysis Constructs a new timestep from the results of analysing an ensemble of other timesteps.
-		 * The new timestep will contain scalar fields for average and empirical deviation of the analysed timesteps.
-		 * The fields will contain the average and deviation of all components of the fit GMM using the depth.
+		 * The new timestep will contain scalar fields for average and empirical variance of the analysed timesteps.
+		 * The fields will contain the average and variance of all components of the fit GMM using the depth.
 		 * @param ensemble The ensemble that is analysed. All steps are expected to have the same format. Data with depth>1 will be ignored.
 		 * @param num_components The number of components the gaussian mixture model will have.
 		 * @return The newly constructed timestep.

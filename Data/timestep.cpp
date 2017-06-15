@@ -10,11 +10,6 @@
 
 namespace vis
 {
-	unsigned Timestep::ScalarField::num_scalars() const
-	{
-		return _width*_height*_depth;
-	}
-
 	bool Timestep::ScalarField::same_dimensions(const Timestep::ScalarField& other) const
 	{
 		return other._width == _width
@@ -51,33 +46,33 @@ namespace vis
 		auto newstep = Timestep();
 		const auto& front = ensemble.front();
 
-		// Create fields of identical format twice, one for average, one for deviation.
+		// Create fields of identical format twice, one for average, one for variance.
 		newstep._fields.reserve(front.num_fields()*2);
 		for(const auto& field : front._fields)
 		{
 			newstep._fields.push_back(ScalarField(field._width, field._height, field._depth));
-			newstep._fields.back()._name = field._name + "_avg"s;
+			newstep._fields.back()._name = field._name + "_average"s;
 
 		}
 		for(const auto& field : front._fields)
 		{
 			newstep._fields.push_back(ScalarField(field._width, field._height, field._depth));
-			newstep._fields.back()._name = field._name + "_dev"s;
+			newstep._fields.back()._name = field._name + "_variance"s;
 		}
 
 		for(unsigned fi = 0; fi < front.num_fields(); ++fi)
 		{
-			// Index of the deviation field
-			unsigned fi_dev = front.num_fields() + fi;
-			for(unsigned i = 0; i < front._fields[fi].num_scalars(); ++i)
+			// Index of the variance field
+			unsigned fi_var = front.num_fields() + fi;
+			for(unsigned i = 0; i < front._fields[fi].volume(); ++i)
 			{
 				for(const auto& curstep : ensemble)
 					newstep._fields[fi]._data[i] += curstep._fields[fi]._data[i];	// Sum
 				newstep._fields[fi]._data[i] /= ensemble.size();	// Average
 
 				for(const auto& curstep : ensemble)
-					newstep._fields[fi_dev]._data[i] += std::fabs(newstep._fields[fi]._data[i] - curstep._fields[fi]._data[i]);	// Sum of absolute difference from the average
-				newstep._fields[fi_dev]._data[i] /= ensemble.size();	// Deviation
+					newstep._fields[fi_var]._data[i] += std::pow(newstep._fields[fi]._data[i] - curstep._fields[fi]._data[i], 2);	// Sum of squared difference from the average
+				newstep._fields[fi_var]._data[i] /= ensemble.size();	// Variance
 			}
 		}
 
@@ -101,7 +96,7 @@ namespace vis
 		auto newstep = Timestep();
 		const auto& front = ensemble.front();
 
-		// Create fields of identical format three times, for average, deviation and mixture weight.
+		// Create fields of identical format three times, for average, variance and mixture weight.
 		newstep._fields.reserve(front.num_fields()*3);
 		for(const auto& field : front._fields)
 		{
@@ -111,7 +106,7 @@ namespace vis
 		for(const auto& field : front._fields)
 		{
 			newstep._fields.push_back(ScalarField(field._width, field._height, num_components));
-			newstep._fields.back()._name = field._name + "_deviation";
+			newstep._fields.back()._name = field._name + "_variance";
 		}
 		for(const auto& field : front._fields)
 		{
@@ -119,26 +114,42 @@ namespace vis
 			newstep._fields.back()._name = field._name + "_weight";
 		}
 
-		auto re = std::default_random_engine{std::random_device{}()};
-		auto random = std::uniform_real_distribution<float>{0, 1};
+//		auto re = std::default_random_engine{std::random_device{}()};
+//		auto random = std::uniform_real_distribution<float>{0, 1};
 
-		for(unsigned fi = 0; fi < front.num_fields(); ++fi)
+		for(unsigned f = 0; f < front.num_fields(); ++f)
 		{
-//			unsigned fi_dev = front.num_fields() + fi;
-//			unsigned fi_wei = 2 * front.num_fields() + fi;
-
-			for(unsigned i = 0; i < front._fields[fi]._width*front._fields[fi]._height; ++i)
+			for(unsigned i = 0; i < newstep._fields[f].area(); ++i)
 			{
-				// EM
-				// Random init
-				newstep._fields[fi]._data[i] = random(re) * (newstep._fields[fi].maximum() - newstep._fields[fi].minimum()) + newstep._fields[fi].minimum();
-						// TODO:calc GMM using EM
-						// store subsequent averages and deviations in points with higher depth.
+				// Collect samples
+				auto samples = std::vector<float>{};
+				samples.reserve(ensemble.size());
+				for(const auto& sample : ensemble)
+					samples.push_back(sample.fields()[f]._data[i]);
 
-						//				newstep._fields[fi]._minimum = std::min(newstep._fields[fi]._data[i], newstep._fields[fi]._minimum);
-						//				newstep._fields[fi]._maximum = std::max(newstep._fields[fi]._data[i], newstep._fields[fi]._maximum);
+				// Determine the mode count
+				/*auto mode_count = */math_util::count_modes(samples);
+
+				// If modecount == 1 -> gaussian approximation
+
+				// If modecount > 1 -> GMM approximation (using EM)
 			}
 		}
+
+//		for(unsigned fi = 0; fi < front.num_fields(); ++fi)
+//		{
+//			// unsigned fi_var = front.num_fields() + fi;
+//			// unsigned fi_wei = 2 * front.num_fields() + fi;
+
+//			for(unsigned i = 0; i < front._fields[fi]._width*front._fields[fi]._height; ++i)
+//			{
+//				// EM
+//				// Random init
+//				newstep._fields[fi]._data[i] = random(re) * (newstep._fields[fi].maximum() - newstep._fields[fi].minimum()) + newstep._fields[fi].minimum();
+//				// TODO:calc GMM using EM
+//				// store subsequent averages and variances in points with higher depth.
+//			}
+//		}
 
 		return newstep;
 	}
@@ -164,17 +175,15 @@ namespace vis
 		_fields.resize(num_fields, ScalarField(width, height, depth));
 
 		for(auto& field : _fields)
-		{
 			linestream >> field._name;
-		}
 
 		// Skip vector fields header
-		instream.ignore(1024, '\n'); // This line should not be longer than 1024 characters.
+		instream.ignore(1024, '\n');	// This line should not be longer than 1024 characters. Magic numbers ftw!
 
 		// Read field data
 		for(auto& field : _fields)
 		{
-			for(unsigned i = 0; i < field.num_scalars(); ++i)
+			for(unsigned i = 0; i < field.volume(); ++i)
 			{
 				// Using instream >> _data[i] takes about twice as long.
 				std::getline(instream, line, ' ');
@@ -190,16 +199,8 @@ namespace vis
 
 	bool Timestep::same_format(const Timestep& other) const
 	{
-		if(other.num_fields() != num_fields())
-			return false;
-
-		for(unsigned i = 0; i < num_fields(); ++i)
-		{
-			if(!_fields[i].same_dimensions(other.fields()[i]))
-				return false;
-		}
-
-		return true;
+		return std::equal(_fields.begin(), _fields.end(), other.fields().begin(), other.fields().end(),
+						  [] (const auto& a, const auto& b) {return a.same_dimensions(b);});
 	}
 
 	unsigned Timestep::num_fields() const
@@ -209,9 +210,7 @@ namespace vis
 
 	bool Timestep::empty() const
 	{
-		unsigned num_points = 0;
-		for(auto& field : _fields)
-			num_points += field.num_scalars();
-		return num_points == 0;
+		return std::all_of(_fields.begin(), _fields.end(),
+						   [] (const auto& field) { return field.volume() == 0; });
 	}
 }

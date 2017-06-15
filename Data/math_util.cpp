@@ -1,6 +1,8 @@
 #include "math_util.h"
 
 #include <cmath>
+#include <algorithm>
+#include <iostream>
 
 namespace vis
 {
@@ -57,5 +59,34 @@ namespace vis
 				components[c]._variance += sample_weights[s * components.size() + c] * static_cast<float>(std::pow(samples[s] - components[c]._mean, 2));
 			components[c]._variance /= weight_sum;
 		}
+	}
+
+	unsigned math_util::count_modes(const std::vector<float>& samples)
+	{
+		// Method: Binning (histogram) using equally spaced (sized) bins between sample_min and sample_max
+		// TODO:use a better way to count modes
+		auto bins = std::vector<unsigned>(samples.size()/2);
+
+		auto lower = *std::min_element(samples.begin(), samples.end());
+		auto width = (*std::max_element(samples.begin(), samples.end()) - lower) / samples.size();
+		// Fill bins
+		for(const auto& sample : samples)
+		{
+			for(auto& bin : bins)	// Inefficient search (TODO:use std function or custom binary search)
+			{
+				if(sample >= lower && sample < lower + width)
+					++bin;
+				lower += width;
+			}
+		}
+
+		// Count peaks
+		unsigned num_peaks = 0;
+		for(unsigned i = 0; i < bins.size(); ++i)
+		{
+			if((i == 0 || bins[i] > bins[i-1]) && (i == bins.size()-1 || bins[i] > bins[i+1]))
+				++num_peaks;
+		}
+		return num_peaks;
 	}
 }
