@@ -31,6 +31,10 @@ namespace vis
 		 */
 		float gmm_density(float x, const std::vector<GMMComponent>& components);
 
+		float mean(const std::vector<float>& samples);
+
+		float variance(const std::vector<float>& samples, float mean);
+
 		/**
 		 * @brief em_step Executes one step of the "Expectation Maximization" algorithm on a GMM using sample data.
 		 * @param samples The sample data.

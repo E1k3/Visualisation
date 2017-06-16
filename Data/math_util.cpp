@@ -2,7 +2,7 @@
 
 #include <cmath>
 #include <algorithm>
-#include <iostream>
+#include <limits>
 
 namespace vis
 {
@@ -18,6 +18,22 @@ namespace vis
 		for(auto& c : components)
 			sum += c._weight * normal_density(x, c._mean, c._variance);
 		return sum;
+	}
+
+	float math_util::mean(const std::vector<float>& samples)
+	{
+		float sum = 0.f;
+		for(const auto& sample : samples)
+			sum += sample;
+		return sum / samples.size();
+	}
+
+	float math_util::variance(const std::vector<float>& samples, float mean)
+	{
+		float sum = 0.f;
+		for(const auto& sample : samples)
+			sum += std::pow(mean - sample, 2);
+		return sum / samples.size();
 	}
 
 	void math_util::em_step(const std::vector<float>& samples, std::vector<math_util::GMMComponent>& components)
@@ -66,12 +82,20 @@ namespace vis
 		// Method: Binning (histogram) using equally spaced (sized) bins between sample_min and sample_max
 		// TODO:use a better way to count modes
 		auto bins = std::vector<unsigned>(samples.size()/2);
+		if(bins.size() < 2)
+			return 0;
 
-		auto lower = *std::min_element(samples.begin(), samples.end());
-		auto width = (*std::max_element(samples.begin(), samples.end()) - lower) / samples.size();
+		const float min = *std::min_element(samples.begin(), samples.end());
+		const float max = *std::max_element(samples.begin(), samples.end());
+		float width = (max - min) / (bins.size()-1);
+
+		if(width <= std::numeric_limits<float>::epsilon()*3) // TODO:changes this bullshit
+			return 0;
+
 		// Fill bins
 		for(const auto& sample : samples)
 		{
+			float lower = min - 0.5f*width;
 			for(auto& bin : bins)	// Inefficient search (TODO:use std function or custom binary search)
 			{
 				if(sample >= lower && sample < lower + width)
@@ -82,11 +106,24 @@ namespace vis
 
 		// Count peaks
 		unsigned num_peaks = 0;
-		for(unsigned i = 0; i < bins.size(); ++i)
+		bool rising = true;
+		for(unsigned i = 1; i < bins.size(); ++i)
 		{
-			if((i == 0 || bins[i] > bins[i-1]) && (i == bins.size()-1 || bins[i] > bins[i+1]))
-				++num_peaks;
+			//			rising = bins[i] > bins[i-1] || rising;
+			if(bins[i] > bins[i-1])
+			{
+				rising = true;
+			}
+			else if(bins[i] < bins[i-1])
+			{
+				if(rising)
+					++num_peaks;
+				rising = false;
+			}
 		}
+		if(rising)
+			++num_peaks;
+
 		return num_peaks;
 	}
 }

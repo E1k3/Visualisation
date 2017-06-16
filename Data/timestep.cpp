@@ -79,7 +79,7 @@ namespace vis
 		return newstep;
 	}
 
-	Timestep Timestep::gaussianMixtureAnalysis(const std::vector<Timestep>& ensemble, unsigned num_components)
+	Timestep Timestep::gaussianMixtureAnalysis(const std::vector<Timestep>& ensemble, unsigned max_components)
 	{
 		// Validate ensemble to only have elements of the same format
 		if(ensemble.empty() ||
@@ -100,23 +100,22 @@ namespace vis
 		newstep._fields.reserve(front.num_fields()*3);
 		for(const auto& field : front._fields)
 		{
-			newstep._fields.push_back(ScalarField(field._width, field._height, num_components));
+			newstep._fields.push_back(ScalarField(field._width, field._height, max_components));
 			newstep._fields.back()._name = field._name + "_average";
 		}
 		for(const auto& field : front._fields)
 		{
-			newstep._fields.push_back(ScalarField(field._width, field._height, num_components));
+			newstep._fields.push_back(ScalarField(field._width, field._height, max_components));
 			newstep._fields.back()._name = field._name + "_variance";
 		}
 		for(const auto& field : front._fields)
 		{
-			newstep._fields.push_back(ScalarField(field._width, field._height, num_components));
+			newstep._fields.push_back(ScalarField(field._width, field._height, max_components));
 			newstep._fields.back()._name = field._name + "_weight";
 		}
 
 //		auto re = std::default_random_engine{std::random_device{}()};
 //		auto random = std::uniform_real_distribution<float>{0, 1};
-
 		for(unsigned f = 0; f < front.num_fields(); ++f)
 		{
 			for(unsigned i = 0; i < newstep._fields[f].area(); ++i)
@@ -128,9 +127,10 @@ namespace vis
 					samples.push_back(sample.fields()[f]._data[i]);
 
 				// Determine the mode count
-				/*auto mode_count = */math_util::count_modes(samples);
+				auto mode_count = math_util::count_modes(samples);
 
-				// If modecount == 1 -> gaussian approximation
+				// If modecount <= 1 -> gaussian approximation
+
 
 				// If modecount > 1 -> GMM approximation (using EM)
 			}

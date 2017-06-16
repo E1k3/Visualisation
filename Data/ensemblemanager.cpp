@@ -60,7 +60,7 @@ namespace vis
 			auto ifs = std::ifstream{_files[i]};
 			buffer.push_back(Timestep{ifs});
 		}
-		_buffer = Timestep::gaussianAnalysis(buffer);
+		_buffer = Timestep::gaussianMixtureAnalysis(buffer);
 	}
 
 	Timestep& EnsembleManager::currentStep()
