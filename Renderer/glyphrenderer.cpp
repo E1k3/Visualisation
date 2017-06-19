@@ -19,19 +19,19 @@ namespace vis
 	{
 		glBindVertexArray(genVao());
 
-		const unsigned field = 2;
-		const auto& avg_field = ensemble->currentStep().fields().at(field);
-		const auto& var_field = ensemble->currentStep().fields().at(field+6);
-		if(!avg_field.same_dimensions(var_field))
+		const unsigned field = 4;
+		const auto& mean_field = ensemble->currentStep().fields().at(field);
+		const auto& var_field = ensemble->currentStep().fields().at(field+1);
+		if(!mean_field.same_dimensions(var_field))
 		{
 			Logger::instance() << Logger::Severity::ERROR
-							   << "The average and variance fields have differing sizes." << std::endl;
+							   << "The mean and variance fields have differing sizes." << std::endl;
 			throw std::runtime_error("Heightfield rendering error.");
-			//TODO:ERROR handling. avg and var field have differing size.
+			//TODO:ERROR handling. mean and var field have differing size.
 		}
 
 		// Grid (position)
-		auto grid = genGrid(avg_field._width, avg_field._height);
+		auto grid = genGrid(mean_field._width, mean_field._height);
 		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
 		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
@@ -39,26 +39,26 @@ namespace vis
 		glEnableVertexAttribArray(0);
 
 
-		// Average (ring)
+		// Mean (ring)
 		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*avg_field.volume(),
-					 avg_field._data.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*mean_field.area(),
+					 mean_field._data.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
 
 		// Variance (circle and background)
 		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*var_field.volume(),
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*var_field.area(),
 					 var_field._data.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(2);
 
 		// Indices (element buffer)
-		auto indices = genGridIndices(avg_field._width, avg_field._height);
+		auto indices = genGridIndices(mean_field._width, mean_field._height);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, genBuffer());
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
 					 &indices[0], GL_STATIC_DRAW);
-		_num_vertices = avg_field.volume()*6;
+		_num_vertices = mean_field.area()*6;
 
 		// Mask (glyph)
 		const unsigned width = 1000;
@@ -93,10 +93,10 @@ namespace vis
 
 		_mvp_uniform = glGetUniformLocation(prog, "mvp");
 		glUniform1i(glGetUniformLocation(prog, "mask"), 0);
-		auto size = glm::uvec2{avg_field._width-1, avg_field._height-1};
+		auto size = glm::uvec2{mean_field._width-1, mean_field._height-1};
 		glUniform2uiv(glGetUniformLocation(prog, "size"), 1, glm::value_ptr(size));
 		_bounds_uniform = glGetUniformLocation(prog, "bounds");
-		glUniform4f(_bounds_uniform, avg_field.minimum(), avg_field.maximum(), var_field.minimum(), var_field.maximum()); // TODO:Save bounds as renderer state to scale data live.
+		glUniform4f(_bounds_uniform, mean_field.minimum(), mean_field.maximum(), var_field.minimum(), var_field.maximum()); // TODO:Save bounds as renderer state to scale data live.
 	}
 
 	GlyphRenderer::GlyphRenderer(GlyphRenderer&& other) noexcept

@@ -27,10 +27,8 @@ namespace vis
 		return *std::max_element(_data.begin(), _data.end());
 	}
 
-	Timestep Timestep::gaussianAnalysis(const std::vector<Timestep>& ensemble)
+	Timestep Timestep::gaussian_analysis(const std::vector<Timestep>& ensemble)
 	{
-		using namespace std::literals::string_literals;
-
 		// Validate ensemble to only have elements of the same format
 		if(ensemble.empty() ||
 				std::adjacent_find(ensemble.begin(), ensemble.end(),
@@ -46,40 +44,37 @@ namespace vis
 		auto newstep = Timestep();
 		const auto& front = ensemble.front();
 
-		// Create fields of identical format twice, one for average, one for variance.
+		// Create fields of identical format twice, one for mean, one for variance.
 		newstep._fields.reserve(front.num_fields()*2);
 		for(const auto& field : front._fields)
 		{
 			newstep._fields.push_back(ScalarField(field._width, field._height, field._depth));
-			newstep._fields.back()._name = field._name + "_average"s;
+			newstep._fields.back()._name = field._name + "_mean";
 
-		}
-		for(const auto& field : front._fields)
-		{
 			newstep._fields.push_back(ScalarField(field._width, field._height, field._depth));
-			newstep._fields.back()._name = field._name + "_variance"s;
+			newstep._fields.back()._name = field._name + "_variance";
 		}
 
-		for(unsigned fi = 0; fi < front.num_fields(); ++fi)
+		for(unsigned f = 0; f < front.num_fields(); ++f)
 		{
-			// Index of the variance field
-			unsigned fi_var = front.num_fields() + fi;
-			for(unsigned i = 0; i < front._fields[fi].volume(); ++i)
+			for(unsigned i = 0; i < front._fields[f].volume(); ++i)
 			{
-				for(const auto& curstep : ensemble)
-					newstep._fields[fi]._data[i] += curstep._fields[fi]._data[i];	// Sum
-				newstep._fields[fi]._data[i] /= ensemble.size();	// Average
+				// Collect samples
+				auto samples = std::vector<float>{};
+				samples.reserve(ensemble.size());
+				for(const auto& sample : ensemble)
+					samples.push_back(sample.fields()[f]._data[i]);
 
-				for(const auto& curstep : ensemble)
-					newstep._fields[fi_var]._data[i] += std::pow(newstep._fields[fi]._data[i] - curstep._fields[fi]._data[i], 2);	// Sum of squared difference from the average
-				newstep._fields[fi_var]._data[i] /= ensemble.size();	// Variance
+				auto mean = math_util::mean(samples);
+				newstep._fields[f*2]._data[i] = mean;
+				newstep._fields[f*2 + 1]._data[i] = math_util::variance(samples, mean);
 			}
 		}
 
 		return newstep;
 	}
 
-	Timestep Timestep::gaussianMixtureAnalysis(const std::vector<Timestep>& ensemble, unsigned max_components)
+	Timestep Timestep::gaussian_mixture_analysis(const std::vector<Timestep>& ensemble, unsigned max_components)
 	{
 		// Validate ensemble to only have elements of the same format
 		if(ensemble.empty() ||
@@ -96,26 +91,20 @@ namespace vis
 		auto newstep = Timestep();
 		const auto& front = ensemble.front();
 
-		// Create fields of identical format three times, for average, variance and mixture weight.
+		// Create fields of identical format three times, for mean, variance and mixture weight.
 		newstep._fields.reserve(front.num_fields()*3);
 		for(const auto& field : front._fields)
 		{
-			newstep._fields.push_back(ScalarField(field._width, field._height, max_components));
-			newstep._fields.back()._name = field._name + "_average";
-		}
-		for(const auto& field : front._fields)
-		{
-			newstep._fields.push_back(ScalarField(field._width, field._height, max_components));
+			newstep._fields.push_back(ScalarField(field._width, field._height, max_components));	// Mean
+			newstep._fields.back()._name = field._name + "_mean";
+			newstep._fields.push_back(ScalarField(field._width, field._height, max_components));	// Variance
 			newstep._fields.back()._name = field._name + "_variance";
-		}
-		for(const auto& field : front._fields)
-		{
-			newstep._fields.push_back(ScalarField(field._width, field._height, max_components));
+			newstep._fields.push_back(ScalarField(field._width, field._height, max_components));	// Weight
 			newstep._fields.back()._name = field._name + "_weight";
 		}
 
-//		auto re = std::default_random_engine{std::random_device{}()};
-//		auto random = std::uniform_real_distribution<float>{0, 1};
+		auto re = std::default_random_engine{std::random_device{}()};
+		auto random = std::uniform_real_distribution<float>{0, 1};
 		for(unsigned f = 0; f < front.num_fields(); ++f)
 		{
 			for(unsigned i = 0; i < newstep._fields[f].area(); ++i)
@@ -126,31 +115,51 @@ namespace vis
 				for(const auto& sample : ensemble)
 					samples.push_back(sample.fields()[f]._data[i]);
 
-				// Determine the mode count
-				auto mode_count = math_util::count_modes(samples);
+				// Determine the mode count (capped at max_components)
+				auto mode_count = std::min(max_components, math_util::count_modes(samples));
 
 				// If modecount <= 1 -> gaussian approximation
-
-
+				if(mode_count <= 1)
+				{
+					auto mean = math_util::mean(samples);
+					newstep._fields[f*3]._data[i] = mean;	// Mean
+					newstep._fields[f*3 + 1]._data[i] = math_util::variance(samples, mean);	// Variance
+					newstep._fields[f*3 + 2]._data[i] = 1.f;	// Weight
+				}
 				// If modecount > 1 -> GMM approximation (using EM)
+				// Initialize GMM (random) with mode_count components
+				else
+				{
+					auto components = std::vector<math_util::GMMComponent>(mode_count);
+					auto sample_min = *std::min_element(samples.begin(), samples.end());
+					auto sample_max = *std::max_element(samples.begin(), samples.end());
+					auto weight_sum = 0.f;
+
+					for(auto& component : components)
+					{
+						component._mean = random(re) * sample_max + sample_min;
+						component._variance = random(re) * (sample_max - sample_min);
+						component._weight = random(re) * (1.f - weight_sum);
+
+						weight_sum += component._weight;
+					}
+					components.back()._weight += 1.f - weight_sum;
+
+					// Execute EM until accurate
+					// TODO:find a real condition for when to stop em
+					for(unsigned i = 0; i < 1; ++i)
+						math_util::em_step(samples, components);
+
+					// Save results
+					for(unsigned c = 0; c < components.size(); ++c)
+					{
+						newstep._fields[f*3]._data[i + newstep._fields[f*3].area() * c] = components[c]._mean;	// Mean
+						newstep._fields[f*3 + 1]._data[i + newstep._fields[f*3 + 1].area() * c] = components[c]._variance;	// Variance
+						newstep._fields[f*3 + 2]._data[i + newstep._fields[f*3 + 2].area() * c] = components[c]._weight;	// Weight
+					}
+				}
 			}
 		}
-
-//		for(unsigned fi = 0; fi < front.num_fields(); ++fi)
-//		{
-//			// unsigned fi_var = front.num_fields() + fi;
-//			// unsigned fi_wei = 2 * front.num_fields() + fi;
-
-//			for(unsigned i = 0; i < front._fields[fi]._width*front._fields[fi]._height; ++i)
-//			{
-//				// EM
-//				// Random init
-//				newstep._fields[fi]._data[i] = random(re) * (newstep._fields[fi].maximum() - newstep._fields[fi].minimum()) + newstep._fields[fi].minimum();
-//				// TODO:calc GMM using EM
-//				// store subsequent averages and variances in points with higher depth.
-//			}
-//		}
-
 		return newstep;
 	}
 

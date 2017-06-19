@@ -24,6 +24,7 @@ namespace vis
 
 			inline unsigned volume() const {return area()*_depth;}
 			inline unsigned area() const {return _width*_height;}
+			inline float get_point(unsigned x, unsigned y, unsigned z) const {return _data[z*area() + y*_width + x];}
 
 			bool same_dimensions(const ScalarField& other) const;
 
@@ -45,21 +46,21 @@ namespace vis
 
 		/**
 		 * @brief gaussianAnalysis Constructs a new timestep from the results of analysing an ensemble of other timesteps.
-		 * The new timestep will contain scalar fields for average and empirical variance of the analysed timesteps.
+		 * The new timestep will contain scalar fields for mean and empirical variance of the analysed timesteps.
 		 * @param ensemble The ensemble of timesteps that are analysed. All steps are expected to have the same format.
 		 * @return The newly constructed Timestep.
 		 */
-		static Timestep gaussianAnalysis(const std::vector<Timestep>& ensemble);
+		static Timestep gaussian_analysis(const std::vector<Timestep>& ensemble);
 
 		/**
 		 * @brief gaussianMixtureAnalysis Constructs a new timestep from the results of analysing an ensemble of other timesteps.
-		 * The new timestep will contain scalar fields for average and empirical variance of the analysed timesteps.
-		 * The fields will contain the average and variance of all components of the fit GMM using the depth.
+		 * The new timestep will contain scalar fields for mean and empirical variance of the analysed timesteps.
+		 * The fields will contain the mean and variance of all components of the fit GMM using the depth.
 		 * @param ensemble The ensemble that is analysed. All steps are expected to have the same format. Data with depth>1 will be ignored.
 		 * @param num_components The number of components the gaussian mixture model will have.
 		 * @return The newly constructed timestep.
 		 */
-		static Timestep gaussianMixtureAnalysis(const std::vector<Timestep>& ensemble, unsigned max_components = 2);
+		static Timestep gaussian_mixture_analysis(const std::vector<Timestep>& ensemble, unsigned max_components = 2);
 
 		/**
 		 * @brief Timestep Empty constructor. Leaves everything as default.

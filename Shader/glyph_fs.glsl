@@ -1,7 +1,7 @@
 #version 330 core
 
 smooth in vec2 uv;
-flat in vec2 data; // (avg, dev)
+flat in vec2 data; // (mean, dev)
 
 out vec4 color;
 
