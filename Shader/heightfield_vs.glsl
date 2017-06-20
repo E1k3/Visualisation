@@ -4,7 +4,7 @@ layout(location = 0) in vec2 pos;
 layout(location = 1) in float mean;
 layout(location = 2) in float dev;
 
-out float intensity;
+flat out float intensity;
 
 uniform mat4 mvp;
 uniform vec4 bounds;

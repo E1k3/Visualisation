@@ -116,7 +116,7 @@ namespace vis
 					samples.push_back(sample.fields()[f]._data[i]);
 
 				// Determine the mode count (capped at max_components)
-				auto mode_count = std::min(max_components, math_util::count_modes(samples));
+				auto mode_count = std::min(max_components, math_util::count_modes(samples, static_cast<unsigned>(samples.size()/2)));
 
 				// If modecount <= 1 -> gaussian approximation
 				if(mode_count <= 1)
@@ -146,11 +146,12 @@ namespace vis
 					components.back()._weight += 1.f - weight_sum;
 
 					// Execute EM until accurate
-					// TODO:find a real condition for when to stop em
-					for(unsigned i = 0; i < 1; ++i)
+					// TODO:find a condition for when to finish em
+					for(unsigned i = 0; i < 10; ++i)
 						math_util::em_step(samples, components);
 
 					// Save results
+					std::sort(components.begin(), components.end(), [] (const auto& a, const auto& b) {return a._weight > b._weight;});
 					for(unsigned c = 0; c < components.size(); ++c)
 					{
 						newstep._fields[f*3]._data[i + newstep._fields[f*3].area() * c] = components[c]._mean;	// Mean

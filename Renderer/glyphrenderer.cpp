@@ -19,7 +19,7 @@ namespace vis
 	{
 		glBindVertexArray(genVao());
 
-		const unsigned field = 4;
+		const unsigned field = 6;
 		const auto& mean_field = ensemble->currentStep().fields().at(field);
 		const auto& var_field = ensemble->currentStep().fields().at(field+1);
 		if(!mean_field.same_dimensions(var_field))

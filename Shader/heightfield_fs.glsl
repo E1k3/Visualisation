@@ -1,6 +1,6 @@
 #version 330 core
 
-in float intensity;
+flat in float intensity;
 
 out vec4 color;
 

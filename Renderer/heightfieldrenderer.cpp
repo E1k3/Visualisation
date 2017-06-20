@@ -21,7 +21,7 @@ namespace vis
 	{
 		glBindVertexArray(genVao());
 
-		const unsigned field = 4;
+		const unsigned field = 6;
 		const auto& mean_field = ensemble->currentStep().fields().at(field);
 		const auto& var_field = ensemble->currentStep().fields().at(field+1);
 		if(!mean_field.same_dimensions(var_field))
@@ -42,14 +42,14 @@ namespace vis
 
 		// Mean (color)
 		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*mean_field.volume(),
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*mean_field.area(),
 					 mean_field._data.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
 
 		// Variance (height)
 		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*var_field.volume(),
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*var_field.area(),
 					 var_field._data.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(2);
@@ -59,7 +59,7 @@ namespace vis
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, genBuffer());
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
 					 &indices[0], GL_STATIC_DRAW);
-		_num_vertices = mean_field.volume()*6;
+		_num_vertices = mean_field.area()*6;
 
 		// Shaders
 		auto vertex_shader = loadShader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_vs.glsl",

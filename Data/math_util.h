@@ -9,10 +9,13 @@ namespace vis
 	{
 		struct GMMComponent
 		{
-			float _weight;
 			float _mean;
 			float _variance;
+			float _weight;
 		};
+
+		void test_em();
+		std::vector<float> add_interp_data(std::vector<float> samples, unsigned factor);
 
 		/**
 		 * @brief normal_density Calculates the probability density of a normal distribution at one point.
@@ -46,7 +49,7 @@ namespace vis
 		 * @brief count_modes Tries to approximate the number of modes (peaks) in the samples distribution.
 		 * @param samples The samples that are analyzed.
 		 */
-		unsigned count_modes(const std::vector<float>& samples);
+		unsigned count_modes(const std::vector<float>& samples, unsigned num_bins);
 	}
 }
 
