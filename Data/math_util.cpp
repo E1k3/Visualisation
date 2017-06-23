@@ -66,8 +66,10 @@ namespace vis
 
 	float math_util::normal_density(float x, float mean, float variance)
 	{
-		const float pi = std::acos(-1.f);
-		return 1 / (std::sqrt( 2 * pi * variance)) * std::exp(-std::pow(x - mean, 2.f) / (2 * variance));
+		if(variance <= 0.f)
+			return 0.f;
+		constexpr float pi = static_cast<float>(M_PI);
+		return (1 / (std::sqrt( 2 * pi * variance))) * std::exp(- square(x - mean) / (2 * variance));
 	}
 
 	float math_util::gmm_density(float x, const std::vector<math_util::GMMComponent>& components)
@@ -104,7 +106,7 @@ namespace vis
 			unsigned i = 0;
 			for(const auto& samp : samples)
 			{
-				auto sample_prob_density = gmm_density(samp, components);
+				auto sample_prob_density = gmm_density(samp, components);	// TODO:make sure this is > 0
 				for(const auto& comp : components)
 					sample_weights[i++] = normal_density(samp, comp._mean, comp._variance) * comp._weight / sample_prob_density;
 			}
@@ -130,7 +132,7 @@ namespace vis
 			// Variance
 			components[c]._variance = 0.f;
 			for(unsigned s = 0; s < samples.size(); ++s)
-				components[c]._variance += sample_weights[s * components.size() + c] * static_cast<float>(std::pow(samples[s] - components[c]._mean, 2));
+				components[c]._variance += sample_weights[s * components.size() + c] * square(samples[s] - components[c]._mean);
 			components[c]._variance /= weight_sum;
 		}
 	}
@@ -181,19 +183,6 @@ namespace vis
 		}
 		if(rising)
 			++num_peaks;
-
-//		std::cout << "min:" << min - 0.5f*width << " max:" << min - 0.5f*width + width*bins.size() << "\n---\n";
-//		unsigned sum = 0;
-//		for(auto& bin : bins)
-//		{
-//			sum += bin;
-//			std::cout << bin << "\t";
-//			for(unsigned i = 0; i < bin; ++i)
-//				std::cout << "#";
-//			std::cout << "\n---\n";
-//		}
-//		if(sum < samples.size())
-//			std::cout << "ERROR";
 
 		return num_peaks;
 	}

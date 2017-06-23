@@ -14,6 +14,8 @@ namespace vis
 			float _weight;
 		};
 
+		inline float square(float x) { return x*x; }
+
 		void test_em();
 		std::vector<float> add_interp_data(std::vector<float> samples, unsigned factor);
 

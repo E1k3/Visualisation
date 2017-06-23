@@ -103,8 +103,6 @@ namespace vis
 			newstep._fields.back()._name = field._name + "_weight";
 		}
 
-		auto re = std::default_random_engine{std::random_device{}()};
-		auto random = std::uniform_real_distribution<float>{0, 1};
 		for(unsigned f = 0; f < front.num_fields(); ++f)
 		{
 			for(unsigned i = 0; i < newstep._fields[f].area(); ++i)
@@ -131,23 +129,18 @@ namespace vis
 				else
 				{
 					auto components = std::vector<math_util::GMMComponent>(mode_count);
-					auto sample_min = *std::min_element(samples.begin(), samples.end());
-					auto sample_max = *std::max_element(samples.begin(), samples.end());
-					auto weight_sum = 0.f;
 
 					for(auto& component : components)
 					{
-						component._mean = random(re) * sample_max + sample_min;
-						component._variance = random(re) * (sample_max - sample_min);
-						component._weight = random(re) * (1.f - weight_sum);
-
-						weight_sum += component._weight;
+						// TODO:find usefull initialization
+						component._mean = math_util::mean(samples);
+						component._variance = math_util::variance(samples, component._mean);
+						component._weight = 1.f/components.size();
 					}
-					components.back()._weight += 1.f - weight_sum;
 
 					// Execute EM until accurate
 					// TODO:find a condition for when to finish em
-					for(unsigned i = 0; i < 10; ++i)
+					for(unsigned i = 0; i < 5; ++i)
 						math_util::em_step(samples, components);
 
 					// Save results
