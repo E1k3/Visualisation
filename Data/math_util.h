@@ -34,7 +34,7 @@ namespace vis
 		 * @param components The GMMs components
 		 * @return The GMM density at x.
 		 */
-		float gmm_density(float x, const std::vector<GMMComponent>& components);
+		float gmm_density(float x, const std::vector<GMMComponent>& gmm);
 
 		float mean(const std::vector<float>& samples);
 
@@ -45,13 +45,20 @@ namespace vis
 		 * @param samples The sample data.
 		 * @param components The GMMs components.
 		 */
-		void em_step(const std::vector<float>& samples, std::vector<GMMComponent>& components);
+		void em_step(const std::vector<float>& samples, std::vector<GMMComponent>& gmm);
+
+		std::vector<GMMComponent> fit_gmm(const std::vector<float>& samples, unsigned num_components, float epsilon, unsigned max_iterations);
+
+		float gmm_log_likelyhood(const std::vector<float>& samples, const std::vector<GMMComponent>& gmm);
 
 		/**
-		 * @brief count_modes Tries to approximate the number of modes (peaks) in the samples distribution.
+		 * @brief find_peaks Tries to approximate the number of modes (peaks) in the samples distribution.
 		 * @param samples The samples that are analyzed.
+		 * @return A collection of the midpoints of the peaks. TODO:change this line
 		 */
-		unsigned count_modes(const std::vector<float>& samples, unsigned num_bins);
+		unsigned count_peaks(const std::vector<float>& samples, unsigned num_bins);
+
+		std::vector<float> pick_randomly(std::vector<float> samples, unsigned num_picks);
 	}
 }
 

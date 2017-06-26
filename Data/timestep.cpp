@@ -3,7 +3,6 @@
 #include <sstream>
 #include <algorithm>
 #include <cmath>
-#include <random>
 
 #include "logger.h"
 #include "math_util.h"
@@ -17,15 +16,18 @@ namespace vis
 				&& other._depth == _depth;
 	}
 
+
 	float Timestep::ScalarField::minimum() const
 	{
 		return *std::min_element(_data.begin(), _data.end());
 	}
 
+
 	float Timestep::ScalarField::maximum() const
 	{
 		return *std::max_element(_data.begin(), _data.end());
 	}
+
 
 	Timestep Timestep::gaussian_analysis(const std::vector<Timestep>& ensemble)
 	{
@@ -74,6 +76,7 @@ namespace vis
 		return newstep;
 	}
 
+
 	Timestep Timestep::gaussian_mixture_analysis(const std::vector<Timestep>& ensemble, unsigned max_components)
 	{
 		// Validate ensemble to only have elements of the same format
@@ -113,49 +116,19 @@ namespace vis
 				for(const auto& sample : ensemble)
 					samples.push_back(sample.fields()[f]._data[i]);
 
-				// Determine the mode count (capped at max_components)
-				auto mode_count = std::min(max_components, math_util::count_modes(samples, static_cast<unsigned>(samples.size()/2)));
-
-				// If modecount <= 1 -> gaussian approximation
-				if(mode_count <= 1)
+				auto gmm = math_util::fit_gmm(samples, max_components, 0.01f, 10);
+				for(unsigned c = 0; c < max_components; ++c)
 				{
-					auto mean = math_util::mean(samples);
-					newstep._fields[f*3]._data[i] = mean;	// Mean
-					newstep._fields[f*3 + 1]._data[i] = math_util::variance(samples, mean);	// Variance
-					newstep._fields[f*3 + 2]._data[i] = 1.f;	// Weight
-				}
-				// If modecount > 1 -> GMM approximation (using EM)
-				// Initialize GMM (random) with mode_count components
-				else
-				{
-					auto components = std::vector<math_util::GMMComponent>(mode_count);
-
-					for(auto& component : components)
-					{
-						// TODO:find usefull initialization
-						component._mean = math_util::mean(samples);
-						component._variance = math_util::variance(samples, component._mean);
-						component._weight = 1.f/components.size();
-					}
-
-					// Execute EM until accurate
-					// TODO:find a condition for when to finish em
-					for(unsigned i = 0; i < 5; ++i)
-						math_util::em_step(samples, components);
-
-					// Save results
-					std::sort(components.begin(), components.end(), [] (const auto& a, const auto& b) {return a._weight > b._weight;});
-					for(unsigned c = 0; c < components.size(); ++c)
-					{
-						newstep._fields[f*3]._data[i + newstep._fields[f*3].area() * c] = components[c]._mean;	// Mean
-						newstep._fields[f*3 + 1]._data[i + newstep._fields[f*3 + 1].area() * c] = components[c]._variance;	// Variance
-						newstep._fields[f*3 + 2]._data[i + newstep._fields[f*3 + 2].area() * c] = components[c]._weight;	// Weight
-					}
+					auto di = i + newstep._fields[f*3].area() * c;
+					newstep._fields[f*3]._data[di]     = gmm[c]._mean;	    // Mean
+					newstep._fields[f*3 + 1]._data[di] = gmm[c]._variance;	// Variance
+					newstep._fields[f*3 + 2]._data[di] = gmm[c]._weight;	// Weight
 				}
 			}
 		}
 		return newstep;
 	}
+
 
 	Timestep::Timestep(std::istream& instream)
 	{
