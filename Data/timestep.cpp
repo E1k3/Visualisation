@@ -113,10 +113,11 @@ namespace vis
 				// Collect samples
 				auto samples = std::vector<float>{};
 				samples.reserve(ensemble.size());
-				for(const auto& sample : ensemble)
-					samples.push_back(sample.fields()[f]._data[i]);
+				for(const auto& step : ensemble)
+					samples.push_back(step.fields()[f]._data[i]);
+				samples = math_util::linear_interp(samples, 2);
 
-				auto gmm = math_util::fit_gmm(samples, max_components, 0.01f, 10);
+				auto gmm = math_util::fit_gmm(samples, max_components, 0.01f, 50);
 				for(unsigned c = 0; c < max_components; ++c)
 				{
 					auto di = i + newstep._fields[f*3].area() * c;

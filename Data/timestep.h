@@ -60,7 +60,7 @@ namespace vis
 		 * @param num_components The number of components the gaussian mixture model will have.
 		 * @return The newly constructed timestep.
 		 */
-		static Timestep gaussian_mixture_analysis(const std::vector<Timestep>& ensemble, unsigned max_components = 2);
+		static Timestep gaussian_mixture_analysis(const std::vector<Timestep>& ensemble, unsigned max_components = 3);
 
 		/**
 		 * @brief Timestep Empty constructor. Leaves everything as default.
