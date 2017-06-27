@@ -115,15 +115,14 @@ namespace vis
 				samples.reserve(ensemble.size());
 				for(const auto& step : ensemble)
 					samples.push_back(step.fields()[f]._data[i]);
-				samples = math_util::linear_interp(samples, 2);
 
-				auto gmm = math_util::fit_gmm(samples, max_components, 0.01f, 50);
+				auto gmm = math_util::fit_gmm(samples, max_components, .01f, 50);
+
 				for(unsigned c = 0; c < max_components; ++c)
 				{
-					auto di = i + newstep._fields[f*3].area() * c;
-					newstep._fields[f*3]._data[di]     = gmm[c]._mean;	    // Mean
-					newstep._fields[f*3 + 1]._data[di] = gmm[c]._variance;	// Variance
-					newstep._fields[f*3 + 2]._data[di] = gmm[c]._weight;	// Weight
+					newstep._fields[f*3].set_point(i, c, gmm[c]._mean);	        // Mean
+					newstep._fields[f*3 + 1].set_point(i, c, gmm[c]._variance);	// Variance
+					newstep._fields[f*3 + 2].set_point(i, c, gmm[c]._weight);	// Weight
 				}
 			}
 		}

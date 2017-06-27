@@ -22,9 +22,11 @@ namespace vis
 
 			}
 
-			inline unsigned volume() const {return area()*_depth;}
-			inline unsigned area() const {return _width*_height;}
-			inline float get_point(unsigned x, unsigned y, unsigned z) const {return _data[z*area() + y*_width + x];}
+			inline unsigned volume() const { return area()*_depth; }
+			inline unsigned area() const { return _width*_height; }
+			inline float get_point(unsigned x, unsigned y, unsigned z) const { return _data[z*area() + y*_width + x]; }
+			inline void set_point(unsigned i, unsigned z, float val) { _data[z*area() + i] = val; }
+			inline void set_point(unsigned x, unsigned y, unsigned z, float val) { _data[z*area() + y*_width + x] = val; }
 
 			bool same_dimensions(const ScalarField& other) const;
 
@@ -60,7 +62,7 @@ namespace vis
 		 * @param num_components The number of components the gaussian mixture model will have.
 		 * @return The newly constructed timestep.
 		 */
-		static Timestep gaussian_mixture_analysis(const std::vector<Timestep>& ensemble, unsigned max_components = 3);
+		static Timestep gaussian_mixture_analysis(const std::vector<Timestep>& ensemble, unsigned max_components);
 
 		/**
 		 * @brief Timestep Empty constructor. Leaves everything as default.

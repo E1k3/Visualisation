@@ -108,7 +108,7 @@ namespace vis
 
 	std::vector<math_util::GMMComponent> math_util::fit_gmm(const std::vector<float>& samples, unsigned num_components, float epsilon, unsigned max_iterations)
 	{
-		auto peaks = count_peaks(samples, static_cast<unsigned>(samples.size()/4));	// TODO:find better way to choose number of bins
+		auto peaks = count_peaks(samples, static_cast<unsigned>(samples.size()/2.f));	// TODO:find better way to choose number of bins
 		auto gmm = std::vector<GMMComponent>();
 
 		if(num_components == 0)
@@ -145,6 +145,11 @@ namespace vis
 			}
 			std::sort(gmm.begin(), gmm.end(), [] (const auto& a, const auto& b) {return a._weight > b._weight;});
 			gmm.resize(num_components);
+			float weight_sum = 0.f;
+			for(const auto& c : gmm)
+				weight_sum += c._weight;
+			for(auto& c : gmm)
+				c._weight *= 1.f/weight_sum;
 			return gmm;
 		}
 	}
@@ -163,7 +168,7 @@ namespace vis
 		// Algorithm: Binning using equally spaced and sized bins.
 		// TODO:use a better way to find peaks
 		auto bins = std::vector<unsigned>(num_bins);
-		if(bins.size() < 2)
+		if(bins.size() <= 2)
 			return {};
 
 		const float min = *std::min_element(samples.begin(), samples.end());
