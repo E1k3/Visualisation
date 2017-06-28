@@ -90,7 +90,7 @@ namespace vis
 		/**
 		 * @brief find_peaks Tries to approximate the number of modes (peaks) in the samples distribution.
 		 * @param samples The samples that are analyzed.
-		 * @return A collection of the midpoints of the peaks. TODO:change this line
+		 * @return The number of peaks found in the sample data.
 		 */
 		unsigned count_peaks(const std::vector<float>& samples, unsigned num_bins);
 

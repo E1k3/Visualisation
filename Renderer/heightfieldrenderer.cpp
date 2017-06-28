@@ -82,24 +82,6 @@ namespace vis
 		glUniform4f(_bounds_uniform, mean_field.minimum(), mean_field.maximum(), var_field.minimum(), var_field.maximum()); // TODO:Save bounds as renderer state to scale data live.
 	}
 
-	HeightfieldRenderer::HeightfieldRenderer(HeightfieldRenderer&& other) noexcept
-		: HeightfieldRenderer{other._ensemble, other._input}
-	{
-		swap(*this, other);
-	}
-
-	HeightfieldRenderer& HeightfieldRenderer::operator=(HeightfieldRenderer other) noexcept
-	{
-		swap(*this, other);
-		return *this;
-	}
-
-	HeightfieldRenderer& HeightfieldRenderer::operator=(HeightfieldRenderer&& other) noexcept
-	{
-		swap(*this, other);
-		return *this;
-	}
-
 	void HeightfieldRenderer::draw(float delta_time)
 	{
 		// Input handling

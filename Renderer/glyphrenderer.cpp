@@ -19,7 +19,7 @@ namespace vis
 	{
 		glBindVertexArray(genVao());
 
-		const unsigned field = 6;
+		constexpr unsigned field = 6;
 		const auto& mean_field = ensemble->currentStep().fields().at(field);
 		const auto& var_field = ensemble->currentStep().fields().at(field+1);
 		if(!mean_field.same_dimensions(var_field))
@@ -97,24 +97,6 @@ namespace vis
 		glUniform2uiv(glGetUniformLocation(prog, "size"), 1, glm::value_ptr(size));
 		_bounds_uniform = glGetUniformLocation(prog, "bounds");
 		glUniform4f(_bounds_uniform, mean_field.minimum(), mean_field.maximum(), var_field.minimum(), var_field.maximum()); // TODO:Save bounds as renderer state to scale data live.
-	}
-
-	GlyphRenderer::GlyphRenderer(GlyphRenderer&& other) noexcept
-		: GlyphRenderer{other._ensemble, other._input}
-	{
-		swap(*this, other);
-	}
-
-	GlyphRenderer& GlyphRenderer::operator=(GlyphRenderer other) noexcept
-	{
-		swap(*this, other);
-		return *this;
-	}
-
-	GlyphRenderer& GlyphRenderer::operator=(GlyphRenderer&& other) noexcept
-	{
-		swap(*this, other);
-		return *this;
 	}
 
 	void GlyphRenderer::draw(float /*delta_time*/)

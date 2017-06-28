@@ -14,29 +14,6 @@ namespace vis
 	public:
 		explicit GlyphRenderer(EnsembleManager* ensemble, InputManager* input);
 
-		explicit GlyphRenderer(const GlyphRenderer& other) = default;
-
-		explicit GlyphRenderer(GlyphRenderer&& other) noexcept;
-
-		GlyphRenderer& operator=(GlyphRenderer other) noexcept;
-
-		GlyphRenderer& operator=(GlyphRenderer&& other) noexcept;
-
-		friend void swap(GlyphRenderer& first, GlyphRenderer& second)
-		{
-			using std::swap;
-			swap(static_cast<Renderer&>(first), static_cast<Renderer&>(second));
-
-			swap(first._ensemble, second._ensemble);
-			swap(first._input, second._input);
-
-			swap(first._num_vertices, second._num_vertices);
-			swap(first._mvp_uniform, second._mvp_uniform);
-			swap(first._bounds_uniform, second._bounds_uniform);
-			swap(first._translate, second._translate);
-			swap(first._scale, second._scale);
-		}
-
 		void draw(float delta_time);
 
 	private:
@@ -46,8 +23,8 @@ namespace vis
 		InputManager* _input;
 
 		unsigned _num_vertices;
-		int _mvp_uniform;
-		int _bounds_uniform;
+		GLint _mvp_uniform;
+		GLint _bounds_uniform;
 		glm::vec3 _translate{0.f};
 		float _scale{1.f};
 	};

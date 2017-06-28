@@ -6,11 +6,9 @@
 #include <streambuf>
 #include <algorithm>
 
-#include <GL/glew.h>
-
 namespace vis
 {
-	unsigned Renderer::loadShader(std::string path, unsigned type)
+	unsigned Renderer::loadShader(std::string path, GLuint type)
 	{
 		// Check requirements
 		auto types = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER,
@@ -59,31 +57,38 @@ namespace vis
 		return id;
 	}
 
-	unsigned Renderer::genVao()
+	GLuint Renderer::genVao()
 	{
-		_vaos.push_back(0);
-		glGenVertexArrays(1, &_vaos.back());
-		return _vaos.back();
+		constexpr auto deleter = [] (GLuint id) { glDeleteVertexArrays(1, &id); };
+		GLuint id = 0;
+		glGenVertexArrays(1, &id);
+		_vaos.push_back(GLObject(id, deleter));
+		return _vaos.back().get();
 	}
 
-	unsigned Renderer::genBuffer()
+	GLuint Renderer::genBuffer()
 	{
-		_buffers.push_back(0);
-		glGenBuffers(1, &_buffers.back());
-		return _buffers.back();
+		constexpr auto deleter = [] (GLuint id) { glDeleteBuffers(1, &id); };
+		GLuint id = 0;
+		glGenBuffers(1, &id);
+		_buffers.push_back(GLObject(id, deleter));
+		return _buffers.back().get();
 	}
 
-	unsigned Renderer::genTexture()
+	GLuint Renderer::genTexture()
 	{
-		_textures.push_back(0);
-		glGenTextures(1, &_textures.back());
-		return _textures.back();
+		constexpr auto deleter = [] (GLuint id) { glDeleteTextures(1, &id); };
+		GLuint id = 0;
+		glGenTextures(1, &id);
+		_textures.push_back(GLObject(id, deleter));
+		return _textures.back().get();
 	}
 
-	unsigned Renderer::genProgram()
+	GLuint Renderer::genProgram()
 	{
-		_programs.push_back(glCreateProgram());
-		return _programs.back();
+		constexpr auto deleter = [] (GLuint id) { glDeleteProgram(id); };
+		_programs.push_back(GLObject(glCreateProgram(), deleter));
+		return _programs.back().get();
 	}
 
 	std::vector<float> Renderer::genGrid(unsigned width, unsigned height)
@@ -126,26 +131,5 @@ namespace vis
 			}
 		}
 		return indices;
-	}
-
-	Renderer::Renderer(Renderer&& other) noexcept
-		: Renderer()
-	{
-		swap(*this, other);
-	}
-
-	Renderer& Renderer::operator=(Renderer other) noexcept
-	{
-		swap(*this, other);
-		return *this;
-	}
-
-	Renderer::~Renderer()
-	{
-		glDeleteVertexArrays(static_cast<int>(_vaos.size()), _vaos.data());
-		glDeleteBuffers(static_cast<int>(_buffers.size()), _buffers.data());
-		glDeleteTextures(static_cast<int>(_textures.size()), _textures.data());
-		for(auto prog : _programs)
-			glDeleteProgram(prog);
 	}
 }

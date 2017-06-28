@@ -4,6 +4,10 @@
 #include <vector>
 #include <string>
 
+#include <GL/glew.h>
+
+#include "globject.h"
+
 namespace vis
 {
 	class Renderer
@@ -14,53 +18,30 @@ namespace vis
 		 * @param path The path at which the glsl file is located.
 		 * @param type Shader type (one of the GLenum shadertypes defined by GLEW) <- bad practice
 		 */
-		static unsigned loadShader(std::string path, unsigned type);
+		static unsigned loadShader(std::string path, GLuint type);
 
-		unsigned genVao();
+		GLuint genVao();
 
-		unsigned genBuffer();
+		GLuint genBuffer();
 
-		unsigned genTexture();
+		GLuint genTexture();
 
-		unsigned genProgram();
+		GLuint genProgram();
 
 		static std::vector<float> genGrid(unsigned width, unsigned height);
 
 		static std::vector<unsigned> genGridIndices(unsigned width, unsigned height);
 
-		virtual ~Renderer();
-
-	protected:
-		/// @brief Renderer Default constructor.
-		explicit Renderer() = default;
-		/// @brief Renderer Default copy constructor.
-		explicit Renderer(const Renderer& other) = default;
-		/// @brief Renderer Move constructor.
-		explicit Renderer(Renderer&& other) noexcept;
-		/// @brief operator= Copy assignment operator.
-		Renderer& operator=(Renderer other) noexcept;
-
-		/**
-		 * @brief swap Swaps state of two HeightfieldRenderers.
-		 */
-		friend void swap(Renderer& first, Renderer& second) noexcept
-		{
-			using std::swap;
-			swap(first._vaos, second._vaos);
-			swap(first._buffers, second._buffers);
-			swap(first._textures, second._textures);
-			swap(first._programs, second._programs);
-		}
-
 	private:
+
 		/// GL IDs of the vertex array object.
-		std::vector<unsigned> _vaos;
+		std::vector<GLObject> _vaos;
 		/// GL IDs of vertex buffer objects.
-		std::vector<unsigned> _buffers;
+		std::vector<GLObject> _buffers;
 		/// GL IDs of textures.
-		std::vector<unsigned> _textures;
+		std::vector<GLObject> _textures;
 		/// GL IDs of the shader program.
-		std::vector<unsigned> _programs;
+		std::vector<GLObject> _programs;
 	};
 }
 

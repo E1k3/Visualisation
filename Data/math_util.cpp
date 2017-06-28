@@ -99,6 +99,7 @@ namespace vis
 			// Avoid singularity (variance == 0 -> mean == NaN, weight == NaN, etc)
 			if(gmm[c]._variance <= std::numeric_limits<float>::min())
 			{
+				// TODO:find out which way to avoid singularities is the best
 				gmm[c]._mean = pick_randomly(samples);
 				gmm[c]._variance = variance(samples, gmm[c]._mean);
 			}
@@ -165,8 +166,6 @@ namespace vis
 
 	unsigned math_util::count_peaks(const std::vector<float>& samples, unsigned num_bins)
 	{
-		// Algorithm: Binning using equally spaced and sized bins.
-		// TODO:use a better way to find peaks
 		auto bins = std::vector<unsigned>(num_bins);
 		if(bins.size() <= 2)
 			return {};
@@ -175,14 +174,14 @@ namespace vis
 		const float max = *std::max_element(samples.begin(), samples.end());
 		float width = (max - min) / (bins.size()-1);
 
-		if(width <= std::numeric_limits<float>::min()) // TODO:maybe change this?!
+		if(width <= std::numeric_limits<float>::min())
 			return {};
 
 		// Fill bins
 		for(const auto& sample : samples)
 		{
 			float ceiling = min + .5f*width;
-			for(auto& bin : bins)	// Inefficient search (TODO:use std function or custom binary search)
+			for(auto& bin : bins)
 			{
 				if(sample <= ceiling)
 				{
