@@ -94,6 +94,12 @@ namespace vis
 			input.add_scroll_offset(static_cast<int>(x), static_cast<int>(y));
 		};
 		glfwSetScrollCallback(&*_window, scroll_callback);
+		auto framebuffer_callback = [] (GLFWwindow* window, int x, int y)
+		{
+			auto& input = *static_cast<InputManager*>(glfwGetWindowUserPointer(window));
+			input.resize_framebuffer(x, y);
+		};
+		glfwSetFramebufferSizeCallback(&*_window, framebuffer_callback);
 
 		GlyphRenderer renderer{&_ensemble, &input};
 

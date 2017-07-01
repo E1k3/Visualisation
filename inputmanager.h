@@ -47,17 +47,17 @@ namespace vis
 		 * @brief get_cursor_position Returns the current cursor position.
 		 * @return The cursor position as 2D vector.
 		 */
-		glm::vec2 get_cursor_position();
+		glm::vec2 get_cursor_position() const;
 		/**
 		 * @brief get_cursor_position_x Returns the current cursor x position.
 		 * @return The cursor position in x direction.
 		 */
-		float get_cursor_position_x();
+		float get_cursor_position_x() const;
 		/**
 		 * @brief get_cursor_position_y Returns the current cursor y position.
 		 * @return The cursor position in y direction.
 		 */
-		float get_cursor_position_y();
+		float get_cursor_position_y() const;
 
 		/**
 		 * @brief get_cursor_offset Returns the saved cursor offset and resets the stored offset.
@@ -78,16 +78,21 @@ namespace vis
 		/**
 		 * @brief add_scroll_offset Adds the offset to the stored value.
 		 * The value is stored until it is requested.
+		 * @param offset The occuring offset.
+		 */
+		void add_scroll_offset(glm::ivec2 offset);
+		/**
+		 * @brief add_scroll_offset Adds the offset to the stored value.
+		 * The value is stored until it is requested.
 		 * @param x_offset The occuring offset in x direction.
 		 * @param y_offset The occuring offset in y direction.
 		 */
 		void add_scroll_offset(int x_offset, int y_offset);
 		/**
-		 * @brief add_scroll_offset Adds the offset to the stored value.
-		 * The value is stored until it is requested.
-		 * @param offset The occuring offset.
+		 * @brief get_scroll_offset Returns the total scroll offset since the last request and resets the stored value.
+		 * @return The scroll offset.
 		 */
-		void add_scroll_offset(glm::ivec2 offset);
+		glm::ivec2 get_scroll_offset();
 		/**
 		 * @brief get_scroll_offset_x Returns the total scroll offset in x direction since the last request and resets the stored x value.
 		 * @return The x offset.
@@ -98,11 +103,16 @@ namespace vis
 		 * @return The y offset.
 		 */
 		int get_scroll_offset_y();
-		/**
-		 * @brief get_scroll_offset Returns the total scroll offset since the last request and resets the stored value.
-		 * @return The scroll offset.
-		 */
-		glm::ivec2 get_scroll_offset();
+
+		void resize_framebuffer(glm::ivec2 size);
+
+		void resize_framebuffer(int x, int y);
+
+		glm::ivec2 get_framebuffer_size() const;
+
+		int get_framebuffer_size_x() const;
+
+		int get_framebuffer_size_y() const;
 
 	private:
 		std::map<int, bool> _pressed;
@@ -112,6 +122,8 @@ namespace vis
 		glm::vec2 _cursor_offset;
 
 		glm::ivec2 _scroll_offset;
+
+		glm::ivec2 _framebuffer_size;
 	};
 }
 
