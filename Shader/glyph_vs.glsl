@@ -13,6 +13,6 @@ uniform vec4 bounds;
 void main()
 {
 	gl_Position = mvp*vec4(pos, 0.f, 1.f);
-	uv = pos*.5f + .5f;
+	uv = pos/2 + .5f;
 	data = (vec2(mean, dev)-bounds.xz) / bounds.yw;
 }

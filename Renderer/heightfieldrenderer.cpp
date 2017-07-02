@@ -103,8 +103,10 @@ namespace vis
 		if(_input->get_key(GLFW_KEY_D))
 			_cam_position += normalize(cross(_cam_direction, vec3{0.f, 0.f, 1.f})) * delta_time;
 
+		auto viewport = _input->get_framebuffer_size();
+
 		// MVP calculation
-		auto model = scale(mat4{1.f}, vec3{192.f/96.f, 1.f, 1.f});
+		auto model = scale(mat4{1.f}, vec3{192.f/96.f * viewport.y/viewport.x, 1.f, 1.f});
 		auto view = lookAt(_cam_position, _cam_position+_cam_direction, vec3{0.f, 0.f, 1.f});
 		auto proj = perspective(radians(45.f), 16.f / 9.f, .2f, 10.f);
 		auto mvp = proj * view * model;

@@ -69,7 +69,6 @@ namespace vis
 		// Set up input manager
 		auto input = InputManager{};
 		glfwSetWindowUserPointer(&*_window, &input);
-		glfwSetFramebufferSizeCallback(&*_window, framebuffer_callback);
 
 		auto key_callback = [] (GLFWwindow* window, int keycode, int /*scancode*/, int action, int /*mods*/)
 		{
@@ -96,12 +95,13 @@ namespace vis
 		glfwSetScrollCallback(&*_window, scroll_callback);
 		auto framebuffer_callback = [] (GLFWwindow* window, int x, int y)
 		{
+			glViewport(0, 0, x, y);
 			auto& input = *static_cast<InputManager*>(glfwGetWindowUserPointer(window));
 			input.resize_framebuffer(x, y);
 		};
 		glfwSetFramebufferSizeCallback(&*_window, framebuffer_callback);
 
-		GlyphRenderer renderer{&_ensemble, &input};
+		HeightfieldRenderer renderer{&_ensemble, &input};
 
 		glClearColor(.2f, .2f, .2f, 1.f);
 
@@ -131,10 +131,5 @@ namespace vis
 
 		// TODO:ERROR handling
 		throw std::runtime_error("GLFW ERROR");
-	}
-
-	void Application::framebuffer_callback(GLFWwindow* /*window*/, int width, int height)
-	{
-		glViewport(0, 0, width, height);
 	}
 }

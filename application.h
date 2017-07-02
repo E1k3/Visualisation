@@ -34,14 +34,6 @@ namespace vis
 		 */
 		[[noreturn]] static void error_callback(int error, const char* description);
 
-		/**
-		 * @brief framebuffer_callback Callback function to be used by GLFW to indicate changes in framebuffer size.
-		 * @param window The window that holds the changed framebuffer.
-		 * @param width The new framebuffer width.
-		 * @param height The new framebuffer height.
-		 */
-		static void framebuffer_callback(GLFWwindow* window, int width, int height);
-
 		std::unique_ptr<GLFWwindow, std::function<void(GLFWwindow*)>> _window;
 		EnsembleManager _ensemble;
 

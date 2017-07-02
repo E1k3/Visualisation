@@ -112,8 +112,10 @@ namespace vis
 		auto scale_offset = _input->get_scroll_offset_y();
 		_scale *= 1.f + scale_offset*scrollspeed;
 
+		auto viewport = _input->get_framebuffer_size();
+
 		// MVP calculation
-		auto model = mat4{1.f};
+		auto model = scale(mat4{1.f}, vec3{192.f/96.f * viewport.y/viewport.x, 1.f, 1.f});
 		auto view = glm::scale(glm::mat4{1.f}, vec3{_scale, _scale, 1.f}) * glm::translate(glm::mat4{1.f}, _translate);
 		auto proj = mat4{1.f};
 		auto mvp = proj * view * model;

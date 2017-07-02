@@ -102,8 +102,8 @@ namespace vis
 		{
 			for(unsigned col = 0; col < width; ++col)
 			{
-				float x = static_cast<float>(col)/(width-1);
-				float y = static_cast<float>(row)/(height-1);
+				float x = col/(width-1.f);
+				float y = row/(height-1.f);
 				grid[(row*width + col)*2] = x*2.f - 1.f;
 				grid[(row*width + col)*2 + 1] = y*2.f - 1.f;
 			}
