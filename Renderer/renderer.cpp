@@ -93,20 +93,27 @@ namespace vis
 
 	std::vector<float> Renderer::genGrid(unsigned width, unsigned height)
 	{
-		auto grid = std::vector<float>(width * height * 2);
+		auto grid = std::vector<float>(width * height * 4);
 
 		if(width*height == 0)
 			return grid;	// TODO:error handling?
 
+		float uv_y = 1.f;
 		for(unsigned row = 0; row < height; ++row)
 		{
+			float uv_x = 0.f;
 			for(unsigned col = 0; col < width; ++col)
 			{
 				float x = col/(width-1.f);
 				float y = row/(height-1.f);
-				grid[(row*width + col)*2] = x*2.f - 1.f;
-				grid[(row*width + col)*2 + 1] = y*2.f - 1.f;
+				grid[(row*width + col)*4] = x*2.f - 1.f;
+				grid[(row*width + col)*4 + 1] = y*2.f - 1.f;
+				grid[(row*width + col)*4 + 2] = uv_x;
+				grid[(row*width + col)*4 + 3] = uv_y;
+
+				uv_x = 1.f - uv_x;
 			}
+			uv_y = 1.f - uv_y;
 		}
 		return grid;
 	}

@@ -101,7 +101,7 @@ namespace vis
 		};
 		glfwSetFramebufferSizeCallback(&*_window, framebuffer_callback);
 
-		HeightfieldRenderer renderer{&_ensemble, &input};
+		GlyphRenderer renderer{_ensemble.currentStep().fields().at(6), _ensemble.currentStep().fields().at(7), _ensemble.currentStep().fields().at(8), input};
 
 		glClearColor(.2f, .2f, .2f, 1.f);
 

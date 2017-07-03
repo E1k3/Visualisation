@@ -1,7 +1,9 @@
 #version 330 core
 
 smooth in vec2 uv;
-flat in vec2 data; // (mean, dev)
+flat in vec4 mean_; // (mean, dev)
+flat in vec4 var_;
+flat in vec4 weight_;
 
 out vec4 color;
 
@@ -17,5 +19,5 @@ vec3 palette(float x)
 void main()
 {
 	vec3 mask = texture(mask, uv).rgb;
-	color = vec4(palette(mask.r*(data.x + data.y) + mask.g*data.x + mask.b*(data.x - data.y)), 1.f);
+	color = vec4(palette(mask.r*(mean_.x + var_.x) + mask.g*mean_.x + mask.b*(mean_.x - var_.x)), 1.f);
 }

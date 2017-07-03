@@ -14,16 +14,10 @@
 
 namespace vis
 {
-	HeightfieldRenderer::HeightfieldRenderer(EnsembleManager* ensemble, InputManager* input)
+	HeightfieldRenderer::HeightfieldRenderer(const Timestep::ScalarField& mean_field, const Timestep::ScalarField& var_field, InputManager& input)
 		: Renderer{},
-		  _ensemble{ensemble},
 		  _input{input}
 	{
-		glBindVertexArray(genVao());
-
-		const unsigned field = 6;
-		const auto& mean_field = ensemble->currentStep().fields().at(field);
-		const auto& var_field = ensemble->currentStep().fields().at(field+1);
 		if(!mean_field.same_dimensions(var_field))
 		{
 			Logger::instance() << Logger::Severity::ERROR
@@ -32,12 +26,14 @@ namespace vis
 			//TODO:ERROR handling. mean and var field have differing size.
 		}
 
+		glBindVertexArray(genVao());
+
 		// Grid (position)
 		auto grid = genGrid(mean_field._width, mean_field._height);
 		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
 		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
 		glEnableVertexAttribArray(0);
 
 		// Mean (color)
@@ -87,23 +83,23 @@ namespace vis
 		// Input handling
 		using namespace glm;
 		const float mousespeed = 0.02f;
-		_cam_direction = rotateZ(_cam_direction, radians(_input->get_cursor_offset_x() * mousespeed));
+		_cam_direction = rotateZ(_cam_direction, radians(_input.get_cursor_offset_x() * mousespeed));
 
-		auto y_offset = _input->get_cursor_offset_y();
+		auto y_offset = _input.get_cursor_offset_y();
 		if((_cam_direction.z > -0.99f || y_offset > 0.f) && (_cam_direction.z < 0.99f || y_offset < 0.f))
 			_cam_direction = rotate(_cam_direction, radians(y_offset * mousespeed), cross(_cam_direction, vec3{0.f, 0.f, 1.f}));
 		_cam_direction = normalize(_cam_direction);
 
-		if(_input->get_key(GLFW_KEY_W))
+		if(_input.get_key(GLFW_KEY_W))
 			_cam_position += _cam_direction * delta_time;
-		if(_input->get_key(GLFW_KEY_A))
+		if(_input.get_key(GLFW_KEY_A))
 			_cam_position += normalize(cross(_cam_direction, vec3{0.f, 0.f, 1.f})) * -delta_time;
-		if(_input->get_key(GLFW_KEY_S))
+		if(_input.get_key(GLFW_KEY_S))
 			_cam_position += _cam_direction * -delta_time;
-		if(_input->get_key(GLFW_KEY_D))
+		if(_input.get_key(GLFW_KEY_D))
 			_cam_position += normalize(cross(_cam_direction, vec3{0.f, 0.f, 1.f})) * delta_time;
 
-		auto viewport = _input->get_framebuffer_size();
+		auto viewport = _input.get_framebuffer_size();
 
 		// MVP calculation
 		auto model = scale(mat4{1.f}, vec3{192.f/96.f * viewport.y/viewport.x, 1.f, 1.f});

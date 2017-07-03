@@ -17,12 +17,11 @@ namespace vis
 	{
 	public:
 		/// @brief HeightfieldRenderer Constructor.
-		explicit HeightfieldRenderer(EnsembleManager* ensemble, InputManager* input);
+		explicit HeightfieldRenderer(const Timestep::ScalarField& mean_field, const Timestep::ScalarField& var_field, InputManager& input);
 		void draw(float delta_time);
 
 	private:
-		EnsembleManager* _ensemble;
-		InputManager* _input;
+		InputManager& _input;
 
 		unsigned _num_vertices;
 		GLint _mvp_uniform;

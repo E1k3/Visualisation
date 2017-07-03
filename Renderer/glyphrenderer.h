@@ -12,15 +12,15 @@ namespace vis
 	class GlyphRenderer : public Renderer
 	{
 	public:
-		explicit GlyphRenderer(EnsembleManager* ensemble, InputManager* input);
+		explicit GlyphRenderer(const Timestep::ScalarField& mean_field, const Timestep::ScalarField& var_field, InputManager& input);
+		explicit GlyphRenderer(const Timestep::ScalarField& mean_field, const Timestep::ScalarField& var_field, const Timestep::ScalarField& weight_field, InputManager& input);
 
 		void draw(float delta_time);
 
 	private:
 		std::vector<float> genMask(unsigned width, unsigned height) const;
 
-		EnsembleManager* _ensemble;
-		InputManager* _input;
+		InputManager& _input;
 
 		unsigned _num_vertices;
 		GLint _mvp_uniform;
