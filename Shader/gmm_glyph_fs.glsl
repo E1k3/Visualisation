@@ -20,4 +20,6 @@ void main()
 {
 	vec3 mask = texture(mask, uv).rgb;
 	color = vec4(palette(mask.r*(mean_.x + var_.x) + mask.g*mean_.x + mask.b*(mean_.x - var_.x)), 1.f);
+	if(uv.x+uv.y > 1.f && weight_.y > 0.f)
+		color = vec4(palette(mask.r*(mean_.y + var_.y) + mask.g*mean_.y + mask.b*(mean_.y - var_.y)), 1.f);
 }

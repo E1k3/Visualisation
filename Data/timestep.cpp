@@ -120,9 +120,9 @@ namespace vis
 
 				for(unsigned c = 0; c < max_components; ++c)
 				{
-					newstep._fields[f*3].set_point(i, c, gmm[c]._mean);	        // Mean
-					newstep._fields[f*3 + 1].set_point(i, c, gmm[c]._variance);	// Variance
-					newstep._fields[f*3 + 2].set_point(i, c, gmm[c]._weight);	// Weight
+					newstep._fields[f*3]._data[i*4 + c] = gmm[c]._mean;	        // Mean
+					newstep._fields[f*3 + 1]._data[i*4 + c] = gmm[c]._variance;	// Variance
+					newstep._fields[f*3 + 2]._data[i*4 + c] = gmm[c]._weight;	// Weight
 				}
 			}
 		}
