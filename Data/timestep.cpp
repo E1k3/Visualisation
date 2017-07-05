@@ -116,7 +116,7 @@ namespace vis
 				for(const auto& step : ensemble)
 					samples.push_back(step.fields()[f]._data[i]);
 
-				auto gmm = math_util::fit_gmm(samples, max_components, .01f, 50);
+				auto gmm = math_util::fit_gmm(samples, max_components, .005f, 50);
 
 				for(unsigned c = 0; c < max_components; ++c)
 				{

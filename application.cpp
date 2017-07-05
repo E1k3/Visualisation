@@ -64,7 +64,7 @@ namespace vis
 	void Application::execute()
 	{
 		// Load data
-		_ensemble.processSingleStep(10);
+		_ensemble.processSingleStep(512);
 
 		// Set up input manager
 		auto input = InputManager{};

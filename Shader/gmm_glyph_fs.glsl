@@ -7,7 +7,6 @@ flat in vec4 weight_;
 
 out vec4 color;
 
-uniform uvec2 size;
 uniform sampler2D mask;
 
 const float pi = 3.141592653589793238462643383279502884197169399375105820974f;
@@ -19,7 +18,15 @@ vec3 palette(float x)
 void main()
 {
 	vec3 mask = texture(mask, uv).rgb;
-	color = vec4(palette(mask.r*(mean_.x + var_.x) + mask.g*mean_.x + mask.b*(mean_.x - var_.x)), 1.f);
-	if(uv.x+uv.y > 1.f && weight_.y > 0.f)
-		color = vec4(palette(mask.r*(mean_.y + var_.y) + mask.g*mean_.y + mask.b*(mean_.y - var_.y)), 1.f);
+
+	float angle = acos((uv.y-.5f) / length(uv-vec2(.5f))) * (float(uv.x-.5f < 0.f)*2 - 1) + pi;
+	vec4 comps = mask.r*(mean_ + var_) + mask.g*mean_ + mask.b*(mean_ - var_);
+
+	vec4 weight = weight_ * pi * 2.f;
+	color = vec4(palette(comps.x * float(angle < weight.x) +
+	                     comps.y * float(angle < weight.y + weight.x && angle >= weight.x) +
+	                     comps.z * float(angle < weight.z+ weight.y + weight.x && angle >= weight.y + weight.x)), 1.f);
+
+//	if(uv.x < .05f || uv.y < .05f || uv.x > .95f || uv.y > .95f)
+//		color = vec4(1.f, 0.f, 0.f, 1.f);
 }

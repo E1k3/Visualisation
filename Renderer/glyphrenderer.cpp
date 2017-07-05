@@ -185,8 +185,6 @@ namespace vis
 
 		_mvp_uniform = glGetUniformLocation(prog, "mvp");
 		glUniform1i(glGetUniformLocation(prog, "mask"), 0);
-		auto size = glm::uvec2{mean_field._width-1, mean_field._height-1};
-		glUniform2uiv(glGetUniformLocation(prog, "size"), 1, glm::value_ptr(size));
 		_bounds_uniform = glGetUniformLocation(prog, "bounds");
 		glUniform4f(_bounds_uniform, mean_field.minimum(), mean_field.maximum(), var_field.minimum(), var_field.maximum()); // TODO:Save bounds as renderer state to scale data live.
 	}
