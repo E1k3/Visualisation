@@ -12,10 +12,11 @@ namespace vis
 	Logger& Logger::instance()
 	{
 		static Logger instance{};
+		*instance._stream << "\n";
 		return instance;
 	}
 
-	void Logger::setStream(std::ostream* stream)
+	void Logger::set_stream(std::ostream* stream)
 	{
 		_stream = stream;
 	}

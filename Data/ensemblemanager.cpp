@@ -9,16 +9,15 @@ namespace vis
 {
 	EnsembleManager::EnsembleManager(fs::path path)
 	{
-		auto comparator = [] (const fs::directory_entry& a, const fs::directory_entry& b) -> bool {return countFiles(a.path()) != countFiles(b.path());};
+		auto comparator = [] (const auto& a, const auto& b) { return countFiles(a.path()) != countFiles(b.path()); };
 		if(!fs::is_directory(path)
 				|| (_numSims = countDirs(path)) == 0
 				|| std::adjacent_find(fs::directory_iterator{path}, fs::directory_iterator{}, comparator) != fs::directory_iterator{})
 		{
 			//DBG
-			Logger::instance() << Logger::Severity::DEBUG
+			Logger::instance() << Logger::Severity::ERROR
 							   << "Ensemble root is not a directory or has the wrong filestructure. "
-							   << "Path: " << path
-							   << std::endl;
+							   << "Path: " << path;
 
 			throw std::runtime_error("Ensemble Manager Error");
 			// TODO:ERROR handling. Path is not a directory, has no subdirectories or the subdirectories have a different number of files.
@@ -41,7 +40,7 @@ namespace vis
 		{
 			Logger::instance() << Logger::Severity::ERROR
 							   << "Index of step to process is out of range: "
-							   << "#steps:" << stepsPerSim << " index:" << index << std::endl;
+							   << "#steps:" << stepsPerSim << " index:" << index;
 			throw std::runtime_error("Processing Step Error");
 			// TODO:ERROR handling. Index out of range.
 		}
@@ -55,7 +54,7 @@ namespace vis
 			Logger::instance() << Logger::Severity::DEBUG
 							   << "Loading file. Index: " << i
 							   << " Simulation: " << i/_numSims
-							   << " Path: " << _files.at(i) << std::endl;
+							   << " Path: " << _files.at(i);
 
 			auto ifs = std::ifstream{_files[i]};
 			buffer.push_back(Timestep{ifs});

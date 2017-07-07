@@ -27,6 +27,7 @@ namespace vis
 		void execute();
 
 	private:
+
 		/**
 		 * @brief error_callback Callback function to be used by GLFW to indicate errors.
 		 * @param error The error id.

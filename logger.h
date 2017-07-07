@@ -33,7 +33,7 @@ namespace vis
 		/**
 		 * @brief setStream Sets the stream (default is std::cout) to which all messages will be sent.
 		 */
-		void setStream(std::ostream* stream);
+		void set_stream(std::ostream* stream);
 
 		/**
 		 * @brief operator << Sets _severity to @param severity and returns a reference to this logger.
@@ -87,7 +87,6 @@ namespace vis
 
 
 		/// Current severity.
-		/// All Messages will be
 		Severity _severity{Severity::DEBUG};
 		/// Not owning pointer to output stream.
 		/// All messages will be sent to this stream.

@@ -38,7 +38,7 @@ namespace vis
 				!= ensemble.end())
 		{
 			Logger::instance() << Logger::Severity::ERROR
-							   << "Ensemble has elements with differing format" << std::endl;
+							   << "Ensemble has elements with differing format";
 			throw std::runtime_error("Gaussian Analysis Error");
 			// TODO:ERROR handling no timesteps or they do not have the same dimensions
 		}
@@ -86,7 +86,7 @@ namespace vis
 				!= ensemble.end())
 		{
 			Logger::instance() << Logger::Severity::ERROR
-							   << "Ensemble has elements with differing format" << std::endl;
+							   << "Ensemble has elements with differing format";
 			throw std::runtime_error("GMM Analysis Error");
 			// TODO:ERROR handling no timesteps or they do not have the same dimensions
 		}

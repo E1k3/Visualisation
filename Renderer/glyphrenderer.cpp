@@ -19,7 +19,7 @@ namespace vis
 		if(!mean_field.same_dimensions(var_field))
 		{
 			Logger::instance() << Logger::Severity::ERROR
-							   << "The mean and variance fields have differing sizes." << std::endl;
+							   << "The mean and variance fields have differing sizes.";
 			throw std::runtime_error("Glyph rendering error.");
 			//TODO:ERROR handling. mean and var field have differing size.
 		}
@@ -102,14 +102,14 @@ namespace vis
 		if(!mean_field.same_dimensions(var_field) || !mean_field.same_dimensions(weight_field))
 		{
 			Logger::instance() << Logger::Severity::ERROR
-							   << "The mean, variance and weight fields have differing sizes." << std::endl;
+							   << "The mean, variance and weight fields have differing sizes.";
 			throw std::runtime_error("Glyph rendering error.");
 			//TODO:ERROR handling. mean and var field have differing size.
 		}
 		if(mean_field._depth != 4)
 		{
 			Logger::instance() << Logger::Severity::ERROR
-							   << "The fields don't have a depth of 4." << std::endl;
+							   << "The fields don't have a depth of 4.";
 			throw std::runtime_error("Glyph rendering error.");
 			//TODO:ERROR handling. mean and var field have differing size.
 		}

@@ -17,7 +17,7 @@ namespace vis
 		if(std::find(types.begin(), types.end(), type) == types.end())
 		{
 			Logger::instance() << Logger::Severity::ERROR
-							   << "Shader type is invalid." << std::endl;
+							   << "Shader type is invalid.";
 			// TODO:ERROR handling. Shadertype is invalid.
 			throw std::runtime_error("Load Shader Error");
 		}
@@ -48,8 +48,7 @@ namespace vis
 
 			Logger::instance() << Logger::Severity::ERROR
 							   << "Shader did not compile."
-							   << &log[0]
-							   << std::endl;
+							   << &log[0];
 			// TODO:ERROR handling. Shader compilation failed.
 			throw std::runtime_error("Load Shader Error");
 		}

@@ -21,7 +21,7 @@ namespace vis
 		if(!mean_field.same_dimensions(var_field))
 		{
 			Logger::instance() << Logger::Severity::ERROR
-							   << "The mean and variance fields have differing sizes." << std::endl;
+							   << "The mean and variance fields have differing sizes.";
 			throw std::runtime_error("Heightfield rendering error.");
 			//TODO:ERROR handling. mean and var field have differing size.
 		}

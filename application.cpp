@@ -18,7 +18,7 @@ namespace vis
 
 		if(!glfwInit())
 		{
-			Logger::instance() << Logger::Severity::ERROR << "GLFW init failed" << std::endl;
+			Logger::instance() << Logger::Severity::ERROR << "GLFW init failed";
 			// TODO:ERROR handling
 			throw std::runtime_error("GLFW init failed");
 		}
@@ -33,7 +33,7 @@ namespace vis
 		_window = std::unique_ptr<GLFWwindow, decltype (deleter)>(glfwCreateWindow(1520, 855, "Test", NULL, NULL), deleter);
 		if(!_window)
 		{
-			Logger::instance() << Logger::Severity::ERROR << "GLFW window creation failed" << std::endl;
+			Logger::instance() << Logger::Severity::ERROR << "GLFW window creation failed";
 			// TODO:ERROR handling
 			throw std::runtime_error("GLFW window creation failed");
 		}
@@ -41,8 +41,7 @@ namespace vis
 
 		//DBG
 		Logger::instance() << Logger::Severity::DEBUG
-						   << "GLFW initialised."
-						   << std::endl;
+						   << "GLFW initialised.";
 
 		// GLEW init
 		glewExperimental = GL_TRUE;
@@ -50,15 +49,14 @@ namespace vis
 		if(status != GLEW_OK)
 		{
 			Logger::instance() << Logger::Severity::ERROR << "GLEW init failed: "
-							   << reinterpret_cast<const char*>(glewGetErrorString(status)) << std::endl;
+							   << reinterpret_cast<const char*>(glewGetErrorString(status));
 			// TODO:ERROR handling
 			throw std::runtime_error("GLEW init failed");
 		}
 
 		//DBG
 		Logger::instance() << Logger::Severity::DEBUG
-						   << "GLEW initialised."
-						   << std::endl;
+						   << "GLEW initialised.";
 	}
 
 	void Application::execute()
@@ -101,6 +99,7 @@ namespace vis
 		};
 		glfwSetFramebufferSizeCallback(&*_window, framebuffer_callback);
 
+
 		GlyphRenderer renderer{_ensemble.currentStep().fields().at(6), _ensemble.currentStep().fields().at(7), _ensemble.currentStep().fields().at(8), input};
 
 		glClearColor(.2f, .2f, .2f, 1.f);
@@ -127,7 +126,7 @@ namespace vis
 
 	void Application::error_callback(int error, const char* description)
 	{
-		Logger::instance() << Logger::Severity::ERROR << "GLFW ERROR: " << error << " " << description << std::endl;
+		Logger::instance() << Logger::Severity::ERROR << "GLFW ERROR: " << error << " " << description;
 
 		// TODO:ERROR handling
 		throw std::runtime_error("GLFW ERROR");
