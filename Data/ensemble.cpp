@@ -9,7 +9,18 @@ namespace vis
 {
 	Ensemble::Ensemble(const fs::path& root)
 	{
+		_num_simulations = count_directories(root);
+		auto not_equal = [] (const auto& a, const auto& b) { return count_files(a) != count_files(b); };
+		if(_num_simulations <= 0
+				|| std::adjacent_find(fs::directory_iterator{root}, fs::directory_iterator{}, not_equal)
+				!= fs::directory_iterator{})	// Search for a subdirectory of root with different amount of files
+		{
+			Logger::instance() << Logger::Severity::ERROR
+							   << "Ensemble root directory does not contain subdirectories of the same size.\n"
+							   << "Path: " << root;
 
+			throw std::invalid_argument("Path does not stick to ensemble directory structure");
+		}
 	}
 
 	int Ensemble::count_files(const fs::path& dir)

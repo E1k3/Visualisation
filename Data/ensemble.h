@@ -20,6 +20,8 @@ namespace vis
 		static int count_files(const fs::path& dir);
 		static int count_directories(const fs::path& dir);
 
+		int _num_simulations;
+
 		std::vector<fs::path> _files;
 
 		std::vector<Field> _fields;

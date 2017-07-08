@@ -122,6 +122,8 @@ namespace vis
 			glfwSwapBuffers(&*_window);
 			glfwPollEvents();
 		}
+
+		Logger::instance() << Logger::Severity::DEBUG << "Application execution finished\n";
 	}
 
 	void Application::error_callback(int error, const char* description)
