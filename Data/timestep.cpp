@@ -154,7 +154,7 @@ namespace vis
 			linestream >> field._name;
 
 		// Skip vector fields header
-		instream.ignore(1024, '\n');	// This line should not be longer than 1024 characters. Magic numbers ftw!
+		instream.ignore(2048, '\n');	// This line should not be longer than 1024 characters. Magic numbers ftw!
 
 		// Read field data
 		for(auto& field : _fields)

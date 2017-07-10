@@ -16,7 +16,7 @@ namespace vis
 		if(_dimension < 0 || _width < 0 || _height < 0 || _depth < 0)
 		{
 			Logger::instance() << Logger::Severity::ERROR
-							   << "Field initialized with negative dimensions\n"
+							   << "Field created with negative dimensions\n"
 							   << "dimension: " << point_dimension
 							   << " width: " << width
 							   << " height: " << height
@@ -24,6 +24,8 @@ namespace vis
 			// TODO:ERROR handling. Dimensions invalid.
 			throw std::invalid_argument("Negative dimensions for field creation");
 		}
+		if(size() == 0)
+			Logger::instance() << Logger::Severity::WARNING << "Field created with size 0.";
 
 		if(init)
 			initialize();
@@ -48,6 +50,23 @@ namespace vis
 	const std::string& Field::name() const        { return _name; }
 
 	void Field::set_name(const std::string& name) { _name = name; }
+
+	bool Field::equal_layout(const Field& other) const
+	{
+		return _dimension == other._dimension
+				&& _width == other._width
+				&& _height == other._height
+				&& _depth == other._depth;
+	}
+
+	std::string Field::layout_to_string() const
+	{
+		return "Name: " + _name
+				+ " point dimension: " + std::to_string(_dimension)
+				+ " width: " + std::to_string(_width)
+				+ " height: " + std::to_string(_height)
+				+ " depth: " + std::to_string(_depth);
+	}
 
 	std::vector<float> Field::get_point(int i) const
 	{

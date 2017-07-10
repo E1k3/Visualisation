@@ -2,6 +2,7 @@
 #define GLOBJECT_H
 
 #include <functional>
+#include <exception>
 
 /**
  * @brief The GLObject class wraps a single OpenGL object, to manage its ownership/lifetime.
@@ -56,7 +57,7 @@ public:
 
 private:
 	unsigned _id{0};
-	std::function<void(unsigned)> _deleter{ [] (unsigned) { } };
+	std::function<void(unsigned)> _deleter{ [] (unsigned) { throw std::runtime_error("GLObject with empty deleter was destroyed."); } };
 };
 
 #endif // GLOBJECT_H

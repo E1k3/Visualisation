@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Data/ensemblemanager.h"
+#include "Data/ensemble.h"
 
 namespace vis
 {
@@ -37,6 +38,7 @@ namespace vis
 
 		std::unique_ptr<GLFWwindow, std::function<void(GLFWwindow*)>> _window;
 		EnsembleManager _ensemble;
+		Ensemble _ensemble_;
 
 
 		float _delta{};

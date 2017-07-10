@@ -42,11 +42,16 @@ namespace vis
 		int height() const;
 		/// @brief Returns Returns the number of layers this field holds.
 		int depth() const;
-
 		/// @brief Returns the fields name.
 		const std::string& name() const;
 		/// @brief Sets the fields name.
 		void set_name(const std::string& name);
+
+		/// @brief Returns true if other field has the same layout (dimension, width, ...).
+		/// Name and content are ignored.
+		bool equal_layout(const Field& other) const;
+		/// @brief Returns a human readable string describing the layout and name of this field.
+		std::string layout_to_string() const;
 
 		/// @brief get_point Gets all components of the i-th point of the field. Only possible if initialized().
 		/// @return A vector containing point_dimension() floats.
@@ -78,10 +83,10 @@ namespace vis
 		int validate_index(int x, int y, int z) const;
 		int validate_index(int d, int x, int y, int z) const;
 
-		const int _dimension{};
-		const int _width{};
-		const int _height{};
-		const int _depth{};
+		int _dimension{};
+		int _width{};
+		int _height{};
+		int _depth{};
 
 		bool _initialized{false};
 

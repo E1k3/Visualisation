@@ -1,14 +1,21 @@
 #include <string>
 
 #include "application.h"
-#include "Data/math_util.h"
+#include "logger.h"
 
 using namespace vis;
 
 int main(int /*argc*/, char */*argv*/[])
 {
-	//math_util::test_em();
-	// Data root directory
-	auto app = Application{"/home/eike/CurrentStuff/bachelor/weatherdata"};
-	app.execute();
+	try
+	{
+		// Data root directory
+		auto app = Application{"/home/eike/CurrentStuff/bachelor/weatherdata"};
+		app.execute();
+	}
+	catch(std::exception& e)
+	{
+		Logger::instance() << Logger::Severity::ERROR
+						   << "Terminating program due to exception: " << e.what();
+	}
 }

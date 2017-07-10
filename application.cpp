@@ -11,7 +11,8 @@ namespace vis
 {
 	namespace fs = std::experimental::filesystem;
 	Application::Application(std::string path)
-		: _ensemble{fs::path{path}}
+		: _ensemble{fs::path{path}},
+		  _ensemble_{fs::path{path}}
 	{
 		// GLFW init
 		glfwSetErrorCallback(error_callback);
@@ -23,13 +24,14 @@ namespace vis
 			throw std::runtime_error("GLFW init failed");
 		}
 
-		// OpenGL version
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_SAMPLES, 16);	// AA
+		// Window hints
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);	// Opengl version 3.
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);	// 3
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);	// Core profile
+		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);	// Hide window
+		glfwWindowHint(GLFW_SAMPLES, 16);	// 16xMSAA
 
-		auto deleter = [](GLFWwindow* window) {glfwDestroyWindow(window); glfwTerminate();};	// Destroy window and terminate GLFW, when _window gets out of scope.
+		auto deleter = [] (GLFWwindow* window) { glfwDestroyWindow(window); glfwTerminate(); };	// Destroy window and terminate GLFW, when _window gets out of scope.
 		_window = std::unique_ptr<GLFWwindow, decltype (deleter)>(glfwCreateWindow(1520, 855, "Test", NULL, NULL), deleter);
 		if(!_window)
 		{
@@ -61,8 +63,32 @@ namespace vis
 
 	void Application::execute()
 	{
+		int step_index = 0;
+		std::cout << "\nChoose a time step [0," << _ensemble_.num_steps() << ")\n";
+		std::cin >> step_index;
+		_ensemble_.read_headers(step_index);
+
+		std::cout << "\nThe simulations contain " << _ensemble_.fields().size() << " fields.\n";
+
+		{
+			int i = 0;
+			for(const auto& field : _ensemble_.fields())
+				std::cout << i++ << " " << field.layout_to_string() << '\n';
+		}
+		std::cout << "Choose one [0," << _ensemble_.fields().size() << ")\n";
+		int field_index = 2;	// Magic number as default.
+		std::cin >> field_index;
+
+		//Select analysis
+		//_ensemble_.analyze(field_index, GAUSSIAN);
+		//Select renderer
+		//Renderer& renderer = SelectedRenderer(_ensemble_.fields());
+		//in loop: renderer.draw(delta);
+
+		glfwShowWindow(&*_window);
+
 		// Load data
-		_ensemble.processSingleStep(512);
+		_ensemble.processSingleStep(step_index);
 
 		// Set up input manager
 		auto input = InputManager{};
@@ -100,7 +126,7 @@ namespace vis
 		glfwSetFramebufferSizeCallback(&*_window, framebuffer_callback);
 
 
-		GlyphRenderer renderer{_ensemble.currentStep().fields().at(6), _ensemble.currentStep().fields().at(7), _ensemble.currentStep().fields().at(8), input};
+		GlyphRenderer renderer{_ensemble.currentStep().fields().at(field_index*3), _ensemble.currentStep().fields().at(field_index*3+1), _ensemble.currentStep().fields().at(field_index*3+2), input};
 
 		glClearColor(.2f, .2f, .2f, 1.f);
 
