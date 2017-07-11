@@ -18,9 +18,16 @@ namespace vis
 		 * @param width The width of the field.
 		 * @param height The height of the field.
 		 * @param depth The depth of the field.
-		 * @param init If true, initializes the fields data with zero. If false, does not initialize the field.
+		 * @param init If true, initializes the fields data with zero. If false, does not allocate any memory for its data.
 		 */
 		explicit Field(int point_dimension, int width, int height, int depth = 1, bool init = false);
+
+		/**
+		 * @brief Field Creates a field with the same layout and name as another one.
+		 * @param layout The field that provides the layout.
+		 * @param init If true, initializes the fields data with zero. If false, does not allocate any memory for its data.
+		 */
+		explicit Field(const Field& layout, bool init);
 
 		/// @brief Returns true if the fields data is initialized
 		bool initialized() const;
@@ -53,6 +60,10 @@ namespace vis
 		/// @brief Returns a human readable string describing the layout and name of this field.
 		std::string layout_to_string() const;
 
+//		/// @brief Gives direct non const access to data without range checking.
+//		float& operator[](int index);
+//		/// @brief Gives direct const access to data without range checking.
+//		const float& operator[](int index) const;
 		/// @brief get_point Gets all components of the i-th point of the field. Only possible if initialized().
 		/// @return A vector containing point_dimension() floats.
 		std::vector<float> get_point(int i) const;

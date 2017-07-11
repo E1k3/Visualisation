@@ -9,10 +9,17 @@ namespace vis
 
 	}
 
+	Logger::~Logger()
+	{
+		if(_stream)
+			*_stream << '\n';
+	}
+
 	Logger& Logger::instance()
 	{
 		static Logger instance{};
-		*instance._stream << "\n";
+		if(*instance._stream)
+			*instance._stream << '\n';
 		return instance;
 	}
 

@@ -77,16 +77,15 @@ namespace vis
 		}
 		std::cout << "Choose one [0," << _ensemble_.fields().size() << ")\n";
 		int field_index = 2;	// Magic number as default.
-		std::cin.clear();
 		std::cin >> field_index;
+
+		_ensemble_.analyse_field(step_index, field_index, Ensemble::Analysis::GAUSSIAN_MIXTURE);
 
 		//Select analysis
 		//_ensemble_.analyze(field_index, GAUSSIAN);
 		//Select renderer
 		//Renderer& renderer = SelectedRenderer(_ensemble_.fields());
 		//in loop: renderer.draw(delta);
-
-		glfwShowWindow(&*_window);
 
 		// Load data
 		_ensemble.processSingleStep(step_index);
@@ -137,6 +136,7 @@ namespace vis
 		glEnable(GL_DEPTH_TEST);
 //		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+		glfwShowWindow(&*_window);
 		// Event loop
 		while(!glfwWindowShouldClose(&*_window))
 		{
@@ -150,7 +150,7 @@ namespace vis
 			glfwPollEvents();
 		}
 
-		Logger::instance() << Logger::Severity::DEBUG << "Application execution finished\n";
+		Logger::instance() << Logger::Severity::DEBUG << "Application execution finished successfully\n";
 	}
 
 	void Application::error_callback(int error, const char* description)

@@ -6,6 +6,7 @@
 #include <string>
 
 #include "logger.h"
+#include "math_util.h"
 
 namespace vis
 {
@@ -25,7 +26,7 @@ namespace vis
 		}
 
 		_num_steps = count_files(*fs::directory_iterator{root});
-		_files.reserve(static_cast<size_t>(_num_simulations * _num_steps));
+		_files.reserve(static_cast<size_t>(_num_simulations * _num_steps));	// Class invariant, has to be >= 0
 
 		// Copy all directories
 		std::copy_if(fs::recursive_directory_iterator{root}, fs::recursive_directory_iterator{}, std::back_inserter(_files),
@@ -54,10 +55,10 @@ namespace vis
 		}
 
 
-		auto fields = std::vector<std::vector<Field>>(static_cast<size_t>(_num_simulations));
+		auto fields = std::vector<std::vector<Field>>(static_cast<size_t>(_num_simulations));	// Class invariant, has to be >= 0
 		for(int i = 0; i < _num_simulations; ++i)
 		{
-			auto& file = _files[ static_cast<size_t>(step_index * _num_simulations + i)];
+			auto& file = _files[ static_cast<size_t>(step_index * _num_simulations + i)];	// Has to be >= 0
 			auto ifs = std::ifstream{file};
 			auto buff = std::string{};
 			auto line = std::stringstream{};
@@ -93,9 +94,9 @@ namespace vis
 
 			// Read number of fields
 			std::getline(line, buff, ' ');
-			fields[static_cast<size_t>(i)].resize(std::stoul(buff), Field(1, width, height, depth));
+			fields[static_cast<size_t>(i)].resize(std::stoul(buff), Field(1, width, height, depth));	// i is [0, _num_simulations), class invariant, has to be >= 0
 			// Read field names
-			for(auto& field : fields[static_cast<size_t>(i)])
+			for(auto& field : fields[static_cast<size_t>(i)])	// i is [0, _num_simulations), class invariant, has to be >= 0
 			{
 				std::getline(line, buff, ' ');
 				field.set_name(buff);
@@ -116,6 +117,110 @@ namespace vis
 		_fields.clear();
 		_fields.reserve(fields.size());
 		std::copy(fields.front().begin(), fields.front().end(), std::back_inserter(_fields));
+	}
+
+	void Ensemble::analyse_field(int step_index, int field_index, Ensemble::Analysis analysis)
+	{
+		if(field_index < 0 || static_cast<size_t>(field_index) >= _fields.size())
+		{
+			Logger::instance() << Logger::Severity::ERROR
+							   << "Analysing field failed, field at index " << field_index << " does not exist.\n"
+							   << "Number of fields: " << _fields.size();
+			throw std::invalid_argument("No field exists at index.");
+		}
+
+		// Read fields from file
+		const auto& layout = _fields[static_cast<size_t>(field_index)];
+		auto fields = std::vector<Field>(static_cast<size_t>(_num_simulations), Field(layout, true));
+
+		for(int i = 0; i < num_simulations(); ++i)
+		{
+			auto ifs = std::ifstream{_files[ static_cast<size_t>(step_index * _num_simulations + i)]};
+			ignore_many(ifs, 3, '\n');	// Skip header
+			ignore_many(ifs, (layout.height()*layout.depth()+1)*field_index, '\n');	// Skip fields
+
+			// Read data
+			auto buff = std::string{};
+
+			for(int j = 0; j < layout.volume(); ++j)
+			{
+				std::getline(ifs, buff, ' ');
+				fields[static_cast<size_t>(i)].set_value(0, j, std::stof(buff));
+			}
+		}
+
+		// Start analysis
+		switch(analysis)
+		{
+		case Analysis::GAUSSIAN_SINGLE:
+			_fields = gaussian_analysis(fields);
+			break;
+		case Analysis::GAUSSIAN_MIXTURE:
+			_fields = gaussian_mixture_analysis(fields);
+			break;
+		}
+	}
+
+	void Ensemble::ignore_many(std::istream& stream, int count, char delimiter)
+	{
+		for(int i = 0; i < count; ++i)
+			stream.ignore(std::numeric_limits<std::streamsize>::max(), delimiter);
+	}
+
+	std::vector<Field> Ensemble::gaussian_analysis(const std::vector<Field>& fields)
+	{
+		if(fields.size() == 0)
+		{
+			//TODO error
+		}
+		const auto& layout = fields.front();
+		auto result = std::vector<Field>(2, Field(1, layout.width(), layout.height(), layout.depth(), true));
+		result[0].set_name(result[0].name() + "_mean");
+		result[1].set_name(result[1].name() + "_variance");
+
+		for(int i = 0; i < result.front().volume(); ++i)
+		{
+			auto samples = std::vector<float>();
+			samples.reserve(fields.size());
+			for(const auto& field : fields)
+				samples.push_back(field.get_value(0, i));
+
+			result[0].set_value(0, i, math_util::mean(samples));
+			result[1].set_value(0, i, math_util::variance(samples, result[0].get_value(0, i)));
+		}
+		return result;
+	}
+
+	std::vector<Field> Ensemble::gaussian_mixture_analysis(const std::vector<Field>& fields)
+	{
+		constexpr int gmm_components = 4;
+
+		if(fields.size() == 0)
+		{
+			//TODO error
+		}
+		const auto& layout = fields.front();
+		auto result = std::vector<Field>(3, Field(gmm_components, layout.width(), layout.height(), layout.depth(), true));
+		result[0].set_name(result[0].name() + "_mean");
+		result[1].set_name(result[1].name() + "_variance");
+		result[2].set_name(result[2].name() + "_weight");
+
+		for(int i = 0; i < result.front().volume(); ++i)
+		{
+			auto samples = std::vector<float>();
+			samples.reserve(fields.size());
+			for(const auto& field : fields)
+				samples.push_back(field.get_value(0, i));
+
+			auto gmm = math_util::fit_gmm(samples, gmm_components, .005f, 25);
+			for(int c = 0; c < gmm_components; ++c)
+			{
+				result[0].set_value(c, i, gmm[static_cast<size_t>(c)]._mean);
+				result[1].set_value(c, i, gmm[static_cast<size_t>(c)]._variance);
+				result[2].set_value(c, i, gmm[static_cast<size_t>(c)]._weight);
+			}
+		}
+		return result;
 	}
 
 	int Ensemble::count_files(const fs::path& dir)

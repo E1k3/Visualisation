@@ -49,15 +49,17 @@ namespace vis
 		{
 			auto timestamp = std::chrono::system_clock::now();
 			auto timestamp_clock = std::chrono::system_clock::to_time_t(timestamp);
-			*_stream << std::put_time(std::localtime(&timestamp_clock), "%F %T ")
-					 << severity_string(_severity)
-					 << " "
-					 << message;
+			if(_stream)
+				*_stream << std::put_time(std::localtime(&timestamp_clock), "%F %T ")
+						 << severity_string(_severity)
+						 << " "
+						 << message;
 			return *_stream;
 		}
 
 	private:
 		explicit Logger();
+		~Logger();
 
 		/**
 		 * @brief Log Deleted.

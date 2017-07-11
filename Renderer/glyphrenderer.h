@@ -6,6 +6,7 @@
 #include "renderer.h"
 #include "Data/ensemblemanager.h"
 #include "inputmanager.h"
+#include "Data/field.h"
 
 namespace vis
 {

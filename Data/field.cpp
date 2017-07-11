@@ -31,7 +31,26 @@ namespace vis
 			initialize();
 	}
 
+	Field::Field(const Field& layout, bool init)
+		: _dimension{layout._dimension},
+		  _width{layout._width},
+		  _height{layout._height},
+		  _depth{layout._depth},
+		  _name{layout.name()},
+		  _data{}
+	{
+		if(init)
+			initialize();
+	}
+
 	bool Field::initialized() const               { return _initialized; }
+
+	void Field::initialize()
+	{
+		if(!_initialized)
+			_data.resize(static_cast<size_t>(size()));	// Class invariant, has to be >= 0
+		_initialized = true;
+	}
 
 	int Field::size() const                       { return volume()*_dimension; }
 
@@ -68,6 +87,28 @@ namespace vis
 				+ " depth: " + std::to_string(_depth);
 	}
 
+//	float& Field::operator[](int index)
+//	{
+//		if(!_initialized)
+//		{
+//			Logger::instance() << Logger::Severity::ERROR
+//							   << "Data access on uninitialized field.";
+//			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
+//		}
+//		return _data[static_cast<unsigned>(index)];
+//	}
+
+//	const float& Field::operator[](int index) const
+//	{
+//		if(!_initialized)
+//		{
+//			Logger::instance() << Logger::Severity::ERROR
+//							   << "Data access on uninitialized field.";
+//			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
+//		}
+//		return _data[static_cast<unsigned>(index)];
+//	}
+
 	std::vector<float> Field::get_point(int i) const
 	{
 		if(!_initialized)
@@ -77,7 +118,7 @@ namespace vis
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 
-		auto point = std::vector<float>(static_cast<size_t>(_dimension));
+		auto point = std::vector<float>(static_cast<size_t>(_dimension));	// Class invariant, has to be >= 0
 		std::copy_n(_data.begin() + validate_index(i), _dimension, point.begin());
 		return point;
 	}
@@ -91,7 +132,7 @@ namespace vis
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 
-		auto point = std::vector<float>(static_cast<size_t>(_dimension));
+		auto point = std::vector<float>(static_cast<size_t>(_dimension));	// Class invariant, has to be >= 0
 		std::copy_n(_data.begin() + validate_index(x, y, z), _dimension, point.begin());
 		return point;
 	}
@@ -105,7 +146,7 @@ namespace vis
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 
-		return _data[static_cast<size_t>(validate_index(d, i))];
+		return _data[static_cast<size_t>(validate_index(d, i))];	// Class invariant, has to be >= 0
 	}
 
 	float Field::get_value(int d, int x, int y, int z) const
@@ -117,7 +158,7 @@ namespace vis
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 
-		return _data[static_cast<size_t>(validate_index(d, x, y, z))];
+		return _data[static_cast<size_t>(validate_index(d, x, y, z))];	// Class invariant, has to be >= 0
 	}
 
 	void Field::set_point(int i, std::vector<float> point)
@@ -129,7 +170,7 @@ namespace vis
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 
-		point.resize(static_cast<size_t>(_dimension));
+		point.resize(static_cast<size_t>(_dimension));	// Class invariant, has to be >= 0
 		std::copy(point.begin(), point.end(), _data.begin() + validate_index(i));
 	}
 
@@ -142,7 +183,7 @@ namespace vis
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 
-		point.resize(static_cast<size_t>(_dimension));
+		point.resize(static_cast<size_t>(_dimension));	// Class invariant, has to be >= 0
 		std::copy(point.begin(), point.end(), _data.begin() + validate_index(x, y, z));
 	}
 
@@ -155,7 +196,7 @@ namespace vis
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 
-		_data[static_cast<size_t>(validate_index(d, i))] = value;
+		_data[static_cast<size_t>(validate_index(d, i))] = value;	// Class invariant, has to be >= 0
 	}
 
 	void Field::set_value(int d, int x, int y, int z, float value)
@@ -167,14 +208,7 @@ namespace vis
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 
-		_data[static_cast<size_t>(validate_index(d, x, y, z))] = value;
-	}
-
-	void Field::initialize()
-	{
-		if(!_initialized)
-			_data.resize(static_cast<size_t>(size()));
-		_initialized = true;
+		_data[static_cast<size_t>(validate_index(d, x, y, z))] = value;	// Class invariant, has to be >= 0
 	}
 
 	int Field::validate_index(int i) const
