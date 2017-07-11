@@ -21,7 +21,7 @@ namespace vis
 		_stream = stream;
 	}
 
-	std::string Logger::severityString(Logger::Severity severity)
+	std::string Logger::severity_string(Logger::Severity severity)
 	{
 		static const std::map<Logger::Severity, std::string> sevMap = {
 			{Logger::Severity::ERROR, "ERROR"},

@@ -77,6 +77,7 @@ namespace vis
 		}
 		std::cout << "Choose one [0," << _ensemble_.fields().size() << ")\n";
 		int field_index = 2;	// Magic number as default.
+		std::cin.clear();
 		std::cin >> field_index;
 
 		//Select analysis

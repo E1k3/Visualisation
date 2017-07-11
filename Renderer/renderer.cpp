@@ -8,7 +8,7 @@
 
 namespace vis
 {
-	unsigned Renderer::loadShader(std::string path, GLuint type)
+	unsigned Renderer::load_shader(std::string path, GLuint type)
 	{
 		// Check requirements
 		auto types = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER,
@@ -56,7 +56,7 @@ namespace vis
 		return id;
 	}
 
-	GLuint Renderer::genVao()
+	GLuint Renderer::gen_vao()
 	{
 		constexpr auto deleter = [] (GLuint id) { glDeleteVertexArrays(1, &id); };
 		GLuint id = 0;
@@ -65,7 +65,7 @@ namespace vis
 		return _vaos.back().get();
 	}
 
-	GLuint Renderer::genBuffer()
+	GLuint Renderer::gen_buffer()
 	{
 		constexpr auto deleter = [] (GLuint id) { glDeleteBuffers(1, &id); };
 		GLuint id = 0;
@@ -74,7 +74,7 @@ namespace vis
 		return _buffers.back().get();
 	}
 
-	GLuint Renderer::genTexture()
+	GLuint Renderer::gen_texture()
 	{
 		constexpr auto deleter = [] (GLuint id) { glDeleteTextures(1, &id); };
 		GLuint id = 0;
@@ -83,14 +83,14 @@ namespace vis
 		return _textures.back().get();
 	}
 
-	GLuint Renderer::genProgram()
+	GLuint Renderer::gen_program()
 	{
 		constexpr auto deleter = [] (GLuint id) { glDeleteProgram(id); };
 		_programs.push_back(GLObject(glCreateProgram(), deleter));
 		return _programs.back().get();
 	}
 
-	std::vector<float> Renderer::genGrid(unsigned width, unsigned height)
+	std::vector<float> Renderer::gen_grid(unsigned width, unsigned height)
 	{
 		auto grid = std::vector<float>(width * height * 4);
 
@@ -117,7 +117,7 @@ namespace vis
 		return grid;
 	}
 
-	std::vector<unsigned> Renderer::genGridIndices(unsigned width, unsigned height)
+	std::vector<unsigned> Renderer::gen_grid_indices(unsigned width, unsigned height)
 	{
 		auto indices = std::vector<unsigned>{};
 		if(width*height <= 2)

@@ -14,23 +14,25 @@ namespace vis
 	{
 	public:
 		/**
-		 * @brief loadShader Creates, loads and compiles shader from file.
+		 * @brief load_shader Creates, loads and compiles shader from file.
 		 * @param path The path at which the glsl file is located.
 		 * @param type Shader type (one of the GLenum shadertypes defined by GLEW) <- bad practice
 		 */
-		static unsigned loadShader(std::string path, GLuint type);
+		static unsigned load_shader(std::string path, GLuint type);
 
-		GLuint genVao();
+		virtual void draw(float delta_time) = 0;
 
-		GLuint genBuffer();
+		GLuint gen_vao();
 
-		GLuint genTexture();
+		GLuint gen_buffer();
 
-		GLuint genProgram();
+		GLuint gen_texture();
 
-		static std::vector<float> genGrid(unsigned width, unsigned height);
+		GLuint gen_program();
 
-		static std::vector<unsigned> genGridIndices(unsigned width, unsigned height);
+		static std::vector<float> gen_grid(unsigned width, unsigned height);
+
+		static std::vector<unsigned> gen_grid_indices(unsigned width, unsigned height);
 
 	private:
 

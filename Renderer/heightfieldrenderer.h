@@ -18,7 +18,9 @@ namespace vis
 	public:
 		/// @brief HeightfieldRenderer Constructor.
 		explicit HeightfieldRenderer(const Timestep::ScalarField& mean_field, const Timestep::ScalarField& var_field, InputManager& input);
-		void draw(float delta_time);
+		virtual ~HeightfieldRenderer() = default;
+
+		virtual void draw(float delta_time) override;
 
 	private:
 		InputManager& _input;

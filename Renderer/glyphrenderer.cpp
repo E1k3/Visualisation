@@ -24,11 +24,11 @@ namespace vis
 			//TODO:ERROR handling. mean and var field have differing size.
 		}
 
-		glBindVertexArray(genVao());
+		glBindVertexArray(gen_vao());
 
 		// Grid (position)
-		auto grid = genGrid(mean_field._width, mean_field._height);
-		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
+		auto grid = gen_grid(mean_field._width, mean_field._height);
+		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
@@ -36,22 +36,22 @@ namespace vis
 
 
 		// Mean (ring)
-		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
+		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*mean_field.area(),
 					 mean_field._data.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
 
 		// Variance (circle and background)
-		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
+		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*var_field.area(),
 					 var_field._data.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(2);
 
 		// Indices (element buffer)
-		auto indices = genGridIndices(mean_field._width, mean_field._height);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, genBuffer());
+		auto indices = gen_grid_indices(mean_field._width, mean_field._height);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
 					 &indices[0], GL_STATIC_DRAW);
 		_num_vertices = mean_field.area()*6;
@@ -61,7 +61,7 @@ namespace vis
 		constexpr unsigned height = 1000;
 		auto mask = genMask(width, height);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, genTexture());
+		glBindTexture(GL_TEXTURE_2D, gen_texture());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -70,12 +70,12 @@ namespace vis
 					 0, GL_RGB, GL_FLOAT, mask.data());
 
 		// Shaders
-		auto vertex_shader = loadShader("/home/eike/Documents/Code/Visualisation/Shader/glyph_vs.glsl",
+		auto vertex_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/glyph_vs.glsl",
 										GL_VERTEX_SHADER);
-		auto fragment_shader = loadShader("/home/eike/Documents/Code/Visualisation/Shader/glyph_fs.glsl",
+		auto fragment_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/glyph_fs.glsl",
 										  GL_FRAGMENT_SHADER);
 
-		auto prog = genProgram();
+		auto prog = gen_program();
 		glAttachShader(prog, vertex_shader);
 		glAttachShader(prog, fragment_shader);
 		glLinkProgram(prog);
@@ -114,40 +114,40 @@ namespace vis
 			//TODO:ERROR handling. mean and var field have differing size.
 		}
 
-		glBindVertexArray(genVao());
+		glBindVertexArray(gen_vao());
 
 		// Grid (position)
-		auto grid = genGrid(mean_field._width, mean_field._height);
-		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
+		auto grid = gen_grid(mean_field._width, mean_field._height);
+		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
 
 		// Mean (ring)
-		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
+		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*mean_field.volume(),
 					 mean_field._data.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
 
 		// Variance (circle and background)
-		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
+		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*var_field.volume(),
 					 var_field._data.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(2);
 
 		// Weight (proportions)
-		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
+		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*weight_field.volume(),
 					 weight_field._data.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(3);
 
 		// Indices (element buffer)
-		auto indices = genGridIndices(mean_field._width, mean_field._height);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, genBuffer());
+		auto indices = gen_grid_indices(mean_field._width, mean_field._height);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
 					 &indices[0], GL_STATIC_DRAW);
 		_num_vertices = mean_field.area()*6;
@@ -157,7 +157,7 @@ namespace vis
 		constexpr unsigned height = 1000;
 		auto mask = genMask(width, height);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, genTexture());
+		glBindTexture(GL_TEXTURE_2D, gen_texture());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -166,12 +166,12 @@ namespace vis
 					 0, GL_RGB, GL_FLOAT, mask.data());
 
 		// Shaders
-		auto vertex_shader = loadShader("/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_vs.glsl",
+		auto vertex_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_vs.glsl",
 										GL_VERTEX_SHADER);
-		auto fragment_shader = loadShader("/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_fs.glsl",
+		auto fragment_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_fs.glsl",
 										  GL_FRAGMENT_SHADER);
 
-		auto prog = genProgram();
+		auto prog = gen_program();
 		glAttachShader(prog, vertex_shader);
 		glAttachShader(prog, fragment_shader);
 		glLinkProgram(prog);

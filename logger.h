@@ -50,7 +50,7 @@ namespace vis
 			auto timestamp = std::chrono::system_clock::now();
 			auto timestamp_clock = std::chrono::system_clock::to_time_t(timestamp);
 			*_stream << std::put_time(std::localtime(&timestamp_clock), "%F %T ")
-					 << severityString(_severity)
+					 << severity_string(_severity)
 					 << " "
 					 << message;
 			return *_stream;
@@ -83,7 +83,7 @@ namespace vis
 		 * @brief severityString returns a string representation of @param severity.
 		 * Throws std::out_of_range if @param severity does not exist.
 		 */
-		static std::string severityString(Severity severity);
+		static std::string severity_string(Severity severity);
 
 
 		/// Current severity.

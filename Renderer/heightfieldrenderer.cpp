@@ -26,43 +26,43 @@ namespace vis
 			//TODO:ERROR handling. mean and var field have differing size.
 		}
 
-		glBindVertexArray(genVao());
+		glBindVertexArray(gen_vao());
 
 		// Grid (position)
-		auto grid = genGrid(mean_field._width, mean_field._height);
-		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
+		auto grid = gen_grid(mean_field._width, mean_field._height);
+		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
 		glEnableVertexAttribArray(0);
 
 		// Mean (color)
-		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
+		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*mean_field.area(),
 					 mean_field._data.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
 
 		// Variance (height)
-		glBindBuffer(GL_ARRAY_BUFFER, genBuffer());
+		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*var_field.area(),
 					 var_field._data.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(2);
 
 		// Indices (element buffer)
-		auto indices = genGridIndices(mean_field._width, mean_field._height);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, genBuffer());
+		auto indices = gen_grid_indices(mean_field._width, mean_field._height);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
 					 &indices[0], GL_STATIC_DRAW);
 		_num_vertices = mean_field.area()*6;
 
 		// Shaders
-		auto vertex_shader = loadShader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_vs.glsl",
+		auto vertex_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_vs.glsl",
 										GL_VERTEX_SHADER);
-		auto fragment_shader = loadShader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_fs.glsl",
+		auto fragment_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_fs.glsl",
 										  GL_FRAGMENT_SHADER);
-		auto prog = genProgram();
+		auto prog = gen_program();
 		glAttachShader(prog, vertex_shader);
 		glAttachShader(prog, fragment_shader);
 		glLinkProgram(prog);

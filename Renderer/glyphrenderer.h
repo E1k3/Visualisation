@@ -14,8 +14,9 @@ namespace vis
 	public:
 		explicit GlyphRenderer(const Timestep::ScalarField& mean_field, const Timestep::ScalarField& var_field, InputManager& input);
 		explicit GlyphRenderer(const Timestep::ScalarField& mean_field, const Timestep::ScalarField& var_field, const Timestep::ScalarField& weight_field, InputManager& input);
+		virtual ~GlyphRenderer() = default;
 
-		void draw(float delta_time);
+		virtual void draw(float delta_time) override;
 
 	private:
 		std::vector<float> genMask(unsigned width, unsigned height) const;
