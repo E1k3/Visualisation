@@ -19,5 +19,5 @@ void main()
 	uv = pos.zw;
 	mean_ = (mean-bounds.x) / bounds.y;
 	var_ = (var-bounds.z) / bounds.w;
-	weight_ = weight;
+	weight_ = weight - 10 * float(mean.x == 0.f && var.x == 0.f && weight.x == 1.f);
 }

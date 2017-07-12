@@ -18,7 +18,7 @@ namespace vis
 		 * @param path The path at which the glsl file is located.
 		 * @param type Shader type (one of the GLenum shadertypes defined by GLEW) <- bad practice
 		 */
-		static unsigned load_shader(std::string path, GLuint type);
+		static GLuint load_shader(std::string path, GLuint type);
 
 		virtual void draw(float delta_time) = 0;
 
@@ -30,9 +30,9 @@ namespace vis
 
 		GLuint gen_program();
 
-		static std::vector<float> gen_grid(unsigned width, unsigned height);
+		static std::vector<float> gen_grid(int width, int height);
 
-		static std::vector<unsigned> gen_grid_indices(unsigned width, unsigned height);
+		static std::vector<unsigned> gen_grid_indices(int width, int height);
 
 	private:
 

@@ -54,6 +54,11 @@ namespace vis
 		/// @brief Sets the fields name.
 		void set_name(const std::string& name);
 
+		float minimum() const;
+		float maximum() const;
+		std::vector<float> minima() const;
+		std::vector<float> maxima() const;
+
 		/// @brief Returns true if other field has the same layout (dimension, width, ...).
 		/// Name and content are ignored.
 		bool equal_layout(const Field& other) const;
@@ -64,6 +69,7 @@ namespace vis
 //		float& operator[](int index);
 //		/// @brief Gives direct const access to data without range checking.
 //		const float& operator[](int index) const;
+		const std::vector<float>& data() const;
 		/// @brief get_point Gets all components of the i-th point of the field. Only possible if initialized().
 		/// @return A vector containing point_dimension() floats.
 		std::vector<float> get_point(int i) const;

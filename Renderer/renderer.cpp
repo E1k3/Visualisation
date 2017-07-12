@@ -8,7 +8,7 @@
 
 namespace vis
 {
-	unsigned Renderer::load_shader(std::string path, GLuint type)
+	GLuint Renderer::load_shader(std::string path, GLuint type)
 	{
 		// Check requirements
 		auto types = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER,
@@ -90,25 +90,34 @@ namespace vis
 		return _programs.back().get();
 	}
 
-	std::vector<float> Renderer::gen_grid(unsigned width, unsigned height)
+	std::vector<float> Renderer::gen_grid(int width, int height)
 	{
-		auto grid = std::vector<float>(width * height * 4);
+		if(width < 0 || height < 0)
+		{
+			Logger::instance() << Logger::Severity::ERROR
+							   << "Grid generation using negative dimensions.\n"
+							   << "width: " << width << " height: " << height;
+			throw std::invalid_argument("Negative grid generation dimensions");
+		}
+
+
+		auto grid = std::vector<float>(static_cast<size_t>(width * height * 4));
 
 		if(width*height == 0)
 			return grid;	// TODO:error handling?
 
 		float uv_y = 1.f;
-		for(unsigned row = 0; row < height; ++row)
+		for(int row = 0; row < height; ++row)
 		{
 			float uv_x = 0.f;
-			for(unsigned col = 0; col < width; ++col)
+			for(int col = 0; col < width; ++col)
 			{
 				float x = col/(width-1.f);
 				float y = row/(height-1.f);
-				grid[(row*width + col)*4] = x*2.f - 1.f;
-				grid[(row*width + col)*4 + 1] = y*2.f - 1.f;
-				grid[(row*width + col)*4 + 2] = uv_x;
-				grid[(row*width + col)*4 + 3] = uv_y;
+				grid[static_cast<size_t>(row*width + col)*4] = x*2.f - 1.f;
+				grid[static_cast<size_t>(row*width + col)*4 + 1] = y*2.f - 1.f;
+				grid[static_cast<size_t>(row*width + col)*4 + 2] = uv_x;
+				grid[static_cast<size_t>(row*width + col)*4 + 3] = uv_y;
 
 				uv_x = 1.f - uv_x;
 			}
@@ -117,21 +126,29 @@ namespace vis
 		return grid;
 	}
 
-	std::vector<unsigned> Renderer::gen_grid_indices(unsigned width, unsigned height)
+	std::vector<unsigned> Renderer::gen_grid_indices(int width, int height)
 	{
+		if(width < 0 || height < 0)
+		{
+			Logger::instance() << Logger::Severity::ERROR
+							   << "Grid index generation using negative dimensions.\n"
+							   << "width: " << width << " height: " << height;
+			throw std::invalid_argument("Negative grid index generation dimensions");
+		}
+
 		auto indices = std::vector<unsigned>{};
 		if(width*height <= 2)
 			return indices;	// TODO:error handling?
 
-		for(unsigned y = 0; y < height-1; ++y)
+		for(int y = 0; y < height-1; ++y)
 		{
-			for(unsigned x = 0; x < width-1; ++x)
+			for(int x = 0; x < width-1; ++x)
 			{
-				unsigned i = y*width + x;
-				indices.push_back(i+width);
-				indices.push_back(i+width+1);
+				unsigned i = static_cast<unsigned>(y*width + x);
+				indices.push_back(i+static_cast<unsigned>(width));
+				indices.push_back(i+static_cast<unsigned>(width)+1);
 				indices.push_back(i);
-				indices.push_back(i+width+1);
+				indices.push_back(i+static_cast<unsigned>(width)+1);
 				indices.push_back(i+1);
 				indices.push_back(i);
 			}

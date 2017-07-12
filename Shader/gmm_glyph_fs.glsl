@@ -17,6 +17,9 @@ vec3 palette(float x)
 
 void main()
 {
+	if(weight_.x < 0.f)
+		discard;
+
 	vec3 mask = texture(mask, uv).rgb;
 
 	float angle = acos((uv.y-.5f) / length(uv-vec2(.5f))) * (float(uv.x-.5f < 0.f)*2 - 1) + pi;
@@ -25,8 +28,5 @@ void main()
 	vec4 weight = weight_ * pi * 2.f;
 	color = vec4(palette(comps.x * float(angle < weight.x) +
 	                     comps.y * float(angle < weight.y + weight.x && angle >= weight.x) +
-	                     comps.z * float(angle < weight.z+ weight.y + weight.x && angle >= weight.y + weight.x)), 1.f);
-
-//	if(uv.x < .05f || uv.y < .05f || uv.x > .95f || uv.y > .95f)
-//		color = vec4(1.f, 0.f, 0.f, 1.f);
+	                     comps.z * float(angle < weight.z + weight.y + weight.x && angle >= weight.y + weight.x)), 1.f);
 }

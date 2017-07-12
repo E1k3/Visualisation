@@ -10,9 +10,7 @@ LIBS += -lGL \
         -lstdc++fs
 
 SOURCES += main.cpp \
-    Data/timestep.cpp \
     logger.cpp \
-    Data/ensemblemanager.cpp \
     Renderer/heightfieldrenderer.cpp \
     Renderer/renderer.cpp \
     application.cpp \
@@ -24,9 +22,7 @@ SOURCES += main.cpp \
     Data/field.cpp
 
 HEADERS += \
-    Data/timestep.h \
     logger.h \
-    Data/ensemblemanager.h \
     Renderer/heightfieldrenderer.h \
     Renderer/renderer.h \
     application.h \

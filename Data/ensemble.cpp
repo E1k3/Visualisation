@@ -147,17 +147,21 @@ namespace vis
 				std::getline(ifs, buff, ' ');
 				fields[static_cast<size_t>(i)].set_value(0, j, std::stof(buff));
 			}
+
+			Logger::instance() << Logger::Severity::DEBUG
+							   << "Field " << fields[static_cast<size_t>(i)].name() << " has been read successfully from file "
+							   << _files[ static_cast<size_t>(step_index * _num_simulations + i)];
 		}
 
 		// Start analysis
 		switch(analysis)
 		{
-		case Analysis::GAUSSIAN_SINGLE:
-			_fields = gaussian_analysis(fields);
-			break;
-		case Analysis::GAUSSIAN_MIXTURE:
-			_fields = gaussian_mixture_analysis(fields);
-			break;
+			case Analysis::GAUSSIAN_SINGLE:
+				_fields = gaussian_analysis(fields);
+				break;
+			case Analysis::GAUSSIAN_MIXTURE:
+				_fields = gaussian_mixture_analysis(fields);
+				break;
 		}
 	}
 
@@ -169,14 +173,17 @@ namespace vis
 
 	std::vector<Field> Ensemble::gaussian_analysis(const std::vector<Field>& fields)
 	{
-		if(fields.size() == 0)
+		if(fields.empty())
 		{
-			//TODO error
+			Logger::instance() << Logger::Severity::ERROR
+							   << "No data for gaussian analysis.";
+
+			throw std::invalid_argument("Missing data for gaussian analysis");
 		}
 		const auto& layout = fields.front();
 		auto result = std::vector<Field>(2, Field(1, layout.width(), layout.height(), layout.depth(), true));
-		result[0].set_name(result[0].name() + "_mean");
-		result[1].set_name(result[1].name() + "_variance");
+		result[0].set_name(layout.name() + "_mean");
+		result[1].set_name(layout.name() + "_variance");
 
 		for(int i = 0; i < result.front().volume(); ++i)
 		{
@@ -188,6 +195,10 @@ namespace vis
 			result[0].set_value(0, i, math_util::mean(samples));
 			result[1].set_value(0, i, math_util::variance(samples, result[0].get_value(0, i)));
 		}
+
+		Logger::instance() << Logger::Severity::DEBUG
+						   << "Fields " << result[0].name() << " and "<< result[1].name() << " have been calculated successfully.";
+
 		return result;
 	}
 
@@ -195,15 +206,18 @@ namespace vis
 	{
 		constexpr int gmm_components = 4;
 
-		if(fields.size() == 0)
+		if(fields.empty())
 		{
-			//TODO error
+			Logger::instance() << Logger::Severity::ERROR
+							   << "No data for gmm analysis.";
+
+			throw std::invalid_argument("Missing data for gmm analysis");
 		}
 		const auto& layout = fields.front();
 		auto result = std::vector<Field>(3, Field(gmm_components, layout.width(), layout.height(), layout.depth(), true));
-		result[0].set_name(result[0].name() + "_mean");
-		result[1].set_name(result[1].name() + "_variance");
-		result[2].set_name(result[2].name() + "_weight");
+		result[0].set_name(layout.name() + "_mean");
+		result[1].set_name(layout.name() + "_variance");
+		result[2].set_name(layout.name() + "_weight");
 
 		for(int i = 0; i < result.front().volume(); ++i)
 		{
@@ -220,6 +234,13 @@ namespace vis
 				result[2].set_value(c, i, gmm[static_cast<size_t>(c)]._weight);
 			}
 		}
+
+		Logger::instance() << Logger::Severity::DEBUG
+						   << "Fields " << result[0].name()
+						   << ", "<< result[1].name()
+						   << " and "<< result[2].name()
+						   << " have been calculated successfully.";
+
 		return result;
 	}
 
@@ -248,4 +269,4 @@ namespace vis
 		return static_cast<int>(std::count_if(fs::directory_iterator(dir), fs::directory_iterator{},
 											  [] (const auto& path) { return fs::is_directory(path); }));
 	}
-}
+	}

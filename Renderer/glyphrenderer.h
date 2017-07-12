@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "renderer.h"
-#include "Data/ensemblemanager.h"
 #include "inputmanager.h"
 #include "Data/field.h"
 
@@ -13,18 +12,20 @@ namespace vis
 	class GlyphRenderer : public Renderer
 	{
 	public:
-		explicit GlyphRenderer(const Timestep::ScalarField& mean_field, const Timestep::ScalarField& var_field, InputManager& input);
-		explicit GlyphRenderer(const Timestep::ScalarField& mean_field, const Timestep::ScalarField& var_field, const Timestep::ScalarField& weight_field, InputManager& input);
+		explicit GlyphRenderer(const std::vector<Field>& fields, InputManager& input);
+
+		void init_gaussian(const std::vector<Field>& fields);
+		void init_gmm(const std::vector<Field>& fields);
 		virtual ~GlyphRenderer() = default;
 
 		virtual void draw(float delta_time) override;
 
 	private:
-		std::vector<float> genMask(unsigned width, unsigned height) const;
+		std::vector<float> genMask(int width, int height) const;
 
 		InputManager& _input;
 
-		unsigned _num_vertices;
+		int _num_vertices;
 		GLint _mvp_uniform;
 		GLint _bounds_uniform;
 		glm::vec3 _translate{0.f};

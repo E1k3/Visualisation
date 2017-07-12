@@ -11,8 +11,7 @@ namespace vis
 {
 	namespace fs = std::experimental::filesystem;
 	Application::Application(std::string path)
-		: _ensemble{fs::path{path}},
-		  _ensemble_{fs::path{path}}
+		: _ensemble{fs::path{path}}
 	{
 		// GLFW init
 		glfwSetErrorCallback(error_callback);
@@ -63,33 +62,6 @@ namespace vis
 
 	void Application::execute()
 	{
-		int step_index = 0;
-		std::cout << "\nChoose a time step [0," << _ensemble_.num_steps() << ")\n";
-		std::cin >> step_index;
-		_ensemble_.read_headers(step_index);
-
-		std::cout << "\nThe simulations contain " << _ensemble_.fields().size() << " fields.\n";
-
-		{
-			int i = 0;
-			for(const auto& field : _ensemble_.fields())
-				std::cout << i++ << " " << field.layout_to_string() << '\n';
-		}
-		std::cout << "Choose one [0," << _ensemble_.fields().size() << ")\n";
-		int field_index = 2;	// Magic number as default.
-		std::cin >> field_index;
-
-		_ensemble_.analyse_field(step_index, field_index, Ensemble::Analysis::GAUSSIAN_MIXTURE);
-
-		//Select analysis
-		//_ensemble_.analyze(field_index, GAUSSIAN);
-		//Select renderer
-		//Renderer& renderer = SelectedRenderer(_ensemble_.fields());
-		//in loop: renderer.draw(delta);
-
-		// Load data
-		_ensemble.processSingleStep(step_index);
-
 		// Set up input manager
 		auto input = InputManager{};
 		glfwSetWindowUserPointer(&*_window, &input);
@@ -126,7 +98,47 @@ namespace vis
 		glfwSetFramebufferSizeCallback(&*_window, framebuffer_callback);
 
 
-		GlyphRenderer renderer{_ensemble.currentStep().fields().at(field_index*3), _ensemble.currentStep().fields().at(field_index*3+1), _ensemble.currentStep().fields().at(field_index*3+2), input};
+		// Select simulation step
+		int step_index_input = 0;
+		std::cout << "\nChoose a time step [0," << _ensemble.num_steps() << ")\n";
+		std::cin >> step_index_input;
+		_ensemble.read_headers(step_index_input);
+
+		// Select field
+		std::cout << "\nThe simulations contain " << _ensemble.fields().size() << " fields.\n";
+
+		{
+			int i = 0;
+			for(const auto& field : _ensemble.fields())
+				std::cout << i++ << " " << field.layout_to_string() << '\n';
+		}
+		std::cout << "Choose one [0," << _ensemble.fields().size() << ")\n";
+		int field_index_input = 2;	// Magic number as default.
+		std::cin >> field_index_input;
+
+		// Select analysis
+		std::cout << "\nAnalyze field using:\n0 Maximum likelihood Normal distribution\n1 Maximum likelihood GMM\n";
+		int analysis_input = 0;
+		std::cin >> analysis_input;
+		_ensemble.analyse_field(step_index_input, field_index_input, Ensemble::Analysis(analysis_input));
+
+		// Select renderer
+		auto renderer = std::unique_ptr<Renderer>{};
+		std::cout << "\nRender result using:\n0 Heightfield renderer\n1 Glyph renderer\n";
+		int renderer_input = 0;
+		std::cin >> renderer_input;
+		switch (renderer_input)
+		{
+		case 0:
+			renderer = std::make_unique<HeightfieldRenderer>(_ensemble.fields(), input);
+			break;
+		case 1:
+			renderer = std::make_unique<GlyphRenderer>(_ensemble.fields(), input);
+			break;
+		default:
+			//TODO error
+			break;
+		}
 
 		glClearColor(.2f, .2f, .2f, 1.f);
 
@@ -144,7 +156,7 @@ namespace vis
 			time = glfwGetTime();
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			renderer.draw(_delta);
+			renderer->draw(_delta);
 
 			glfwSwapBuffers(&*_window);
 			glfwPollEvents();

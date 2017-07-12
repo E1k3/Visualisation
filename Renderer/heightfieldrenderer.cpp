@@ -1,7 +1,6 @@
 #include "heightfieldrenderer.h"
 
-#include "Data/timestep.h"
-#include "logger.h"
+#include <vector>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -10,15 +9,24 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
-#include <vector>
+#include "logger.h"
 
 namespace vis
 {
-	HeightfieldRenderer::HeightfieldRenderer(const Timestep::ScalarField& mean_field, const Timestep::ScalarField& var_field, InputManager& input)
+	HeightfieldRenderer::HeightfieldRenderer(const std::vector<Field>& fields, InputManager& input)
 		: Renderer{},
 		  _input{input}
 	{
-		if(!mean_field.same_dimensions(var_field))
+		if(fields.size() < 2)
+		{
+			Logger::instance() << Logger::Severity::ERROR
+							   << "Heightfield renderer creation with < 2 fields not possible.";
+			throw std::invalid_argument("Heightfield renderer created using < 2 fields");
+		}
+		auto mean_field = fields[0];
+		auto var_field = fields[1];
+
+		if(!mean_field.equal_layout(var_field))
 		{
 			Logger::instance() << Logger::Severity::ERROR
 							   << "The mean and variance fields have differing sizes.";
@@ -29,7 +37,7 @@ namespace vis
 		glBindVertexArray(gen_vao());
 
 		// Grid (position)
-		auto grid = gen_grid(mean_field._width, mean_field._height);
+		auto grid = gen_grid(mean_field.width(), mean_field.height());
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
@@ -38,29 +46,29 @@ namespace vis
 
 		// Mean (color)
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*mean_field.area(),
-					 mean_field._data.data(), GL_STATIC_DRAW);
-		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, 0);
+		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float))*mean_field.area()*mean_field.point_dimension(),
+					 mean_field.data().data(), GL_STATIC_DRAW);
+		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, mean_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(1);
 
 		// Variance (height)
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*var_field.area(),
-					 var_field._data.data(), GL_STATIC_DRAW);
-		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, 0);
+		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float))*var_field.area()*var_field.point_dimension(),
+					 var_field.data().data(), GL_STATIC_DRAW);
+		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, var_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(2);
 
 		// Indices (element buffer)
-		auto indices = gen_grid_indices(mean_field._width, mean_field._height);
+		auto indices = gen_grid_indices(mean_field.width(), mean_field.height());
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
 					 &indices[0], GL_STATIC_DRAW);
 		_num_vertices = mean_field.area()*6;
 
 		// Shaders
-		auto vertex_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_vs.glsl",
+		auto vertex_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_vs.glsl",	//TODO:change location to relative
 										GL_VERTEX_SHADER);
-		auto fragment_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_fs.glsl",
+		auto fragment_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_fs.glsl",	//TODO:change location to relative
 										  GL_FRAGMENT_SHADER);
 		auto prog = gen_program();
 		glAttachShader(prog, vertex_shader);
@@ -75,7 +83,7 @@ namespace vis
 		glUseProgram(prog);
 		_mvp_uniform = glGetUniformLocation(prog, "mvp");
 		_bounds_uniform = glGetUniformLocation(prog, "bounds");
-		glUniform4f(_bounds_uniform, mean_field.minimum(), mean_field.maximum(), var_field.minimum(), var_field.maximum()); // TODO:Save bounds as renderer state to scale data live.
+		glUniform4f(_bounds_uniform, mean_field.minima()[0], mean_field.maxima()[0], var_field.minima()[0], var_field.maxima()[0]); // TODO:Save bounds as renderer state to scale data live.
 	}
 
 	void HeightfieldRenderer::draw(float delta_time)

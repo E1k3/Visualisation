@@ -2,7 +2,7 @@
 
 layout(location = 0) in vec4 pos;
 layout(location = 1) in float mean;
-layout(location = 2) in float dev;
+layout(location = 2) in float var;
 
 smooth out vec2 uv;
 flat out vec2 data;
@@ -14,5 +14,5 @@ void main()
 {
 	gl_Position = mvp*vec4(pos.xy, 0.f, 1.f);
 	uv = pos.zw;
-	data = (vec2(mean, dev)-bounds.xz) / bounds.yw;
+	data = (vec2(mean, var)-bounds.xz) / bounds.yw - 10 * float(mean == 0.f && var == 0.f);
 }

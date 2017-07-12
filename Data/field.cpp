@@ -70,6 +70,58 @@ namespace vis
 
 	void Field::set_name(const std::string& name) { _name = name; }
 
+	float Field::minimum() const
+	{
+		if(!_initialized)
+		{
+			Logger::instance() << Logger::Severity::ERROR
+							   << "Data access on uninitialized field.";
+			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
+		}
+		return *std::min_element(_data.begin(), _data.end());
+	}
+
+	float Field::maximum() const
+	{
+		if(!_initialized)
+		{
+			Logger::instance() << Logger::Severity::ERROR
+							   << "Data access on uninitialized field.";
+			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
+		}
+		return *std::max_element(_data.begin(), _data.end());
+	}
+
+	std::vector<float> Field::minima() const
+	{
+		if(!_initialized)
+		{
+			Logger::instance() << Logger::Severity::ERROR
+							   << "Data access on uninitialized field.";
+			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
+		}
+		auto minima = std::vector<float>(static_cast<size_t>(_dimension), std::numeric_limits<float>::infinity());
+		for(int d = 0; d < _dimension; ++d)
+			for(int i = 0; i < volume(); ++i)
+				minima[static_cast<size_t>(d)] = std::min(minima[static_cast<size_t>(d)], get_value(d, i));
+		return minima;
+	}
+
+	std::vector<float> Field::maxima() const
+	{
+		if(!_initialized)
+		{
+			Logger::instance() << Logger::Severity::ERROR
+							   << "Data access on uninitialized field.";
+			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
+		}
+		auto maxima = std::vector<float>(static_cast<size_t>(_dimension), -std::numeric_limits<float>::infinity());
+		for(int d = 0; d < _dimension; ++d)
+			for(int i = 0; i < volume(); ++i)
+				maxima[static_cast<size_t>(d)] = std::max(maxima[static_cast<size_t>(d)], get_value(d, i));
+		return maxima;
+	}
+
 	bool Field::equal_layout(const Field& other) const
 	{
 		return _dimension == other._dimension
@@ -108,6 +160,11 @@ namespace vis
 //		}
 //		return _data[static_cast<unsigned>(index)];
 //	}
+
+	const std::vector<float>& Field::data() const
+	{
+		return _data;
+	}
 
 	std::vector<float> Field::get_point(int i) const
 	{

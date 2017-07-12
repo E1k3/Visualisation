@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 
 #include "renderer.h"
-#include "Data/ensemblemanager.h"
+#include "Data/field.h"
 #include "inputmanager.h"
 
 namespace vis
@@ -17,7 +17,7 @@ namespace vis
 	{
 	public:
 		/// @brief HeightfieldRenderer Constructor.
-		explicit HeightfieldRenderer(const Timestep::ScalarField& mean_field, const Timestep::ScalarField& var_field, InputManager& input);
+		explicit HeightfieldRenderer(const std::vector<Field>& fields, InputManager& input);
 		virtual ~HeightfieldRenderer() = default;
 
 		virtual void draw(float delta_time) override;
