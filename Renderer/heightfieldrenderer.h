@@ -20,14 +20,18 @@ namespace vis
 		explicit HeightfieldRenderer(const std::vector<Field>& fields, InputManager& input);
 		virtual ~HeightfieldRenderer() = default;
 
-		virtual void draw(float delta_time) override;
+		virtual void draw(float delta_time, float total_time) override;
 
 	private:
+		void init_gaussian(const std::vector<Field>& fields);
+		void init_gmm(const std::vector<Field>&);
+
 		InputManager& _input;
 
-		unsigned _num_vertices;
-		GLint _mvp_uniform;
-		GLint _bounds_uniform;
+		int _num_vertices{};
+		GLint _mvp_uniform{};
+		GLint _bounds_uniform{};
+		GLint _time_uniform{};
 
 		glm::vec3 _cam_position{-1.8f, -1.8f, 1.8f};
 		glm::vec3 _cam_direction{-_cam_position};

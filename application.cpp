@@ -156,7 +156,7 @@ namespace vis
 			time = glfwGetTime();
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			renderer->draw(_delta);
+			renderer->draw(_delta, static_cast<float>(time));
 
 			glfwSwapBuffers(&*_window);
 			glfwPollEvents();

@@ -209,7 +209,7 @@ namespace vis
 		glUniform4f(_bounds_uniform, mean_field.minimum(), mean_field.maximum(), var_field.minimum(), var_field.maximum()); // TODO:Save bounds as renderer state to scale data live.
 	}
 
-	void GlyphRenderer::draw(float /*delta_time*/)
+	void GlyphRenderer::draw(float /*delta_time*/, float /*total_time*/)
 	{
 		// Input handling
 		using namespace glm;

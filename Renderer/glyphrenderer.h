@@ -13,14 +13,14 @@ namespace vis
 	{
 	public:
 		explicit GlyphRenderer(const std::vector<Field>& fields, InputManager& input);
-
-		void init_gaussian(const std::vector<Field>& fields);
-		void init_gmm(const std::vector<Field>& fields);
 		virtual ~GlyphRenderer() = default;
 
-		virtual void draw(float delta_time) override;
+		virtual void draw(float delta_time, float total_time) override;
 
 	private:
+		void init_gaussian(const std::vector<Field>& fields);
+		void init_gmm(const std::vector<Field>& fields);
+
 		std::vector<float> genMask(int width, int height) const;
 
 		InputManager& _input;

@@ -144,7 +144,7 @@ namespace vis
 					break;
 				confidence = new_confidence;
 			}
-			std::sort(gmm.begin(), gmm.end(), [] (const auto& a, const auto& b) {return a._weight > b._weight;});
+			std::sort(gmm.begin(), gmm.end(), [] (const auto& a, const auto& b) { return a._mean > b._mean && a._mean != 0.f; });
 			gmm.resize(num_components);
 			float weight_sum = 0.f;
 			for(const auto& c : gmm)

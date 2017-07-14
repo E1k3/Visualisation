@@ -20,7 +20,7 @@ namespace vis
 		 */
 		static GLuint load_shader(std::string path, GLuint type);
 
-		virtual void draw(float delta_time) = 0;
+		virtual void draw(float delta_time, float total_time) = 0;
 
 		GLuint gen_vao();
 
