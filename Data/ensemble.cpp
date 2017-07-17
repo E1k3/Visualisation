@@ -19,21 +19,21 @@ namespace vis
 				!= fs::directory_iterator{})	// Search for a subdirectory of root with amount of files not equal to the others
 		{
 			Logger::instance() << Logger::Severity::ERROR
-							   << "Ensemble root directory does not contain subdirectories of the same size.\n"
+							   << "Ensemble root directory does not contain subdirectories of the same size. "
 							   << "Path: " << root;
 
 			throw std::invalid_argument("Path does not follow the expected ensemble directory structure");
 		}
 
 		_num_steps = count_files(*fs::directory_iterator{root});
-		_files.reserve(static_cast<size_t>(_num_simulations * _num_steps));	// Class invariant, has to be >= 0
+		_project_files.reserve(static_cast<size_t>(_num_simulations * _num_steps));	// Class invariant, has to be >= 0
 
 		// Copy all directories
-		std::copy_if(fs::recursive_directory_iterator{root}, fs::recursive_directory_iterator{}, std::back_inserter(_files),
+		std::copy_if(fs::recursive_directory_iterator{root}, fs::recursive_directory_iterator{}, std::back_inserter(_project_files),
 					 [] (const fs::path& p) { return fs::is_regular_file(p); });
 		// Sort by path (simulation), then stably by name (timestep)
-		std::sort(_files.begin(), _files.end());
-		std::stable_sort(_files.begin(), _files.end(),
+		std::sort(_project_files.begin(), _project_files.end());
+		std::stable_sort(_project_files.begin(), _project_files.end(),
 						 [] (const fs::path& a, const fs::path& b) { return a.filename() < b.filename(); });
 	}
 
@@ -43,63 +43,79 @@ namespace vis
 
 	const std::vector<Field>& Ensemble::fields() const { return _fields; }
 
-	void Ensemble::read_headers(int step_index)
+	void Ensemble::read_headers(int step_index, int count, int stride)
 	{
 		if(step_index < 0 || step_index >= _num_steps)
 		{
 			Logger::instance() << Logger::Severity::ERROR
-							   << "Headers of step " << step_index << " cannot be read.\n"
+							   << "Headers of step " << step_index << " cannot be read. "
 							   << "Number of simulations: " << _num_simulations;
 
 			throw std::out_of_range("Index of simulation step is out of range");
 		}
-
-
-		auto fields = std::vector<std::vector<Field>>(static_cast<size_t>(_num_simulations));	// Class invariant, has to be >= 0
-		for(int i = 0; i < _num_simulations; ++i)
+		if(count < 0 || stride < 0 || stride > _num_steps || count * stride > _num_steps)
 		{
-			auto& file = _files[ static_cast<size_t>(step_index * _num_simulations + i)];	// Has to be >= 0
-			auto ifs = std::ifstream{file};
-			auto buff = std::string{};
-			auto line = std::stringstream{};
+			Logger::instance() << Logger::Severity::ERROR
+							   << "Headers of step " << step_index << " cannot be read. "
+							   << "Aggregation count or stride are out of range: steps:" << _num_steps
+							   << " count: " << count << " stride: " << stride;
 
-			// Advance one line
-			std::getline(ifs, buff);
-			line.str(buff);
+			throw std::out_of_range("Index of simulation step is out of range");
+		}
+		if(count == 0)
+			count = 1;
+		if(stride == 0)
+			stride = 1;
 
-			// Read layout
-			std::getline(line, buff, ' ');
-			auto width = std::stoi(buff);
-			std::getline(line, buff, ' ');
-			auto height = std::stoi(buff);
-			std::getline(line, buff, ' ');
-			auto depth = std::stoi(buff);
 
-			// Check if total points = volume
-			std::getline(line, buff, ' ');
-			auto total = std::stoi(buff);
-			if(total != width*height*depth)
+		auto fields = std::vector<std::vector<Field>>(static_cast<size_t>(_num_simulations * count));
+		for(int c = 0; c < count; ++c)
+		{
+			for(int i = 0; i < _num_simulations; ++i)
 			{
-				Logger::instance() << Logger::Severity::ERROR
-								   << "Field in file " << file
-								   << " has invalid dimensions.\n"
-								   << "width: " << width << " height: " << height << " depth: " << depth << " but total=" << total;
+				auto& file = _project_files[static_cast<size_t>((step_index + c * stride) * _num_simulations + i)];
+				auto ifs = std::ifstream{file};
+				auto buff = std::string{};
+				auto line = std::stringstream{};
 
-				throw std::runtime_error("Total size in simulation header is invalid");
-			}
+				// Advance one line
+				std::getline(ifs, buff);
+				line.str(buff);
 
-			// Advance one line
-			std::getline(ifs, buff);
-			line.str(buff);
-
-			// Read number of fields
-			std::getline(line, buff, ' ');
-			fields[static_cast<size_t>(i)].resize(std::stoul(buff), Field(1, width, height, depth));	// i is [0, _num_simulations), class invariant, has to be >= 0
-			// Read field names
-			for(auto& field : fields[static_cast<size_t>(i)])	// i is [0, _num_simulations), class invariant, has to be >= 0
-			{
+				// Read layout
 				std::getline(line, buff, ' ');
-				field.set_name(buff);
+				auto width = std::stoi(buff);
+				std::getline(line, buff, ' ');
+				auto height = std::stoi(buff);
+				std::getline(line, buff, ' ');
+				auto depth = std::stoi(buff);
+
+				// Check if total points = volume
+				std::getline(line, buff, ' ');
+				auto total = std::stoi(buff);
+				if(total != width*height*depth)
+				{
+					Logger::instance() << Logger::Severity::ERROR
+									   << "Field in file " << file
+									   << " has invalid dimensions: "
+									   << "width: " << width << " height: " << height << " depth: " << depth << " total:" << total;
+
+					throw std::runtime_error("Total size in simulation header is invalid");
+				}
+
+				// Advance one line
+				std::getline(ifs, buff);
+				line.str(buff);
+
+				// Read number of fields
+				std::getline(line, buff, ' ');
+				fields[static_cast<size_t>(_num_simulations * c + i)].resize(std::stoul(buff), Field(1, width, height, depth));
+				// Read field names
+				for(auto& field : fields[static_cast<size_t>(_num_simulations * c + i)])
+				{
+					std::getline(line, buff, ' ');
+					field.set_name(buff);
+				}
 			}
 		}
 
@@ -114,54 +130,60 @@ namespace vis
 			throw std::runtime_error("Field layout mismatch");
 		}
 
+		_selected_step = step_index;
+		_cluster_size = count;
+		_cluster_stride = stride;
 		_fields.clear();
 		_fields.reserve(fields.size());
 		std::copy(fields.front().begin(), fields.front().end(), std::back_inserter(_fields));
 	}
 
-	void Ensemble::analyse_field(int step_index, int field_index, Ensemble::Analysis analysis)
+	void Ensemble::analyse_field(int field_index, Ensemble::Analysis analysis)
 	{
 		if(field_index < 0 || static_cast<size_t>(field_index) >= _fields.size())
 		{
 			Logger::instance() << Logger::Severity::ERROR
-							   << "Analysing field failed, field at index " << field_index << " does not exist.\n"
+							   << "Analysing field failed, field at index " << field_index << " does not exist. "
 							   << "Number of fields: " << _fields.size();
 			throw std::invalid_argument("No field exists at index.");
 		}
 
 		// Read fields from file
 		const auto& layout = _fields[static_cast<size_t>(field_index)];
-		auto fields = std::vector<Field>(static_cast<size_t>(_num_simulations), Field(layout, true));
+		auto fields = std::vector<Field>(static_cast<size_t>(_num_simulations * _cluster_size), Field(layout, true));
 
-		for(int i = 0; i < num_simulations(); ++i)
+		for(int c = 0; c < _cluster_size; ++c)
 		{
-			auto ifs = std::ifstream{_files[ static_cast<size_t>(step_index * _num_simulations + i)]};
-			ignore_many(ifs, 3, '\n');	// Skip header
-			ignore_many(ifs, (layout.height()*layout.depth()+1)*field_index, '\n');	// Skip fields
-
-			// Read data
-			auto buff = std::string{};
-
-			for(int j = 0; j < layout.volume(); ++j)
+			for(int i = 0; i < _num_simulations; ++i)
 			{
-				std::getline(ifs, buff, ' ');
-				fields[static_cast<size_t>(i)].set_value(0, j, std::stof(buff));
-			}
+				auto ifs = std::ifstream(_project_files[ static_cast<size_t>((_selected_step + c * _cluster_stride) * _num_simulations + i)]);
+				ignore_many(ifs, 3, '\n');	// Skip header
+				ignore_many(ifs, (layout.height()*layout.depth()+1)*field_index, '\n');	// Skip fields
 
-			Logger::instance() << Logger::Severity::DEBUG
-							   << "Field " << fields[static_cast<size_t>(i)].name() << " has been read successfully from file "
-							   << _files[ static_cast<size_t>(step_index * _num_simulations + i)];
+				// Read data
+				auto buff = std::string{};
+
+				for(int j = 0; j < layout.volume(); ++j)
+				{
+					std::getline(ifs, buff, ' ');
+					fields[static_cast<size_t>(c * _num_simulations + i)].set_value(0, j, std::stof(buff));
+				}
+
+				Logger::instance() << Logger::Severity::DEBUG
+								   << "Field " << fields[static_cast<size_t>(c * _num_simulations + i)].name() << " has been read successfully from file "
+								   << _project_files[ static_cast<size_t>((_selected_step + c * _cluster_stride) * _num_simulations + i)];
+			}
 		}
 
 		// Start analysis
 		switch(analysis)
 		{
-			case Analysis::GAUSSIAN_SINGLE:
-				_fields = gaussian_analysis(fields);
-				break;
-			case Analysis::GAUSSIAN_MIXTURE:
-				_fields = gaussian_mixture_analysis(fields);
-				break;
+		case Analysis::GAUSSIAN_SINGLE:
+			_fields = gaussian_analysis(fields);
+			break;
+		case Analysis::GAUSSIAN_MIXTURE:
+			_fields = gaussian_mixture_analysis(fields);
+			break;
 		}
 	}
 
@@ -249,7 +271,7 @@ namespace vis
 		if(!fs::is_directory(dir))
 		{
 			Logger::instance() << Logger::Severity::ERROR
-							   << "Counting files failed.\n"
+							   << "Counting files failed. "
 							   << dir.string() << " does not point to a directory.";
 			throw std::invalid_argument("Path does not point to directory");	// TODO:ERROR handling. Dir is not a directory.
 		}
@@ -262,11 +284,11 @@ namespace vis
 		if(!fs::is_directory(dir))
 		{
 			Logger::instance() << Logger::Severity::ERROR
-							   << "Counting directories failed.\n"
+							   << "Counting directories failed. "
 							   << dir.string() << " does not point to a directory.";
 			throw std::invalid_argument("Path does not point to directory");	// TODO:ERROR handling. Dir is not a directory.
 		}
 		return static_cast<int>(std::count_if(fs::directory_iterator(dir), fs::directory_iterator{},
 											  [] (const auto& path) { return fs::is_directory(path); }));
 	}
-	}
+}

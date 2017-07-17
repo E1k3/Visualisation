@@ -120,7 +120,7 @@ namespace vis
 		std::cout << "\nAnalyze field using:\n0 Maximum likelihood Normal distribution\n1 Maximum likelihood GMM\n";
 		int analysis_input = 0;
 		std::cin >> analysis_input;
-		_ensemble.analyse_field(step_index_input, field_index_input, Ensemble::Analysis(analysis_input));
+		_ensemble.analyse_field(field_index_input, Ensemble::Analysis(analysis_input));
 
 		// Select renderer
 		auto renderer = std::unique_ptr<Renderer>{};

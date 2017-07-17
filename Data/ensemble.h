@@ -26,9 +26,9 @@ namespace vis
 
 		const std::vector<Field>& fields() const;
 
-		void read_headers(int step_index);
+		void read_headers(int step_index, int count = 2, int stride = 4);
 
-		void analyse_field(int step_index, int field_index, Analysis analysis);
+		void analyse_field(int field_index, Analysis analysis);
 
 	private:
 		static void ignore_many(std::istream& stream, int count, char delimiter);
@@ -44,9 +44,13 @@ namespace vis
 		int _num_simulations;
 		int _num_steps;
 
-		std::vector<fs::path> _files{};
+		int _selected_step;
+		int _cluster_stride;
+		int _cluster_size;
 
 		std::vector<Field> _fields{};
+
+		std::vector<fs::path> _project_files{};
 	};
 }
 #endif // ENSEMBLE_H
