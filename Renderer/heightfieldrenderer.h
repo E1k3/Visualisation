@@ -34,7 +34,6 @@ namespace vis
 		GLint _time_uniform{};
 
 		glm::vec3 _cam_position{-1.8f, -1.8f, 1.8f};
-		glm::vec3 _cam_direction{-_cam_position};
 	};
 }
 

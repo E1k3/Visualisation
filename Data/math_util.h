@@ -23,7 +23,7 @@ namespace vis
 		 * @brief add_interp_data Adds factor-1 data points between all points in samples.
 		 * The new points are linearly interpolated between their neighbours.
 		 * @param samples The collection of data.
-		 * @param factor The factor by which to grow the data.
+		 * @param factor The amount of points added to each gap.
 		 * The data actually grows to oldsize*factor - oldsize
 		 * @return The new collection of data including the interpolated points.
 		 */

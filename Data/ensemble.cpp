@@ -76,7 +76,7 @@ namespace vis
 				auto& file = _project_files[static_cast<size_t>((step_index + c * stride) * _num_simulations + i)];
 				auto ifs = std::ifstream{file};
 				auto buff = std::string{};
-				auto line = std::stringstream{};
+				auto line = std::istringstream{};
 
 				// Advance one line
 				std::getline(ifs, buff);

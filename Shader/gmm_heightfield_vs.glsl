@@ -14,7 +14,7 @@ uniform float time;
 void main()
 {
 	// TODO:ANIMATE SMOOTHLY (INTERPOLATE) use cos(time) or similar as t
-	float t = time - int(time);
+	float t = abs((time-int(time)-.5f)*2.f);
 	vec4 _mean = (mean-bounds.x)/bounds.y/2;	// /2 to reduce peak height
 	vec4 _var = (var-bounds.z)/bounds.w;
 	float mean_, var_;

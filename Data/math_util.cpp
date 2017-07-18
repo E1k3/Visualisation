@@ -109,8 +109,9 @@ namespace vis
 
 	std::vector<math_util::GMMComponent> math_util::fit_gmm(const std::vector<float>& samples, unsigned num_components, float epsilon, unsigned max_iterations)
 	{
-		unsigned peaks = std::min(num_components, count_peaks(samples, 8));	// TODO:find better way to choose number of bins
-		auto gmm = std::vector<GMMComponent>();
+		auto peaks = count_peaks(samples, num_components*2 - 1);	// TODO:find better way to choose number of bins
+
+		auto gmm = std::vector<GMMComponent>{};
 
 		if(num_components == 0)
 			return {};

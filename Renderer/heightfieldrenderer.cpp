@@ -167,32 +167,22 @@ namespace vis
 		glUniform4f(_bounds_uniform, mean_field.minimum(), mean_field.maximum(), var_field.minimum(), var_field.maximum()); // TODO:Save bounds as renderer state to scale data live.
 	}
 
-	void HeightfieldRenderer::draw(float delta_time, float total_time)
+	void HeightfieldRenderer::draw(float /*delta_time*/, float total_time)
 	{
 		// Input handling
 		using namespace glm;
-		const float mousespeed = 0.02f;
-		_cam_direction = rotateZ(_cam_direction, radians(_input.get_cursor_offset_x() * mousespeed));
+		constexpr float mousespeed = 0.005f;
+		constexpr float scrollspeed = 0.1f;
 
-		auto y_offset = _input.get_cursor_offset_y();
-		if((_cam_direction.z > -0.99f || y_offset > 0.f) && (_cam_direction.z < 0.99f || y_offset < 0.f))
-			_cam_direction = rotate(_cam_direction, radians(y_offset * mousespeed), cross(_cam_direction, vec3{0.f, 0.f, 1.f}));
-		_cam_direction = normalize(_cam_direction);
-
-		if(_input.get_key(GLFW_KEY_W))
-			_cam_position += _cam_direction * delta_time;
-		if(_input.get_key(GLFW_KEY_A))
-			_cam_position += normalize(cross(_cam_direction, vec3{0.f, 0.f, 1.f})) * -delta_time;
-		if(_input.get_key(GLFW_KEY_S))
-			_cam_position += _cam_direction * -delta_time;
-		if(_input.get_key(GLFW_KEY_D))
-			_cam_position += normalize(cross(_cam_direction, vec3{0.f, 0.f, 1.f})) * delta_time;
+		_cam_position = rotateZ(_cam_position, _input.get_cursor_offset_x()*mousespeed);
+		_cam_position = rotate(_cam_position,  _input.get_cursor_offset_y()*mousespeed, cross(-_cam_position, vec3(0.f, 0.f, 1.f)));
+		_cam_position = normalize(_cam_position) * (length(_cam_position)*(1 + _input.get_scroll_offset_y() * scrollspeed));
 
 		auto viewport = _input.get_framebuffer_size();
 
 		// MVP calculation
 		auto model = scale(mat4{1.f}, vec3{192.f/96.f * viewport.y/viewport.x, 1.f, 1.f});
-		auto view = lookAt(_cam_position, _cam_position+_cam_direction, vec3{0.f, 0.f, 1.f});
+		auto view = lookAt(_cam_position, vec3(0.f), vec3{0.f, 0.f, 1.f});
 		auto proj = perspective(radians(45.f), 16.f / 9.f, .2f, 10.f);
 		auto mvp = proj * view * model;
 		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));

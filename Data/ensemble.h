@@ -26,7 +26,7 @@ namespace vis
 
 		const std::vector<Field>& fields() const;
 
-		void read_headers(int step_index, int count = 2, int stride = 4);
+		void read_headers(int step_index, int count = 7, int stride = 4);
 
 		void analyse_field(int field_index, Analysis analysis);
 
