@@ -109,35 +109,30 @@ namespace vis
 
 	std::vector<math_util::GMMComponent> math_util::fit_gmm(const std::vector<float>& samples, unsigned num_components, float epsilon, unsigned max_iterations)
 	{
-		auto peaks = count_peaks(samples, num_components*2 - 1);	// TODO:find better way to choose number of bins
-
-		auto gmm = std::vector<GMMComponent>{};
-
 		if(num_components == 0)
 			return {};
 
-		// If there is only one peak (or none because all samples are the same)
-		// analyze as simple gaussian distribution
-		if(peaks <= 1)
+		// Initialize result with single gauss mle
+		auto result = std::vector<GMMComponent>{{}};
+		result.push_back({});
+		result.front()._mean = mean(samples);
+		result.front()._variance = variance(samples, result.front()._mean);
+		result.front()._weight = 1.f;
+
+		auto max_score = gmm_likelihood(samples, result);
+
+		for(unsigned i = 2; i <= num_components; ++i)
 		{
-			gmm.resize(num_components);
-			gmm.front()._mean = mean(samples);
-			gmm.front()._variance = variance(samples, gmm.front()._mean);
-			gmm.front()._weight = 1.f;
-			return gmm;
-		}
-		// If there are more peaks than one
-		// fit a mixture of gaussians
-		else
-		{
+			auto gmm = std::vector<GMMComponent>{};
+
 			// Initialize GMM
-			gmm.reserve(peaks);
-			for(auto& s : pick_randomly(samples, peaks))
-				gmm.push_back({s, variance(samples, s), 1.f/peaks});
+			gmm.reserve(i);
+			for(auto& s : pick_randomly(samples, i))
+				gmm.push_back({s, variance(samples, s), 1.f/i});
 
 			// Calculate log likelyhood of current gmm
 			auto confidence = gmm_log_likelihood(samples, gmm);
-			for(unsigned i = 0; i < max_iterations; ++i)
+			for(unsigned j = 0; j < max_iterations; ++j)
 			{
 				em_step(samples, gmm);
 				auto new_confidence = gmm_log_likelihood(samples, gmm);
@@ -145,15 +140,19 @@ namespace vis
 					break;
 				confidence = new_confidence;
 			}
-			std::sort(gmm.begin(), gmm.end(), [] (const auto& a, const auto& b) { return a._mean > b._mean && a._mean != 0.f; });
-			gmm.resize(num_components);
-			float weight_sum = 0.f;
-			for(const auto& c : gmm)
-				weight_sum += c._weight;
-			for(auto& c : gmm)
-				c._weight *= 1.f/weight_sum;
-			return gmm;
+			std::sort(gmm.begin(), gmm.end(), [] (const auto& a, const auto& b) { return a._mean > b._mean && a._weight != 0.f; });
+
+			auto current_score = gmm_likelihood(samples, gmm);// / (1 + i*0.1f);
+			if(current_score > max_score) //TODO:find a good way to score gmm likelihood vs number of gmm components
+			{
+				max_score = current_score;
+				result = gmm;
+			}
+			else
+				break;
 		}
+		result.resize(num_components);
+		return result;
 	}
 
 	float math_util::gmm_log_likelihood(const std::vector<float>& samples, const std::vector<GMMComponent>& gmm)
@@ -161,6 +160,14 @@ namespace vis
 		auto sum = 0.f;
 		for(const auto& s : samples)
 			sum += std::log(gmm_density(s, gmm));
+		return sum;
+	}
+
+	float math_util::gmm_likelihood(const std::vector<float>& samples, const std::vector<GMMComponent>& gmm)
+	{
+		auto sum = 0.f;
+		for(const auto& s: samples)
+			sum += gmm_density(s, gmm);
 		return sum;
 	}
 
@@ -218,20 +225,20 @@ namespace vis
 	{
 		auto re = std::default_random_engine{std::random_device{}()};
 		return samples[std::uniform_int_distribution<size_t>{0, samples.size()-1}(re)];
-	}
+}
 
-	std::vector<float> math_util::pick_randomly(std::vector<float> samples, unsigned num_picks)
+std::vector<float> math_util::pick_randomly(std::vector<float> samples, unsigned num_picks)
+{
+	if(num_picks >= samples.size())
+		return {};
+
+	auto re = std::default_random_engine{std::random_device{}()};
+	for(unsigned i = 0; i < num_picks; ++i)
 	{
-		if(num_picks >= samples.size())
-			return {};
-
-		auto re = std::default_random_engine{std::random_device{}()};
-		for(unsigned i = 0; i < num_picks; ++i)
-		{
-			auto dist = std::uniform_int_distribution<size_t>{i, samples.size()-1};
-			std::swap(samples[i], samples[dist(re)]);
-		}
-		samples.resize(num_picks);
-		return samples;
+		auto dist = std::uniform_int_distribution<size_t>{i, samples.size()-1};
+		std::swap(samples[i], samples[dist(re)]);
 	}
+	samples.resize(num_picks);
+	return samples;
+}
 }

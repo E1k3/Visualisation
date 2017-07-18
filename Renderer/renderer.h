@@ -30,6 +30,8 @@ namespace vis
 
 		GLuint gen_program();
 
+		static std::vector<float> gen_grid_indexed(int width, int height);
+
 		static std::vector<float> gen_grid(int width, int height);
 
 		static std::vector<unsigned> gen_grid_indices(int width, int height);

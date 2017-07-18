@@ -88,6 +88,14 @@ namespace vis
 		float gmm_log_likelihood(const std::vector<float>& samples, const std::vector<GMMComponent>& gmm);
 
 		/**
+		 * @brief gmm_likelyhood Calculates the likelihood of a given GMM at generating given samples.
+		 * @param samples The sample data.
+		 * @param gmm The GMMs components.
+		 * @return The likelihood of the GMM generating the samples.
+		 */
+		float gmm_likelihood(const std::vector<float>& samples, const std::vector<GMMComponent>& gmm);
+
+		/**
 		 * @brief find_peaks Tries to approximate the number of modes (peaks) in the samples distribution.
 		 * @param samples The samples that are analyzed.
 		 * @return The number of peaks found in the sample data.

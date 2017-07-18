@@ -48,7 +48,7 @@ namespace vis
 		glBindVertexArray(gen_vao());
 
 		// Grid (position)
-		auto grid = gen_grid(mean_field.width(), mean_field.height());
+		auto grid = gen_grid_indexed(mean_field.width(), mean_field.height());
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
@@ -139,7 +139,7 @@ namespace vis
 		glBindVertexArray(gen_vao());
 
 		// Grid (position)
-		auto grid = gen_grid(mean_field.width(), mean_field.height());
+		auto grid = gen_grid_indexed(mean_field.width(), mean_field.height());
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);

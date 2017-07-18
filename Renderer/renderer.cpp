@@ -90,7 +90,7 @@ namespace vis
 		return _programs.back().get();
 	}
 
-	std::vector<float> Renderer::gen_grid(int width, int height)
+	std::vector<float> Renderer::gen_grid_indexed(int width, int height)
 	{
 		if(width < 0 || height < 0)
 		{
@@ -101,6 +101,42 @@ namespace vis
 		}
 
 
+		auto grid = std::vector<float>(static_cast<size_t>(width * height * 4));
+
+		if(width*height == 0)
+			return grid;	// TODO:error handling?
+
+		float uv_y = 1.f;
+		for(int row = 0; row < height; ++row)
+		{
+			float uv_x = 0.f;
+			for(int col = 0; col < width; ++col)
+			{
+				float x = col/(width-1.f);
+				float y = row/(height-1.f);
+				grid[static_cast<size_t>(row*width + col)*4] = x*2.f - 1.f;
+				grid[static_cast<size_t>(row*width + col)*4 + 1] = y*2.f - 1.f;
+				grid[static_cast<size_t>(row*width + col)*4 + 2] = uv_x;
+				grid[static_cast<size_t>(row*width + col)*4 + 3] = uv_y;
+
+				uv_x = 1.f - uv_x;
+			}
+			uv_y = 1.f - uv_y;
+		}
+		return grid;
+	}
+
+	std::vector<float> Renderer::gen_grid(int width, int height)
+	{
+		if(width < 0 || height < 0)
+		{
+			Logger::instance() << Logger::Severity::ERROR
+							   << "Grid generation using negative dimensions.\n"
+							   << "width: " << width << " height: " << height;
+			throw std::invalid_argument("Negative grid generation dimensions");
+		}
+
+		// !!!TOOODOO:IMPLEMENT THIS WITHOUT INDEXING!!!PRIO!!!
 		auto grid = std::vector<float>(static_cast<size_t>(width * height * 4));
 
 		if(width*height == 0)
