@@ -41,4 +41,5 @@ DISTFILES += \
     Shader/gmm_glyph_vs.glsl \
     Shader/gmm_glyph_fs.glsl \
     Shader/gmm_heightfield_vs.glsl \
-    Shader/gmm_heightfield_fs.glsl
+    Shader/gmm_heightfield_fs.glsl \
+    Shader/gmm_glyph_fs_2.glsl

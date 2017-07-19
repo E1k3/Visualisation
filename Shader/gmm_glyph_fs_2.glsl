@@ -27,8 +27,8 @@ void main()
 
 	vec4 weight = vec4(weight_.x, weight_.x+weight_.y, weight_.x+weight_.y+weight_.z, weight_.x+weight_.y+weight_.z+weight_.w);
 	weight *= pi * 2.f;
-	color = vec4(palette(comps.x * float(                     angle < weight.x) +
-	                     comps.y * float(angle >= weight.x && angle < weight.y) +
-	                     comps.z * float(angle >= weight.y && angle < weight.z) +
+	color = vec4(palette(comps.x * float(						angle < weight.x) +
+	                     comps.y * float(angle >= weight.x &&	angle < weight.y) +
+	                     comps.z * float(angle >= weight.y &&	angle < weight.z) +
 	                     comps.w * float(angle >= weight.z)), 1.f);
 }

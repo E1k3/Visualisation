@@ -142,7 +142,7 @@ namespace vis
 			}
 			std::sort(gmm.begin(), gmm.end(), [] (const auto& a, const auto& b) { return a._mean > b._mean && a._weight != 0.f; });
 
-			auto current_score = gmm_likelihood(samples, gmm);// / (1 + i*0.1f);
+			auto current_score = gmm_likelihood(samples, gmm) / (1 + i * .05f);
 			if(current_score > max_score) //TODO:find a good way to score gmm likelihood vs number of gmm components
 			{
 				max_score = current_score;

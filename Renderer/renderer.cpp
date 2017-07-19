@@ -128,37 +128,54 @@ namespace vis
 
 	std::vector<float> Renderer::gen_grid(int width, int height)
 	{
-		if(width < 0 || height < 0)
-		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Grid generation using negative dimensions.\n"
-							   << "width: " << width << " height: " << height;
-			throw std::invalid_argument("Negative grid generation dimensions");
-		}
+		auto grid = std::vector<float>();
+		grid.reserve(static_cast<size_t>((width-1) * (height-1) * 6 * 4));
 
-		// !!!TOOODOO:IMPLEMENT THIS WITHOUT INDEXING!!!PRIO!!!
-		auto grid = std::vector<float>(static_cast<size_t>(width * height * 4));
-
-		if(width*height == 0)
-			return grid;	// TODO:error handling?
-
-		float uv_y = 1.f;
-		for(int row = 0; row < height; ++row)
-		{
-			float uv_x = 0.f;
-			for(int col = 0; col < width; ++col)
+		for(int y = 0; y < height-1; ++y)
+			for(int x = 0; x < width-1; ++x)
 			{
-				float x = col/(width-1.f);
-				float y = row/(height-1.f);
-				grid[static_cast<size_t>(row*width + col)*4] = x*2.f - 1.f;
-				grid[static_cast<size_t>(row*width + col)*4 + 1] = y*2.f - 1.f;
-				grid[static_cast<size_t>(row*width + col)*4 + 2] = uv_x;
-				grid[static_cast<size_t>(row*width + col)*4 + 3] = uv_y;
+				grid.push_back((x + 0)/(height - 1.f) * 2.f - 1.f);
+				grid.push_back((y + 1)/(width - 1.f) * 2.f - 1.f);
 
-				uv_x = 1.f - uv_x;
+				grid.push_back(0.f);
+				grid.push_back(0.f);
+
+
+				grid.push_back((x + 1)/(height - 1.f) * 2.f - 1.f);
+				grid.push_back((y + 1)/(width - 1.f) * 2.f - 1.f);
+
+				grid.push_back(1.f);
+				grid.push_back(0.f);
+
+
+				grid.push_back((x + 0)/(height - 1.f) * 2.f - 1.f);
+				grid.push_back((y + 0)/(width - 1.f) * 2.f - 1.f);
+
+				grid.push_back(0.f);
+				grid.push_back(1.f);
+
+
+				grid.push_back((x + 1)/(height - 1.f) * 2.f - 1.f);
+				grid.push_back((y + 1)/(width - 1.f) * 2.f - 1.f);
+
+				grid.push_back(1.f);
+				grid.push_back(0.f);
+
+
+				grid.push_back((x + 1)/(height - 1.f) * 2.f - 1.f);
+				grid.push_back((y + 0)/(width - 1.f) * 2.f - 1.f);
+
+				grid.push_back(1.f);
+				grid.push_back(1.f);
+
+
+				grid.push_back((x + 0)/(height - 1.f) * 2.f - 1.f);
+				grid.push_back((y + 0)/(width - 1.f) * 2.f - 1.f);
+
+				grid.push_back(0.f);
+				grid.push_back(1.f);
 			}
-			uv_y = 1.f - uv_y;
-		}
+
 		return grid;
 	}
 
@@ -177,7 +194,6 @@ namespace vis
 			return indices;	// TODO:error handling?
 
 		for(int y = 0; y < height-1; ++y)
-		{
 			for(int x = 0; x < width-1; ++x)
 			{
 				unsigned i = static_cast<unsigned>(y*width + x);
@@ -188,7 +204,6 @@ namespace vis
 				indices.push_back(i+1);
 				indices.push_back(i);
 			}
-		}
 		return indices;
 	}
 }

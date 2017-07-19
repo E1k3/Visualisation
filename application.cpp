@@ -102,7 +102,13 @@ namespace vis
 		int step_index_input = 0;
 		std::cout << "\nChoose a time step [0," << _ensemble.num_steps() << ")\n";
 		std::cin >> step_index_input;
-		_ensemble.read_headers(step_index_input);
+		int aggregation_count = 0;
+		std::cout << "\nChoose how many steps you want to aggregate (merge) [0, n)\n";
+		std::cin >> aggregation_count;
+		int aggregation_stride = 0;
+		std::cout << "\nChoose the aggregation stride [0, n)\n";
+		std::cin >> aggregation_stride;
+		_ensemble.read_headers(step_index_input, aggregation_count, aggregation_stride);
 
 		// Select field
 		std::cout << "\nThe simulations contain " << _ensemble.fields().size() << " fields.\n";
