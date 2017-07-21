@@ -75,7 +75,7 @@ namespace vis
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
 					 &indices[0], GL_STATIC_DRAW);
-		_num_vertices = mean_field.area()*6;
+		_num_vertices = static_cast<int>(indices.size());
 
 		// Mask (glyph)
 		auto mask = genMask(mask_res_x, mask_res_y);
@@ -172,7 +172,7 @@ namespace vis
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
 					 &indices[0], GL_STATIC_DRAW);
-		_num_vertices = mean_field.area()*6;
+		_num_vertices = static_cast<int>(indices.size());
 
 		// Mask (glyph)
 		auto mask = genMask(mask_res_x, mask_res_y);

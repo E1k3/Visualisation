@@ -71,7 +71,7 @@ namespace vis
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
 					 &indices[0], GL_STATIC_DRAW);
-		_num_vertices = mean_field.area()*6;
+		_num_vertices = static_cast<int>(indices.size());
 
 		// Shaders
 		auto vertex_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_vs.glsl",	//TODO:change location to relative
@@ -143,7 +143,7 @@ namespace vis
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
 					 &indices[0], GL_STATIC_DRAW);
-		_num_vertices = mean_field.area()*6;
+		_num_vertices = static_cast<int>(indices.size());
 
 		// Shaders
 		auto vertex_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/gmm_heightfield_vs.glsl",	//TODO:change location to relative
