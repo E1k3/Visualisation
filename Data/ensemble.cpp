@@ -248,7 +248,7 @@ namespace vis
 			for(const auto& field : fields)
 				samples.push_back(field.get_value(0, i));
 
-			auto gmm = math_util::fit_gmm(samples, gmm_components, .01f, 25);
+			auto gmm = math_util::fit_gmm(samples, gmm_components);
 			for(int c = 0; c < gmm_components; ++c)
 			{
 				result[0].set_value(c, i, gmm[static_cast<size_t>(c)]._mean);

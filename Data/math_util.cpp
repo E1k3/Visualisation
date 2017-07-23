@@ -99,7 +99,7 @@ namespace vis
 			// Avoid singularity (variance == 0 -> mean == NaN, weight == NaN, etc)
 			if(gmm[c]._variance <= std::numeric_limits<float>::min())
 			{
-				// TODO:find out which way to avoid singularities is the best
+				// TODO:test different resets
 				gmm[c]._mean = pick_randomly(samples);
 				gmm[c]._variance = variance(samples, gmm[c]._mean);
 			}
@@ -107,51 +107,70 @@ namespace vis
 	}
 
 
-	std::vector<math_util::GMMComponent> math_util::fit_gmm(const std::vector<float>& samples, unsigned num_components, float epsilon, unsigned max_iterations)
+	std::vector<math_util::GMMComponent> math_util::fit_gmm(const std::vector<float>& samples, unsigned max_components)
 	{
-		if(num_components == 0)
+		if(max_components == 0)
 			return {};
 
-		// Initialize result with single gauss mle
+		// Initialize result with single gauss MLE
 		auto result = std::vector<GMMComponent>{{}};
 		result.push_back({});
 		result.front()._mean = mean(samples);
 		result.front()._variance = variance(samples, result.front()._mean);
 		result.front()._weight = 1.f;
 
-		auto max_score = gmm_likelihood(samples, result);
+		auto min_bic = gmm_bic(samples, result);
 
-		for(unsigned i = 2; i <= num_components; ++i)
+		// Try GMMs with [2, max_components] components
+		// k = current number of components
+		for(unsigned k = 2; k <= max_components; ++k)
 		{
 			auto gmm = std::vector<GMMComponent>{};
 
-			// Initialize GMM
-			gmm.reserve(i);
-			for(auto& s : pick_randomly(samples, i))
-				gmm.push_back({s, variance(samples, s), 1.f/i});
+			// Try initializing randomly, choose best result
+			{
+				float max_likelihood = -std::numeric_limits<float>::infinity();
+				for(int t = 0; t < fit_gmm_random_init_tries; ++t)
+				{
+					auto init = std::vector<GMMComponent>{};
+					init.reserve(k);
+					for(auto& s : pick_randomly(samples, k))
+						init.push_back({s, variance(samples, s), 1.f/k});
 
-			// Calculate log likelyhood of current gmm
+					auto cur_likelihood = gmm_likelihood(samples, init);
+					if(cur_likelihood > max_likelihood)
+					{
+						max_likelihood = cur_likelihood;
+						gmm = init;
+					}
+				}
+			}
+
+			// Iterate until difference in log-likelihood <= epsilon
 			auto confidence = gmm_log_likelihood(samples, gmm);
-			for(unsigned j = 0; j < max_iterations; ++j)
+			for(unsigned j = 0; j < fit_gmm_max_iterations; ++j)
 			{
 				em_step(samples, gmm);
 				auto new_confidence = gmm_log_likelihood(samples, gmm);
-				if(std::abs(confidence - new_confidence) < epsilon)
+				if(std::abs(confidence - new_confidence) < fit_gmm_log_likelihood_epsilon)
 					break;
 				confidence = new_confidence;
 			}
 			std::sort(gmm.begin(), gmm.end(), [] (const auto& a, const auto& b) { return a._mean < b._mean && a._weight != 0.f; });
 
-			auto current_score = gmm_likelihood(samples, gmm) / (1 + i * .05f);
-			if(current_score > max_score) //TODO:find a good way to score gmm likelihood vs number of gmm components
+			// If current model has lowest BIC (Bayesian Information criterion), keep iterating
+			auto cur_bic = gmm_bic(samples, gmm, 0.1f);
+			if(cur_bic < min_bic)
 			{
-				max_score = current_score;
+				min_bic = cur_bic;
 				result = gmm;
 			}
+			// If not, the previous model is the best
 			else
 				break;
 		}
-		result.resize(num_components);
+
+		result.resize(max_components);
 		return result;
 	}
 
@@ -171,6 +190,25 @@ namespace vis
 		return sum;
 	}
 
+	float math_util::gmm_bic(const std::vector<float>& samples, const std::vector<GMMComponent>& gmm, float k_bias)
+	{
+		return std::log(static_cast<float>(samples.size()))     // ln( #observations )
+				* k_bias * (gmm.size() * 3 - 1)                          // * #free parameters   | 1D -> n free means, n free variances, n-1 free weights (n sum to 1) = 3n - 1
+				- 2 * std::log(gmm_likelihood(samples, gmm));   // - 2 * ln( likelihood )
+	}
+
+	float math_util::gmm_aic(const std::vector<float>& samples, const std::vector<GMMComponent>& gmm, float k_bias)
+	{
+		return k_bias * 2 * (gmm.size() * 3 - 1)                          // 2 * #free parameters   | 1D -> n free means, n free variances, n-1 free weights (n sum to 1) = 3n - 1
+				- 2 * std::log(gmm_likelihood(samples, gmm));   // - 2 * ln( likelihood )
+	}
+
+	float math_util::gmm_aic_c(const std::vector<float>& samples, const std::vector<GMMComponent>& gmm, float k_bias)
+	{
+		auto k = gmm.size() * 3 - 1; // #free parameters   | 1D -> n free means, n free variances, n-1 free weights (n sum to 1) = 3n - 1
+		return gmm_aic(samples, gmm, k_bias)
+				+ (2 * k * (k+1) / (samples.size() - k - 1));   // + 2k(k+1) / (n-k-1)
+	}
 
 	unsigned math_util::count_peaks(const std::vector<float>& samples, unsigned num_bins)
 	{
@@ -224,21 +262,21 @@ namespace vis
 	float math_util::pick_randomly(const std::vector<float>& samples)
 	{
 		auto re = std::default_random_engine{std::random_device{}()};
-		return samples[std::uniform_int_distribution<size_t>{0, samples.size()-1}(re)];
-}
-
-std::vector<float> math_util::pick_randomly(std::vector<float> samples, unsigned num_picks)
-{
-	if(num_picks >= samples.size())
-		return {};
-
-	auto re = std::default_random_engine{std::random_device{}()};
-	for(unsigned i = 0; i < num_picks; ++i)
-	{
-		auto dist = std::uniform_int_distribution<size_t>{i, samples.size()-1};
-		std::swap(samples[i], samples[dist(re)]);
+		return samples[std::uniform_int_distribution<size_t>(0, samples.size()-1)(re)];
 	}
-	samples.resize(num_picks);
-	return samples;
-}
+
+	std::vector<float> math_util::pick_randomly(std::vector<float> samples, unsigned num_picks)
+	{
+		if(num_picks >= samples.size())
+			return {};
+
+		auto re = std::default_random_engine{std::random_device{}()};
+		for(unsigned i = 0; i < num_picks; ++i)
+		{
+			auto dist = std::uniform_int_distribution<size_t>{i, samples.size()-1};
+			std::swap(samples[i], samples[dist(re)]);
+		}
+		samples.resize(num_picks);
+		return samples;
+	}
 }

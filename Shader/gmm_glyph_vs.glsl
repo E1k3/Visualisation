@@ -22,5 +22,5 @@ void main()
 
 	mean_ = (mean-bounds.x) / bounds.y;
 	var_ = (var-bounds.z) / bounds.w;
-	weight_ = weight - 10 * float(mean.x == 0.f && var.x == 0.f && weight.x == 1.f);
+	weight_ = weight - 10 * float(weight.z == 0.f || mean.x == 0.f && var.x == 0.f && weight.x == 1.f);
 }

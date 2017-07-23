@@ -7,6 +7,10 @@ namespace vis
 {
 	namespace math_util
 	{
+		constexpr int fit_gmm_random_init_tries = 10;
+		constexpr int fit_gmm_max_iterations = 25;
+		constexpr float fit_gmm_log_likelihood_epsilon = 0.5f;
+
 		struct GMMComponent
 		{
 			float _mean;
@@ -72,12 +76,12 @@ namespace vis
 		 * @brief fit_gmm Attempts to fit a gaussian mixture model with n components to the sample data by using the EM algorithm.
 		 * Stops after max_iterations or when the loglikelihood does not change by more than epsilon between iterations.
 		 * @param samples The sample data.
-		 * @param num_components The number of components the GMM will have.
+		 * @param max_components The number of components the GMM will have.
 		 * @param epsilon The epsilon used for the finishing condition (new_loglikelyhood - old_loglikelihood < epsilon)
 		 * @param max_iterations Second finishing condition.
 		 * @return Collection of components representing the GMM.
 		 */
-		std::vector<GMMComponent> fit_gmm(const std::vector<float>& samples, unsigned num_components, float epsilon, unsigned max_iterations);
+		std::vector<GMMComponent> fit_gmm(const std::vector<float>& samples, unsigned max_components);
 
 		/**
 		 * @brief gmm_log_likelyhood Calculates the log-likelihood of a given GMM at generating given samples.
@@ -94,6 +98,33 @@ namespace vis
 		 * @return The likelihood of the GMM generating the samples.
 		 */
 		float gmm_likelihood(const std::vector<float>& samples, const std::vector<GMMComponent>& gmm);
+
+		/**
+		 * @brief gmm_bic Calculates the Bayesian information criterion of a gmm for samples.
+		 * @param samples The samples.
+		 * @param gmm The Gaussian mixture model.
+		 * @param k_bias Gets multiplied to the #parameter penalty.
+		 * @return The GMMs BIC.
+		 */
+		float gmm_bic(const std::vector<float>& samples, const std::vector<GMMComponent>& gmm, float k_bias = 1.f);
+
+		/**
+		 * @brief gmm_aic Calculates the Akaike information criterion of a gmm for samples.
+		 * @param samples The samples.
+		 * @param gmm The Gaussian model.
+		 * @param k_bias Gets multiplied to the #parameter penalty.
+		 * @return The GMMs AIC
+		 */
+		float gmm_aic(const std::vector<float>& samples, const std::vector<GMMComponent>& gmm, float k_bias = 1.f);
+
+		/**
+		 * @brief gmm_aic_c Calculates the corrected Akaike information criterion of a gmm for samples.
+		 * @param samples The samples.
+		 * @param gmm The Gaussian model.
+		 * @param k_bias Gets multiplied to the #parameter penalty.
+		 * @return The GMMs AICc
+		 */
+		float gmm_aic_c(const std::vector<float>& samples, const std::vector<GMMComponent>& gmm, float k_bias = 1.f);
 
 		/**
 		 * @brief find_peaks Tries to approximate the number of modes (peaks) in the samples distribution.
