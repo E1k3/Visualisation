@@ -251,7 +251,9 @@ namespace vis
 			auto gmm = math_util::fit_gmm(samples, gmm_components);
 			for(int c = 0; c < gmm_components; ++c)
 			{
-				result[0].set_value(c, i, gmm[static_cast<size_t>(c)]._mean);
+				result[0].set_value(c, i, math_util::find_max(samples, gmm[static_cast<size_t>(c)]));
+//				result[0].set_value(c, i, math_util::find_median(samples, gmm[static_cast<size_t>(c)]));
+//				result[0].set_value(c, i, gmm[static_cast<size_t>(c)]._mean);
 				result[1].set_value(c, i, gmm[static_cast<size_t>(c)]._variance);
 				result[2].set_value(c, i, gmm[static_cast<size_t>(c)]._weight);
 			}

@@ -8,8 +8,8 @@ namespace vis
 	namespace math_util
 	{
 		constexpr int fit_gmm_random_init_tries = 10;
-		constexpr int fit_gmm_max_iterations = 25;
-		constexpr float fit_gmm_log_likelihood_epsilon = 0.5f;
+		constexpr int fit_gmm_max_iterations = 50;
+		constexpr float fit_gmm_log_likelihood_epsilon = 0.0001f;
 
 		struct GMMComponent
 		{
@@ -132,6 +132,10 @@ namespace vis
 		 * @return The number of peaks found in the sample data.
 		 */
 		unsigned count_peaks(const std::vector<float>& samples, unsigned num_bins);
+
+		float find_max(const std::vector<float>& samples, const GMMComponent& comp);
+
+		float find_median(const std::vector<float>& samples, const GMMComponent& comp);
 
 		/**
 		 * @brief pick_randomly Picks a random float from a collection of possible values.

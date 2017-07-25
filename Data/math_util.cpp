@@ -165,7 +165,7 @@ namespace vis
 				min_bic = cur_bic;
 				result = gmm;
 			}
-			// If not, the previous model is the best
+			// If not, the previous model is assumed best
 			else
 				break;
 		}
@@ -257,6 +257,45 @@ namespace vis
 			++num_peaks;
 
 		return num_peaks;
+	}
+
+	float math_util::find_max(const std::vector<float>& samples, const GMMComponent& comp)
+	{
+		float min = comp._mean-comp._variance;
+		float max = comp._mean+comp._variance;
+		auto samples_in_range = std::vector<float>{};
+		std::copy_if(samples.begin(), samples.end(), std::back_inserter(samples_in_range),
+					 [&min, &max] (const auto& s) { return s >= min && s < max; });
+
+		auto bins = std::vector<long>(static_cast<size_t>(std::sqrt(samples_in_range.size()))); // TODO:best way to determine #bins?
+
+		if(bins.size() < 2)
+			return comp._mean; // TODO error
+
+		auto bin_width = (max - min) / (bins.size()-1);
+		for(int i = 0; i < static_cast<int>(bins.size()); ++i)
+			bins[static_cast<size_t>(i)] = std::count_if(samples_in_range.begin(), samples_in_range.end(),
+																		  [&i, &bin_width, &min] (const auto& s) { return s >= min + i * bin_width && s < min + i * (bin_width+1); });
+
+		int max_i = 0;
+		for(int i = 1; i < static_cast<int>(bins.size()); ++i)
+			if(bins[static_cast<size_t>(i)] > bins[static_cast<size_t>(max_i)])
+				max_i = i;
+
+		if(static_cast<size_t>(max_i) == bins.size()/2 || bins[static_cast<size_t>(max_i)] == bins[bins.size()/2])
+			return comp._mean;
+		else
+			return min + max_i * (bin_width + .5f);
+	}
+
+	float math_util::find_median(const std::vector<float>& samples, const GMMComponent& comp)
+	{
+		auto samples_in_range = std::vector<float>{};
+		std::copy_if(samples.begin(), samples.end(), std::back_inserter(samples_in_range),
+					 [&comp] (const auto& s) { return s >= comp._mean-comp._variance && s < comp._mean+comp._variance; });
+		std::sort(samples_in_range.begin(), samples_in_range.end());
+
+		return (!samples_in_range.empty()) ? samples_in_range[(samples_in_range.size() - 1) / 2] : comp._mean;
 	}
 
 	float math_util::pick_randomly(const std::vector<float>& samples)
