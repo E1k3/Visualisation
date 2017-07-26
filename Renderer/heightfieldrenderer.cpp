@@ -75,9 +75,9 @@ namespace vis
 
 		// Shaders
 		auto vertex_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_vs.glsl",	//TODO:change location to relative
-										GL_VERTEX_SHADER);
+										 GL_VERTEX_SHADER);
 		auto fragment_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_fs.glsl",	//TODO:change location to relative
-										  GL_FRAGMENT_SHADER);
+										   GL_FRAGMENT_SHADER);
 		auto prog = gen_program();
 		glAttachShader(prog, vertex_shader);
 		glAttachShader(prog, fragment_shader);
@@ -147,9 +147,9 @@ namespace vis
 
 		// Shaders
 		auto vertex_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/gmm_heightfield_vs.glsl",	//TODO:change location to relative
-										GL_VERTEX_SHADER);
+										 GL_VERTEX_SHADER);
 		auto fragment_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/gmm_heightfield_fs.glsl",	//TODO:change location to relative
-										  GL_FRAGMENT_SHADER);
+										   GL_FRAGMENT_SHADER);
 		auto prog = gen_program();
 		glAttachShader(prog, vertex_shader);
 		glAttachShader(prog, fragment_shader);
@@ -174,16 +174,25 @@ namespace vis
 		constexpr float mousespeed = 0.005f;
 		constexpr float scrollspeed = 0.1f;
 
-		_cam_position = rotateZ(_cam_position, _input.get_cursor_offset_x()*mousespeed);
-		_cam_position = rotate(_cam_position,  _input.get_cursor_offset_y()*mousespeed, cross(-_cam_position, vec3(0.f, 0.f, 1.f)));
-		_cam_position = normalize(_cam_position) * (length(_cam_position)*(1 + _input.get_scroll_offset_y() * scrollspeed));
+		auto cursor_x = _input.get_cursor_offset_x();
+		auto cursor_y = _input.get_cursor_offset_y();
+
+		auto old_cam_pos = _cam_position;
+		_cam_position = rotate(_cam_position,  cursor_y*mousespeed, cross(-_cam_position, vec3(0.f, 0.f, 1.f)));
+		if((_cam_position.x > 0.f && old_cam_pos.x < 0.f && _cam_position.y >= 0.f && old_cam_pos.y < 0.f)
+				|| (_cam_position.x > 0.f && old_cam_pos.x < 0.f && _cam_position.y < 0.f && old_cam_pos.y > 0.f)
+				|| (_cam_position.x < 0.f && old_cam_pos.x > 0.f && _cam_position.y > 0.f && old_cam_pos.y < 0.f)
+				|| (_cam_position.x < 0.f && old_cam_pos.x > 0.f && _cam_position.y < 0.f && old_cam_pos.y > 0.f))
+			_cam_position = old_cam_pos;
+		_cam_position = rotateZ(_cam_position, cursor_x*mousespeed);
+		_cam_position = _cam_position*(1 - _input.get_scroll_offset_y() * scrollspeed);
 
 		auto viewport = _input.get_framebuffer_size();
 
 		// MVP calculation
 		auto model = scale(mat4{1.f}, vec3{192.f/96.f * viewport.y/viewport.x, 1.f, 1.f});
 		auto view = lookAt(_cam_position, vec3(0.f), vec3{0.f, 0.f, 1.f});
-		auto proj = perspective(radians(45.f), 16.f / 9.f, .2f, 10.f);
+		auto proj = perspective(radians(45.f), 16.f / 9.f, .2f, 20.f);
 		auto mvp = proj * view * model;
 		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
 		// Set time uniform

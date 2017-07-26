@@ -8,7 +8,7 @@ namespace vis
 	namespace math_util
 	{
 		constexpr int fit_gmm_random_init_tries = 10;
-		constexpr int fit_gmm_max_iterations = 50;
+		constexpr int fit_gmm_max_iterations = 30;
 		constexpr float fit_gmm_log_likelihood_epsilon = 0.1f;
 
 		struct GMMComponent
