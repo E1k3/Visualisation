@@ -188,7 +188,7 @@ namespace vis
 		// Shaders
 		auto vertex_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_vs.glsl",	//TODO:change location to relative
 										GL_VERTEX_SHADER);
-		auto fragment_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_fs.glsl",	//TODO:change location to relative
+		auto fragment_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_fs_2.glsl",	//TODO:change location to relative
 										  GL_FRAGMENT_SHADER);
 
 		auto prog = gen_program();
