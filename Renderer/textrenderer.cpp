@@ -78,8 +78,8 @@ namespace vis
 
 			x_offset += glyph->bitmap.width;
 		}
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
-		//glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // TODO check if possible
 
 		_vao = gen_vao();
 		glBindVertexArray(_vao);
