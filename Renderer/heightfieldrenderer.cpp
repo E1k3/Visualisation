@@ -42,7 +42,8 @@ namespace vis
 			//TODO:ERROR handling. mean and var field have differing size.
 		}
 
-		glBindVertexArray(gen_vao());
+		_vao = gen_vao();
+		glBindVertexArray(_vao);
 
 		// Grid (position)
 		auto grid = gen_grid_indexed(mean_field.width(), mean_field.height());
@@ -78,19 +79,19 @@ namespace vis
 										 GL_VERTEX_SHADER);
 		auto fragment_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_fs.glsl",	//TODO:change location to relative
 										   GL_FRAGMENT_SHADER);
-		auto prog = gen_program();
-		glAttachShader(prog, vertex_shader);
-		glAttachShader(prog, fragment_shader);
-		glLinkProgram(prog);
+		_program = gen_program();
+		glAttachShader(_program, vertex_shader);
+		glAttachShader(_program, fragment_shader);
+		glLinkProgram(_program);
 
-		glDetachShader(prog, vertex_shader);
-		glDetachShader(prog, fragment_shader);
+		glDetachShader(_program, vertex_shader);
+		glDetachShader(_program, fragment_shader);
 		glDeleteShader(vertex_shader);
 		glDeleteShader(fragment_shader);
 
-		glUseProgram(prog);
-		_mvp_uniform = glGetUniformLocation(prog, "mvp");
-		_bounds_uniform = glGetUniformLocation(prog, "bounds");
+		glUseProgram(_program);
+		_mvp_uniform = glGetUniformLocation(_program, "mvp");
+		_bounds_uniform = glGetUniformLocation(_program, "bounds");
 		glUniform4f(_bounds_uniform, mean_field.minima()[0], mean_field.maxima()[0], var_field.minima()[0], var_field.maxima()[0]); // TODO:Save bounds as renderer state to scale data live.
 	}
 
@@ -107,7 +108,8 @@ namespace vis
 			throw std::invalid_argument("Heightfield creation using different fields");
 		}
 
-		glBindVertexArray(gen_vao());
+		_vao = gen_vao();
+		glBindVertexArray(_vao);
 
 		// Grid (position)
 		auto grid = gen_grid_indexed(mean_field.width(), mean_field.height());
@@ -150,28 +152,31 @@ namespace vis
 										 GL_VERTEX_SHADER);
 		auto fragment_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/gmm_heightfield_fs.glsl",	//TODO:change location to relative
 										   GL_FRAGMENT_SHADER);
-		auto prog = gen_program();
-		glAttachShader(prog, vertex_shader);
-		glAttachShader(prog, fragment_shader);
-		glLinkProgram(prog);
+		_program = gen_program();
+		glAttachShader(_program, vertex_shader);
+		glAttachShader(_program, fragment_shader);
+		glLinkProgram(_program);
 
-		glDetachShader(prog, vertex_shader);
-		glDetachShader(prog, fragment_shader);
+		glDetachShader(_program, vertex_shader);
+		glDetachShader(_program, fragment_shader);
 		glDeleteShader(vertex_shader);
 		glDeleteShader(fragment_shader);
 
-		glUseProgram(prog);
-		_mvp_uniform = glGetUniformLocation(prog, "mvp");
-		_bounds_uniform = glGetUniformLocation(prog, "bounds");
-		_time_uniform = glGetUniformLocation(prog, "time");
+		glUseProgram(_program);
+		_mvp_uniform = glGetUniformLocation(_program, "mvp");
+		_bounds_uniform = glGetUniformLocation(_program, "bounds");
+		_time_uniform = glGetUniformLocation(_program, "time");
 		glUniform4f(_bounds_uniform, mean_field.minimum(), mean_field.maximum(), var_field.minimum(), var_field.maximum()); // TODO:Save bounds as renderer state to scale data live.
 	}
 
-	void HeightfieldRenderer::draw(float /*delta_time*/, float total_time)
+	void HeightfieldRenderer::draw(float delta_time, float total_time)
 	{
+		glBindVertexArray(_vao);
+		glUseProgram(_program);
+
 		// Input handling
 		using namespace glm;
-		constexpr float mousespeed = 0.005f;
+		constexpr float mousespeed = 0.001f;
 		constexpr float scrollspeed = 0.1f;
 
 		auto cursor_x = _input.get_cursor_offset_x();
@@ -187,10 +192,11 @@ namespace vis
 		_cam_position = rotateZ(_cam_position, cursor_x*mousespeed);
 		_cam_position = _cam_position*(1 - _input.get_scroll_offset_y() * scrollspeed);
 
-		auto viewport = _input.get_framebuffer_size();
+
+		auto framebuffer_size = _input.get_framebuffer_size();
 
 		// MVP calculation
-		auto model = scale(mat4{1.f}, vec3{192.f/96.f * viewport.y/viewport.x, 1.f, 1.f});
+		auto model = scale(mat4{1.f}, vec3{192.f/96.f * framebuffer_size.y/framebuffer_size.x, 1.f, 1.f});
 		auto view = lookAt(_cam_position, vec3(0.f), vec3{0.f, 0.f, 1.f});
 		auto proj = perspective(radians(45.f), 16.f / 9.f, .2f, 20.f);
 		auto mvp = proj * view * model;
@@ -201,5 +207,9 @@ namespace vis
 
 		// Draw
 		glDrawElements(GL_TRIANGLES, _num_vertices, GL_UNSIGNED_INT, 0);
+
+		_text.set_viewport(framebuffer_size);
+		_text.set_text({{"0,22222", glm::vec2(-1.f, -.95f)}});
+		_text.draw(delta_time, total_time);
 	}
 }

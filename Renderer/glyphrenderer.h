@@ -25,6 +25,10 @@ namespace vis
 
 		InputManager& _input;
 
+		GLuint _vao{0};
+		GLuint _texture{0};
+		GLuint _program{0};
+
 		int _num_vertices;
 		GLint _mvp_uniform;
 		GLint _bounds_uniform;

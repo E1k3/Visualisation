@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 
 #include "renderer.h"
+#include "textrenderer.h"
 #include "Data/field.h"
 #include "inputmanager.h"
 
@@ -28,10 +29,17 @@ namespace vis
 
 		InputManager& _input;
 
+		TextRenderer _text;
+
+
+		GLuint _vao{0};
+		GLuint _program{0};
+
 		int _num_vertices{};
 		GLint _mvp_uniform{};
 		GLint _bounds_uniform{};
 		GLint _time_uniform{};
+
 
 		glm::vec3 _cam_position{-1.8f, -1.8f, 1.8f};
 	};

@@ -45,7 +45,8 @@ namespace vis
 			//TODO:ERROR handling. mean and var field have differing size.
 		}
 
-		glBindVertexArray(gen_vao());
+		_vao = gen_vao();
+		glBindVertexArray(_vao);
 
 		// Grid (position)
 		auto grid = gen_grid_indexed(mean_field.width(), mean_field.height());
@@ -79,8 +80,9 @@ namespace vis
 
 		// Mask (glyph)
 		auto mask = genMask(mask_res_x, mask_res_y);
+		_texture = gen_texture();
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, gen_texture());
+		glBindTexture(GL_TEXTURE_2D, _texture);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -94,21 +96,21 @@ namespace vis
 		auto fragment_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/glyph_fs.glsl",	//TODO:change location to relative
 										  GL_FRAGMENT_SHADER);
 
-		auto prog = gen_program();
-		glAttachShader(prog, vertex_shader);
-		glAttachShader(prog, fragment_shader);
-		glLinkProgram(prog);
+		_program = gen_program();
+		glAttachShader(_program, vertex_shader);
+		glAttachShader(_program, fragment_shader);
+		glLinkProgram(_program);
 
-		glDetachShader(prog, vertex_shader);
-		glDetachShader(prog, fragment_shader);
+		glDetachShader(_program, vertex_shader);
+		glDetachShader(_program, fragment_shader);
 		glDeleteShader(vertex_shader);
 		glDeleteShader(fragment_shader);
 
-		glUseProgram(prog);
+		glUseProgram(_program);
 
-		_mvp_uniform = glGetUniformLocation(prog, "mvp");
-		glUniform1i(glGetUniformLocation(prog, "mask"), 0);
-		_bounds_uniform = glGetUniformLocation(prog, "bounds");
+		_mvp_uniform = glGetUniformLocation(_program, "mvp");
+		glUniform1i(glGetUniformLocation(_program, "mask"), 0);
+		_bounds_uniform = glGetUniformLocation(_program, "bounds");
 		glUniform4f(_bounds_uniform, mean_field.minima()[0], mean_field.maxima()[0], var_field.minima()[0], var_field.maxima()[0]); // TODO:Save bounds as renderer state to scale data live.
 	}
 
@@ -136,7 +138,8 @@ namespace vis
 			//TODO:ERROR handling. mean and var field have differing size.
 		}
 
-		glBindVertexArray(gen_vao());
+		_vao = gen_vao();
+		glBindVertexArray(_vao);
 
 		// Grid (position)
 		auto grid = gen_grid_indexed(mean_field.width(), mean_field.height());
@@ -176,8 +179,9 @@ namespace vis
 
 		// Mask (glyph)
 		auto mask = genMask(mask_res_x, mask_res_y);
+		_texture = gen_texture();
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, gen_texture());
+		glBindTexture(GL_TEXTURE_2D, _texture);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -191,26 +195,31 @@ namespace vis
 		auto fragment_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_fs_2.glsl",	//TODO:change location to relative
 										  GL_FRAGMENT_SHADER);
 
-		auto prog = gen_program();
-		glAttachShader(prog, vertex_shader);
-		glAttachShader(prog, fragment_shader);
-		glLinkProgram(prog);
+		_program = gen_program();
+		glAttachShader(_program, vertex_shader);
+		glAttachShader(_program, fragment_shader);
+		glLinkProgram(_program);
 
-		glDetachShader(prog, vertex_shader);
-		glDetachShader(prog, fragment_shader);
+		glDetachShader(_program, vertex_shader);
+		glDetachShader(_program, fragment_shader);
 		glDeleteShader(vertex_shader);
 		glDeleteShader(fragment_shader);
 
-		glUseProgram(prog);
+		glUseProgram(_program);
 
-		_mvp_uniform = glGetUniformLocation(prog, "mvp");
-		glUniform1i(glGetUniformLocation(prog, "mask"), 0);
-		_bounds_uniform = glGetUniformLocation(prog, "bounds");
+		_mvp_uniform = glGetUniformLocation(_program, "mvp");
+		glUniform1i(glGetUniformLocation(_program, "mask"), 0);
+		_bounds_uniform = glGetUniformLocation(_program, "bounds");
 		glUniform4f(_bounds_uniform, mean_field.minimum(), mean_field.maximum(), var_field.minimum(), var_field.maximum()); // TODO:Save bounds as renderer state to scale data live.
 	}
 
 	void GlyphRenderer::draw(float /*delta_time*/, float /*total_time*/)
 	{
+		glBindVertexArray(_vao);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, _texture);
+		glUseProgram(_program);
+
 		// Input handling
 		using namespace glm;
 		const float mousespeed = 0.001f;

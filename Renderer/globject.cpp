@@ -24,6 +24,11 @@ namespace vis
 		return *this;
 	}
 
+	GLObject::operator bool() const
+	{
+		return _id != 0;
+	}
+
 	GLObject::~GLObject()
 	{
 		if(_id)

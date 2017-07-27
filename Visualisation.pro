@@ -7,7 +7,10 @@ CONFIG -= qt
 LIBS += -lGL \
         -lGLEW \
         -lglfw \
-        -lstdc++fs
+        -lstdc++fs \
+		-lfreetype
+
+INCLUDEPATH += /usr/include/freetype2
 
 SOURCES += main.cpp \
     logger.cpp \
@@ -19,7 +22,8 @@ SOURCES += main.cpp \
     Data/math_util.cpp \
     Renderer/globject.cpp \
     Data/ensemble.cpp \
-    Data/field.cpp
+    Data/field.cpp \
+    Renderer/textrenderer.cpp
 
 HEADERS += \
     logger.h \
@@ -31,7 +35,8 @@ HEADERS += \
     Data/math_util.h \
     Renderer/globject.h \
     Data/ensemble.h \
-    Data/field.h
+    Data/field.h \
+    Renderer/textrenderer.h
 
 DISTFILES += \
     Shader/heightfield_vs.glsl \
@@ -42,4 +47,6 @@ DISTFILES += \
     Shader/gmm_glyph_fs.glsl \
     Shader/gmm_heightfield_vs.glsl \
     Shader/gmm_heightfield_fs.glsl \
-    Shader/gmm_glyph_fs_2.glsl
+    Shader/gmm_glyph_fs_2.glsl \
+    Shader/text_vs.glsl \
+    Shader/text_fs.glsl

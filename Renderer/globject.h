@@ -28,6 +28,7 @@ namespace vis
 		GLObject& operator=(const GLObject& other) = delete;
 		/// @brief operator = Deletes currently wrapped OpenGL object and replaces it with another one.
 		GLObject& operator=(GLObject&& other);
+		explicit operator bool() const;
 		/// @brief ~GLObject Deletes the wrapped OpenGL object using the deleter function.
 		~GLObject();
 

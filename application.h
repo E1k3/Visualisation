@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <functional>
+#include <glm/glm.hpp>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -39,7 +40,8 @@ namespace vis
 		Ensemble _ensemble;
 
 
-		float _delta{};
+		float _delta{0.f};
+		glm::ivec2 _framebuffer_size{0};
 	};
 }
 #endif // APPLICATION_H
