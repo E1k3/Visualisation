@@ -167,8 +167,12 @@ namespace vis
 
 	void TextRenderer::draw(float /*delta_time*/, float /*total_time*/)
 	{
+		auto depthtest = glIsEnabled(GL_DEPTH_TEST);
 		auto blending = glIsEnabled(GL_BLEND);
+		int blendfunc;
+		glGetIntegerv(GL_SRC_ALPHA, &blendfunc);
 
+		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -180,8 +184,11 @@ namespace vis
 
 		glDrawArrays(GL_TRIANGLES, 0, _num_vertices);
 
+		if(depthtest)
+			glEnable(GL_DEPTH_TEST);
 		if(!blending)
 			glDisable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, static_cast<GLenum>(blendfunc));
 	}
 
 	glm::ivec2 TextRenderer::viewport() const

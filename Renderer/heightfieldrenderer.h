@@ -40,7 +40,7 @@ namespace vis
 		GLint _bounds_uniform{};
 		GLint _time_uniform{};
 
-
+		glm::vec4 _bounds{};
 		glm::vec3 _cam_position{-1.8f, -1.8f, 1.8f};
 	};
 }

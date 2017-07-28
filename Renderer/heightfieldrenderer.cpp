@@ -166,7 +166,7 @@ namespace vis
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
 		_time_uniform = glGetUniformLocation(_program, "time");
-		glUniform4f(_bounds_uniform, mean_field.minimum(), mean_field.maximum(), var_field.minimum(), var_field.maximum()); // TODO:Save bounds as renderer state to scale data live.
+		_bounds = glm::vec4(mean_field.minimum(), mean_field.maximum(), var_field.minimum(), var_field.maximum());
 	}
 
 	void HeightfieldRenderer::draw(float delta_time, float total_time)
@@ -178,12 +178,11 @@ namespace vis
 		using namespace glm;
 		constexpr float mousespeed = 0.001f;
 		constexpr float scrollspeed = 0.1f;
-
 		auto cursor_x = _input.get_cursor_offset_x();
 		auto cursor_y = _input.get_cursor_offset_y();
-
 		auto old_cam_pos = _cam_position;
 		_cam_position = rotate(_cam_position,  cursor_y*mousespeed, cross(-_cam_position, vec3(0.f, 0.f, 1.f)));
+		// Prevent flipping when reaching cam (x,y)==(0,0)
 		if((_cam_position.x > 0.f && old_cam_pos.x < 0.f && _cam_position.y >= 0.f && old_cam_pos.y < 0.f)
 				|| (_cam_position.x > 0.f && old_cam_pos.x < 0.f && _cam_position.y < 0.f && old_cam_pos.y > 0.f)
 				|| (_cam_position.x < 0.f && old_cam_pos.x > 0.f && _cam_position.y > 0.f && old_cam_pos.y < 0.f)
@@ -194,13 +193,18 @@ namespace vis
 
 
 		auto framebuffer_size = _input.get_framebuffer_size();
+		if(framebuffer_size == glm::ivec2{0})	// Prevent aspect ratio = 0/0
+			framebuffer_size = glm::ivec2{1};
 
 		// MVP calculation
-		auto model = scale(mat4{1.f}, vec3{192.f/96.f * framebuffer_size.y/framebuffer_size.x, 1.f, 1.f});
+		auto model = scale(mat4{1.f}, vec3{192.f/96.f, 1.f, 1.f});
 		auto view = lookAt(_cam_position, vec3(0.f), vec3{0.f, 0.f, 1.f});
-		auto proj = perspective(radians(45.f), 16.f / 9.f, .2f, 20.f);
+		auto proj = perspective(radians(45.f), static_cast<float>(framebuffer_size.x)/framebuffer_size.y, .2f, 20.f);
 		auto mvp = proj * view * model;
 		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
+
+		glUniform4f(_bounds_uniform, _bounds.x, _bounds.y, _bounds.z, _bounds.w);
+
 		// Set time uniform
 		if(_time_uniform != -1)
 			glUniform1f(_time_uniform, total_time);

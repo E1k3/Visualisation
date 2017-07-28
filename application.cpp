@@ -69,13 +69,15 @@ namespace vis
 		auto key_callback = [] (GLFWwindow* window, int keycode, int /*scancode*/, int action, int /*mods*/)
 		{
 			if(glfwGetWindowUserPointer(window))
-			{
-				auto& input = *static_cast<InputManager*>(glfwGetWindowUserPointer(window));
-				if(action == GLFW_PRESS)
-					input.press_key(keycode);
-				if(action == GLFW_RELEASE)
-					input.release_key(keycode);
-			}
+				switch(action)
+				{
+				case GLFW_PRESS:
+					static_cast<InputManager*>(glfwGetWindowUserPointer(window))->press_key(keycode);
+					break;
+				case GLFW_RELEASE:
+					static_cast<InputManager*>(glfwGetWindowUserPointer(window))->release_key(keycode);
+					break;
+				}
 		};
 		glfwSetKeyCallback(&*_window, key_callback);
 
@@ -83,33 +85,25 @@ namespace vis
 		auto cursor_callback = [] (GLFWwindow* window, double x, double y)
 		{
 			if(glfwGetWindowUserPointer(window))
-			{
-				auto& input = *static_cast<InputManager*>(glfwGetWindowUserPointer(window));
-				input.set_cursor(static_cast<float>(x), static_cast<float>(y));
-			}
+				static_cast<InputManager*>(glfwGetWindowUserPointer(window))->set_cursor(static_cast<float>(x), static_cast<float>(y));
 		};
 		glfwSetCursorPosCallback(&*_window, cursor_callback);
 		auto scroll_callback = [] (GLFWwindow* window, double x, double y)
 		{
 			if(glfwGetWindowUserPointer(window))
-			{
-				auto& input = *static_cast<InputManager*>(glfwGetWindowUserPointer(window));
-				input.add_scroll_offset(static_cast<int>(x), static_cast<int>(y));
-			}
+				static_cast<InputManager*>(glfwGetWindowUserPointer(window))->add_scroll_offset(static_cast<int>(x), static_cast<int>(y));
 		};
 		glfwSetScrollCallback(&*_window, scroll_callback);
 		auto framebuffer_callback = [] (GLFWwindow* window, int x, int y)
 		{
 			glViewport(0, 0, x, y);
 			if(glfwGetWindowUserPointer(window))
-			{
-				auto& input = *static_cast<InputManager*>(glfwGetWindowUserPointer(window));
-				input.resize_framebuffer(x, y);
-			}
+				static_cast<InputManager*>(glfwGetWindowUserPointer(window))->resize_framebuffer(x, y);
 		};
 		glfwSetFramebufferSizeCallback(&*_window, framebuffer_callback);
 
 
+		// UI
 		// Select simulation step
 		int step_index_input = 0;
 		std::cout << "\nChoose a time step [0," << _ensemble.num_steps() << ")\n";
@@ -124,7 +118,6 @@ namespace vis
 
 		// Select field
 		std::cout << "\nThe simulations contain " << _ensemble.fields().size() << " fields.\n";
-
 		{
 			int i = 0;
 			for(const auto& field : _ensemble.fields())
@@ -158,15 +151,16 @@ namespace vis
 			break;
 		}
 
+		// OpenGL & window state
 		glClearColor(.2f, .2f, .2f, 1.f);
 
 		auto time = glfwGetTime();
 		_delta = 0.0;
 
 		glEnable(GL_DEPTH_TEST);
-		//		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glfwShowWindow(&*_window);
+
 		// Event loop
 		while(!glfwWindowShouldClose(&*_window))
 		{

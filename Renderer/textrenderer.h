@@ -13,7 +13,7 @@ namespace vis
 	class TextRenderer : public Renderer
 	{
 	public:
-		explicit TextRenderer(unsigned height = 40, const std::string& font = "/usr/share/fonts/oiio/DroidSansMono.ttf");
+		explicit TextRenderer(unsigned height = 40, const std::string& font = "/usr/share/fonts/TTF/DejaVuSansMono.ttf");
 		virtual ~TextRenderer() = default;
 
 		void draw(float delta_time, float total_time) override;
