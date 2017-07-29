@@ -75,9 +75,10 @@ namespace vis
 		_num_vertices = static_cast<int>(indices.size());
 
 		// Shaders
-		auto vertex_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_vs.glsl",	//TODO:change location to relative
+		auto vertex_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/heightfield_vs.glsl"},	//TODO:change location to relative
 										 GL_VERTEX_SHADER);
-		auto fragment_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/heightfield_fs.glsl",	//TODO:change location to relative
+		auto fragment_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/heightfield_fs.glsl",
+											"/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"},	//TODO:change location to relative
 										   GL_FRAGMENT_SHADER);
 		_program = gen_program();
 		glAttachShader(_program, vertex_shader);
@@ -92,7 +93,7 @@ namespace vis
 		glUseProgram(_program);
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
-		glUniform4f(_bounds_uniform, mean_field.minima()[0], mean_field.maxima()[0], var_field.minima()[0], var_field.maxima()[0]); // TODO:Save bounds as renderer state to scale data live.
+		_bounds = glm::vec4(mean_field.minima()[0], mean_field.maxima()[0], var_field.minima()[0], var_field.maxima()[0]);
 	}
 
 	void HeightfieldRenderer::init_gmm(const std::vector<Field>& fields)
@@ -148,9 +149,10 @@ namespace vis
 		_num_vertices = static_cast<int>(indices.size());
 
 		// Shaders
-		auto vertex_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/gmm_heightfield_vs.glsl",	//TODO:change location to relative
+		auto vertex_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/gmm_heightfield_vs.glsl"},	//TODO:change location to relative
 										 GL_VERTEX_SHADER);
-		auto fragment_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/gmm_heightfield_fs.glsl",	//TODO:change location to relative
+		auto fragment_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/gmm_heightfield_fs.glsl",
+											"/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"},	//TODO:change location to relative
 										   GL_FRAGMENT_SHADER);
 		_program = gen_program();
 		glAttachShader(_program, vertex_shader);

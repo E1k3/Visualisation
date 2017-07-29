@@ -8,7 +8,7 @@
 
 namespace vis
 {
-	GLuint Renderer::load_shader(std::string path, GLuint type)
+	GLuint Renderer::load_shader(std::vector<std::string> paths, GLuint type)
 	{
 		// Check requirements
 		auto types = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER,
@@ -22,16 +22,22 @@ namespace vis
 			throw std::runtime_error("Load Shader Error");
 		}
 		// Load code
-		auto ifs = std::ifstream(path);
-		auto code = std::vector<char>{};
-		std::copy(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>(),
-				  std::back_inserter(code));
-		code.push_back('\0');
-		const char* code_ptr = &code[0];
+		auto sources = std::vector<std::string>{};
+		for(const auto& path : paths)
+		{
+			sources.push_back("");
+			auto ifs = std::ifstream(path);
+			std::copy(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>(),
+					  std::back_inserter(sources.back()));
+			sources.back().push_back('\0');
+		}
+		auto source_ptrs = std::vector<const char*>{};
+		std::transform(sources.begin(), sources.end(), std::back_inserter(source_ptrs),
+					   [] (const auto& s) { return s.c_str(); });
 
 		// Create, compile
 		auto id = glCreateShader(type);
-		glShaderSource(id, 1, &code_ptr, nullptr);
+		glShaderSource(id, static_cast<GLsizei>(source_ptrs.size()), source_ptrs.data(), nullptr);
 		glCompileShader(id);
 
 		// Check for errors

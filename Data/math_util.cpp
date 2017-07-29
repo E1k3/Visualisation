@@ -119,7 +119,7 @@ namespace vis
 		result.front()._variance = variance(samples, result.front()._mean);
 		result.front()._weight = 1.f;
 
-		auto min_bic = gmm_bic(samples, result);
+		auto min_bic = gmm_bic(samples, result, 0.5f);
 
 		// Try GMMs with [2, max_components] components
 		// k = current number of components
@@ -159,7 +159,7 @@ namespace vis
 			std::sort(gmm.begin(), gmm.end(), [] (const auto& a, const auto& b) { return a._mean < b._mean && a._weight != 0.f; });
 
 			// If current model has lowest BIC (Bayesian Information criterion), keep iterating
-			auto cur_bic = gmm_bic(samples, gmm, 0.1f);
+			auto cur_bic = gmm_bic(samples, gmm, 0.5f);
 			if(cur_bic < min_bic)
 			{
 				min_bic = cur_bic;

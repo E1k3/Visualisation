@@ -87,9 +87,9 @@ namespace vis
 		glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 
 		// Shaders
-		auto vertex_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/text_vs.glsl",	//TODO:change location to relative
+		auto vertex_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/text_vs.glsl"},	//TODO:change location to relative
 										 GL_VERTEX_SHADER);
-		auto fragment_shader = load_shader("/home/eike/Documents/Code/Visualisation/Shader/text_fs.glsl",	//TODO:change location to relative
+		auto fragment_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/text_fs.glsl"},	//TODO:change location to relative
 										   GL_FRAGMENT_SHADER);
 		_program = gen_program();
 		glAttachShader(_program, vertex_shader);

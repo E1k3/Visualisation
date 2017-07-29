@@ -15,10 +15,10 @@ namespace vis
 	public:
 		/**
 		 * @brief load_shader Creates, loads and compiles shader from file.
-		 * @param path The path at which the glsl file is located.
+		 * @param paths The paths at which the glsl files are located.
 		 * @param type Shader type (one of the GLenum shadertypes defined by GLEW) <- bad practice
 		 */
-		static GLuint load_shader(std::string path, GLuint type);
+		static GLuint load_shader(std::vector<std::string> paths, GLuint type);
 
 		virtual void draw(float delta_time, float total_time) = 0;
 
