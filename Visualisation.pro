@@ -23,7 +23,8 @@ SOURCES += main.cpp \
     Renderer/globject.cpp \
     Data/ensemble.cpp \
     Data/field.cpp \
-    Renderer/textrenderer.cpp
+    Renderer/textrenderer.cpp \
+    Renderer/gradientrenderer.cpp
 
 HEADERS += \
     logger.h \
@@ -36,7 +37,8 @@ HEADERS += \
     Renderer/globject.h \
     Data/ensemble.h \
     Data/field.h \
-    Renderer/textrenderer.h
+    Renderer/textrenderer.h \
+    Renderer/gradientrenderer.h
 
 DISTFILES += \
     Shader/heightfield_vs.glsl \
@@ -50,4 +52,6 @@ DISTFILES += \
     Shader/gmm_glyph_fs_2.glsl \
     Shader/text_vs.glsl \
     Shader/text_fs.glsl \
-    Shader/palette.glsl
+    Shader/palette.glsl \
+    Shader/gradient_fs.glsl \
+    Shader/gradient_vs.glsl

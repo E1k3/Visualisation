@@ -102,36 +102,48 @@ namespace vis
 		};
 		glfwSetFramebufferSizeCallback(&*_window, framebuffer_callback);
 
-
-		// UI
-		// Select simulation step
-		int step_index_input = 0;
-		std::cout << "\nChoose a time step [0," << _ensemble.num_steps() << ")\n";
-		std::cin >> step_index_input;
-		int aggregation_count = 0;
-		std::cout << "\nChoose how many steps you want to aggregate (merge) [0, n)\n";
-		std::cin >> aggregation_count;
-		int aggregation_stride = 0;
-		std::cout << "\nChoose the aggregation stride [0, n)\n";
-		std::cin >> aggregation_stride;
-		_ensemble.read_headers(step_index_input, aggregation_count, aggregation_stride);
-
-		// Select field
-		std::cout << "\nThe simulations contain " << _ensemble.fields().size() << " fields.\n";
+		if(true)	// true->STUDYMODE
 		{
-			int i = 0;
-			for(const auto& field : _ensemble.fields())
-				std::cout << i++ << " " << field.layout_to_string() << '\n';
+			constexpr int step_index_input = 100;
+			constexpr int aggregation_count = 1;
+			constexpr int aggregation_stride = 1;
+			constexpr int field_index_input = 2;
+			constexpr Ensemble::Analysis analysis_input = Ensemble::Analysis::GAUSSIAN_SINGLE;
+			_ensemble.read_headers(step_index_input, aggregation_count, aggregation_stride);
+			_ensemble.analyse_field(field_index_input, Ensemble::Analysis(analysis_input));
 		}
-		std::cout << "Choose one [0," << _ensemble.fields().size() << ")\n";
-		int field_index_input = 2;	// Magic number as default.
-		std::cin >> field_index_input;
+		else
+		{
+			// UI
+			// Select simulation step
+			int step_index_input = 0;
+			std::cout << "\nChoose a time step [0," << _ensemble.num_steps() << ")\n";
+			std::cin >> step_index_input;
+			int aggregation_count = 0;
+			std::cout << "\nChoose how many steps you want to aggregate (merge) [0, n)\n";
+			std::cin >> aggregation_count;
+			int aggregation_stride = 0;
+			std::cout << "\nChoose the aggregation stride [0, n)\n";
+			std::cin >> aggregation_stride;
+			_ensemble.read_headers(step_index_input, aggregation_count, aggregation_stride);
 
-		// Select analysis
-		std::cout << "\nAnalyze field using:\n0 Maximum likelihood Normal distribution\n1 Maximum likelihood GMM\n";
-		int analysis_input = 0;
-		std::cin >> analysis_input;
-		_ensemble.analyse_field(field_index_input, Ensemble::Analysis(analysis_input));
+			// Select field
+			std::cout << "\nThe simulations contain " << _ensemble.fields().size() << " fields.\n";
+			{
+				int i = 0;
+				for(const auto& field : _ensemble.fields())
+					std::cout << i++ << " " << field.layout_to_string() << '\n';
+			}
+			std::cout << "Choose one [0," << _ensemble.fields().size() << ")\n";
+			int field_index_input = 2;	// Magic number as default.
+			std::cin >> field_index_input;
+
+			// Select analysis
+			std::cout << "\nAnalyze field using:\n0 Maximum likelihood Normal distribution\n1 Maximum likelihood GMM\n";
+			int analysis_input = 0;
+			std::cin >> analysis_input;
+			_ensemble.analyse_field(field_index_input, Ensemble::Analysis(analysis_input));
+		}
 
 		// Select renderer
 		auto renderer = std::unique_ptr<Renderer>{};

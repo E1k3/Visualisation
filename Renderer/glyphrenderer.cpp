@@ -109,10 +109,10 @@ namespace vis
 
 		glUseProgram(_program);
 
-		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		glUniform1i(glGetUniformLocation(_program, "mask"), 0);
+		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
-		glUniform4f(_bounds_uniform, mean_field.minima()[0], mean_field.maxima()[0], var_field.minima()[0], var_field.maxima()[0]); // TODO:Save bounds as renderer state to scale data live.
+		_bounds = glm::vec4(mean_field.minima()[0], mean_field.maxima()[0], var_field.minima()[0], var_field.maxima()[0]);
 	}
 
 	void GlyphRenderer::init_gmm(const std::vector<Field>& fields)
@@ -209,13 +209,13 @@ namespace vis
 
 		glUseProgram(_program);
 
-		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		glUniform1i(glGetUniformLocation(_program, "mask"), 0);
+		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
-		glUniform4f(_bounds_uniform, mean_field.minimum(), mean_field.maximum(), var_field.minimum(), var_field.maximum()); // TODO:Save bounds as renderer state to scale data live.
+		_bounds = glm::vec4(mean_field.minimum(), mean_field.maximum(), var_field.minimum(), var_field.maximum());
 	}
 
-	void GlyphRenderer::draw(float /*delta_time*/, float /*total_time*/)
+	void GlyphRenderer::draw(float delta_time, float total_time)
 	{
 		glBindVertexArray(_vao);
 		glActiveTexture(GL_TEXTURE0);
@@ -233,17 +233,25 @@ namespace vis
 		auto scale_offset = _input.get_scroll_offset_y();
 		_scale *= 1.f + scale_offset*scrollspeed;
 
-		auto viewport = _input.get_framebuffer_size();
+		auto framebuffer_size = _input.get_framebuffer_size();
 
 		// MVP calculation
-		auto model = scale(mat4{1.f}, vec3{192.f/96.f * viewport.y/viewport.x, 1.f, 1.f});
+		auto model = scale(mat4{1.f}, vec3{192.f/96.f * framebuffer_size.y/framebuffer_size.x, 1.f, 1.f});
 		auto view = glm::scale(glm::mat4{1.f}, vec3{_scale, _scale, 1.f}) * glm::translate(glm::mat4{1.f}, _translate);
 		auto proj = mat4{1.f};
 		auto mvp = proj * view * model;
 		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
+		glUniform4f(_bounds_uniform, _bounds.x, _bounds.y, _bounds.z, _bounds.w);
 
 		// Draw
 		glDrawElements(GL_TRIANGLES, static_cast<int>(_num_vertices), GL_UNSIGNED_INT, 0);
+
+		// Render palette
+		_palette.set_bounds(_bounds);
+		_palette.set_viewport(framebuffer_size);
+		_palette.set_position({-.75f, -1.f});
+		_palette.set_size({1.5f, .1f});
+		_palette.draw(delta_time, total_time);
 	}
 
 	std::vector<float> GlyphRenderer::genMask(int width, int height) const

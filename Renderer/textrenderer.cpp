@@ -53,12 +53,12 @@ namespace vis
 		glActiveTexture(GL_TEXTURE0);
 		_texture = gen_texture();
 		glBindTexture(GL_TEXTURE_2D, _texture);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);	// Change unpack alignment because glyphs aren't 4 byte aligned
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, _atlas_width, _atlas_height, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -78,7 +78,7 @@ namespace vis
 
 			x_offset += glyph->bitmap.width;
 		}
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);	// Reset unpack alignment to default value
 
 
 		_vao = gen_vao();
@@ -102,33 +102,58 @@ namespace vis
 		glDeleteShader(fragment_shader);
 
 		glUseProgram(_program);
+
+		_position_uniform = glGetUniformLocation(_program, "origin");
+		_viewport_uniform = glGetUniformLocation(_program, "viewport");
 	}
 
-	void TextRenderer::set_text(const std::vector<std::tuple<std::string, glm::vec2>>& text)
+	void TextRenderer::set_lines(const std::vector<std::string>& lines)
 	{
-		auto dirty = _text != text;
-		_text = text;
-
-		if(dirty)
+		if(_lines != lines)
+		{
+			_lines = lines;
 			update();
+		}
+	}
+
+	void TextRenderer::set_positions(const std::vector<glm::vec2>& positions)
+	{
+		_positions = positions;
+		_positions.resize(std::max(_positions.size(), _lines.size()));
 	}
 
 	void TextRenderer::set_viewport(const glm::ivec2& viewport)
 	{
-		auto dirty = _viewport != viewport;
 		_viewport = viewport;
+	}
 
-		if(dirty)
-			update();
+	glm::vec2 TextRenderer::total_relative_size() const
+	{
+		return glm::vec2(std::max_element(_line_sizes.begin(), _line_sizes.end(),
+										  [](const auto& a, const auto& b) { return a.x < b.x; })->x,
+						 std::max_element(_line_sizes.begin(), _line_sizes.end(),
+										  [](const auto& a, const auto& b) { return a.y < b.y; })->y);
+	}
+
+	std::vector<glm::vec2> TextRenderer::relative_sizes() const
+	{
+		auto sizes = _line_sizes;
+		std::transform(sizes.begin(), sizes.end(), sizes.begin(), [&](const auto& x) { return x / glm::vec2(_viewport); });
+		return sizes;
 	}
 
 	void TextRenderer::update()
 	{
 		auto quads = std::vector<float>();
-		for(const auto& t : _text)
+		_last_vertex_indices.clear();
+		_last_vertex_indices.reserve(_lines.size());
+		_line_sizes.clear();
+		_line_sizes.reserve(_lines.size());
+		for(const auto& line : _lines)
 		{
-			auto line = std::get<0>(t);
-			auto line_pos = std::get<1>(t);
+			auto line_pos = glm::vec2{0.f};
+			_line_sizes.push_back(glm::vec2{-std::numeric_limits<float>::infinity()});
+
 			for(const char& c : line)
 			{
 				// Check if the atlas contains c
@@ -142,8 +167,8 @@ namespace vis
 				const auto& glyph = _glyphs[static_cast<size_t>(c)];
 
 				// Calculate quad dimensions
-				auto pos = line_pos + glyph.bearing / glm::vec2(_viewport);
-				auto size = glyph.size / glm::vec2(_viewport);
+				auto pos = line_pos + glyph.bearing;
+				auto size = glyph.size;
 
 				quads.push_back(pos.x);          quads.push_back(pos.y);          quads.push_back(glyph.atlas_offset);                               quads.push_back(0.f);
 				quads.push_back(pos.x + size.x); quads.push_back(pos.y);          quads.push_back(glyph.atlas_offset + glyph.size.x / _atlas_width); quads.push_back(0.f);
@@ -153,8 +178,12 @@ namespace vis
 				quads.push_back(pos.x + size.x); quads.push_back(pos.y - size.y); quads.push_back(glyph.atlas_offset + glyph.size.x / _atlas_width); quads.push_back(glyph.size.y / _atlas_height);
 
 				// Advance cursor
-				line_pos += _glyphs[static_cast<size_t>(c)].advance / glm::vec2(_viewport);
+				line_pos += _glyphs[static_cast<size_t>(c)].advance;
+
+				_line_sizes.back().x = std::max(_line_sizes.back().x, std::abs(pos.x + size.x));
+				_line_sizes.back().y = std::max(_line_sizes.back().y, std::abs(pos.y - size.y));
 			}
+			_last_vertex_indices.push_back(static_cast<GLint>(quads.size()) / 4);
 		}
 
 		glBindVertexArray(_vao);
@@ -162,7 +191,6 @@ namespace vis
 		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(quads.size() * sizeof(float)), quads.data(), GL_DYNAMIC_DRAW);
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
-		_num_vertices = static_cast<int>(quads.size()/4);
 	}
 
 	void TextRenderer::draw(float /*delta_time*/, float /*total_time*/)
@@ -182,17 +210,19 @@ namespace vis
 		glUniform1i(glGetUniformLocation(_program, "tex"), 0);
 		glBindTexture(GL_TEXTURE_2D, _texture);
 
-		glDrawArrays(GL_TRIANGLES, 0, _num_vertices);
+		glUniform2i(_viewport_uniform, _viewport.x, _viewport.y);
+		GLint old_last = 0;
+		for(size_t i = 0; i < _last_vertex_indices.size(); ++i)
+		{
+			glUniform2f(_position_uniform, _positions[i].x, _positions[i].y);
+			glDrawArrays(GL_TRIANGLES, old_last, _last_vertex_indices[i]);
+			old_last = _last_vertex_indices[i];
+		}
 
 		if(depthtest)
 			glEnable(GL_DEPTH_TEST);
 		if(!blending)
 			glDisable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, static_cast<GLenum>(blendfunc));
-	}
-
-	glm::ivec2 TextRenderer::viewport() const
-	{
-		return _viewport;
 	}
 }

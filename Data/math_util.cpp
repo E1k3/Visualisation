@@ -119,15 +119,17 @@ namespace vis
 		result.front()._variance = variance(samples, result.front()._mean);
 		result.front()._weight = 1.f;
 
-		auto min_bic = gmm_bic(samples, result, 0.5f);
+		auto min_aic = gmm_aic(samples, result, fit_gmm_component_penalty_factor);
 
 		// Try GMMs with [2, max_components] components
 		// k = current number of components
 		for(unsigned k = 2; k <= max_components; ++k)
 		{
 			auto gmm = std::vector<GMMComponent>{};
+			gmm.reserve(k);
 
 			// Try initializing randomly, choose best result
+			if(fit_gmm_random_init)
 			{
 				float max_likelihood = -std::numeric_limits<float>::infinity();
 				for(int t = 0; t < fit_gmm_random_init_tries; ++t)
@@ -145,6 +147,13 @@ namespace vis
 					}
 				}
 			}
+			else
+			{
+				for(unsigned s = 0; s < k; ++s)
+				{
+					gmm.push_back({samples[samples.size() / k * s], variance(samples, samples[samples.size() / k * s]), 1.f/k});
+				}
+			}
 
 			// Iterate until difference in log-likelihood <= epsilon
 			auto confidence = gmm_log_likelihood(samples, gmm);
@@ -158,11 +167,11 @@ namespace vis
 			}
 			std::sort(gmm.begin(), gmm.end(), [] (const auto& a, const auto& b) { return a._mean < b._mean && a._weight != 0.f; });
 
-			// If current model has lowest BIC (Bayesian Information criterion), keep iterating
-			auto cur_bic = gmm_bic(samples, gmm, 0.5f);
-			if(cur_bic < min_bic)
+			// If current model has lowest AIC (Akaike Information criterion), keep iterating
+			auto cur_aic = gmm_aic(samples, gmm, fit_gmm_component_penalty_factor);
+			if(cur_aic < min_aic)
 			{
-				min_bic = cur_bic;
+				min_aic = cur_aic;
 				result = gmm;
 			}
 			// If not, the previous model is assumed best

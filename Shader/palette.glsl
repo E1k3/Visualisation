@@ -1,6 +1,6 @@
-const float _palette_pi_ = 3.141592653589793238462643383279502884197169399375105820974f;
 vec3 palette(float x)
 {
+	const float _palette_pi_ = 3.141592653589793238462643383279502884197169399375105820974f;
 	x = clamp(x, 0.f, 1.f);
 
 //	return vec3(x);                   // black->white

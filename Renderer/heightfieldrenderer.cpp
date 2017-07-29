@@ -179,7 +179,7 @@ namespace vis
 		// Input handling
 		using namespace glm;
 		constexpr float mousespeed = 0.001f;
-		constexpr float scrollspeed = 0.1f;
+		constexpr float scrollspeed = 0.05f;
 		auto cursor_x = _input.get_cursor_offset_x();
 		auto cursor_y = _input.get_cursor_offset_y();
 		auto old_cam_pos = _cam_position;
@@ -209,13 +209,17 @@ namespace vis
 
 		// Set time uniform
 		if(_time_uniform != -1)
-			glUniform1f(_time_uniform, total_time);
+			glUniform1f(_time_uniform, total_time/2.f);
 
 		// Draw
 		glDrawElements(GL_TRIANGLES, _num_vertices, GL_UNSIGNED_INT, 0);
 
-		_text.set_viewport(framebuffer_size);
-		_text.set_text({{"0,22222", glm::vec2(-1.f, -.95f)}});
-		_text.draw(delta_time, total_time);
+
+		// Render palette
+		_palette.set_bounds({_bounds.z, _bounds.w});
+		_palette.set_viewport(framebuffer_size);
+		_palette.set_position({-.75f, -1.f});
+		_palette.set_size({1.5f, .1f});
+		_palette.draw(delta_time, total_time);
 	}
 }
