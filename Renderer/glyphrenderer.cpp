@@ -109,7 +109,7 @@ namespace vis
 		glUseProgram(_program);
 
 		glUniform1i(glGetUniformLocation(_program, "mask"), 0);
-		glUniform2i(glGetUniformLocation(_program, "size"), mean_field.width(), mean_field.height());
+		glUniform2i(glGetUniformLocation(_program, "field_size"), mean_field.width(), mean_field.height());
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
 		_bounds = glm::vec4(mean_field.minima()[0], mean_field.maxima()[0], var_field.minima()[0], var_field.maxima()[0]);
@@ -209,7 +209,7 @@ namespace vis
 		glUseProgram(_program);
 
 		glUniform1i(glGetUniformLocation(_program, "mask"), 0);
-		glUniform2i(glGetUniformLocation(_program, "size"), mean_field.width(), mean_field.height());
+		glUniform2i(glGetUniformLocation(_program, "field_size"), mean_field.width(), mean_field.height());
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
 		_bounds = glm::vec4(mean_field.minimum(), mean_field.maximum(), var_field.minimum(), var_field.maximum());
