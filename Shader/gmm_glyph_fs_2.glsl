@@ -1,25 +1,24 @@
 #version 330 core
 
-smooth in vec2 uv;
-flat in vec4 fs_mean; // (mean, dev)
-flat in vec4 fs_var;
-flat in vec4 fs_weight;
+in vec2 fs_uv;
+in vec4 fs_mean;
+in vec4 fs_var;
+in vec4 fs_weight;
 
 out vec4 color;
 
 uniform sampler2D mask;
 
+const float dot_radius = 0.2613616004385317f;	// pi * dot_radius^2 = 1 - pi * 0.5^2 = background area
 vec3 palette(float x);
 
-const float dot_radius = 0.2613616004385317f;	// pi * dot_radius^2 = 1 - pi * 0.5^2 = background area
 void main()
 {
 	if(fs_weight.x <= 0.f)
 		discard;
 
-	vec2 uv_ = uv - ivec2(uv);
 	vec4 weightsum = vec4(fs_weight.x, fs_weight.x+fs_weight.y, fs_weight.x+fs_weight.y+fs_weight.z, fs_weight.x+fs_weight.y+fs_weight.z+fs_weight.w) * (1 - dot_radius) + dot_radius;
-	float distance = length(vec2(.5f) - uv_)*2.f;
+	float distance = length(vec2(.5f) - fs_uv)*2.f;
 
 	int last = 0;
 	for(;last < 3;)

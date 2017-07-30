@@ -40,6 +40,8 @@ namespace vis
 		glUseProgram(_program);
 		_position_uniform = glGetUniformLocation(_program, "origin");
 		_size_uniform = glGetUniformLocation(_program, "scale");
+		_viewport_uniform = glGetUniformLocation(_program, "viewport");
+		_division_uniform = glGetUniformLocation(_program, "divisions");
 	}
 
 	void GradientRenderer::set_position(const glm::vec2& position)
@@ -66,6 +68,12 @@ namespace vis
 			_bounds = bounds;
 	}
 
+	void GradientRenderer::set_divisions(int divisions)
+	{
+		if(_divisions != divisions)
+			_divisions = divisions;
+	}
+
 	void GradientRenderer::draw(float delta_time, float total_time)
 	{
 		auto depthtest = glIsEnabled(GL_DEPTH_TEST);
@@ -75,6 +83,8 @@ namespace vis
 
 		glUniform2f(_position_uniform, _position.x, _position.y);
 		glUniform2f(_size_uniform, _size.x, _size.y);
+		glUniform2i(_viewport_uniform, _viewport.x, _viewport.y);
+		glUniform1i(_division_uniform, _divisions);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -84,7 +94,7 @@ namespace vis
 		_text.set_viewport(_viewport);
 		_text.set_lines({std::to_string(_bounds.x), std::to_string(_bounds.y)});
 		_text.set_positions({{_position.x, _position.y + _size.y},
-							 {_position.x + _size.x - _text.relative_sizes()[1].x, _position.y + _size.y}});
+							 {_position.x + _size.x, _position.y + _size.y}});
 		_text.draw(delta_time, total_time);
 	}
 }

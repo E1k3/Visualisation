@@ -66,6 +66,8 @@ namespace vis
 
 	int Field::depth() const                      { return _depth; }
 
+	float Field::aspect_ratio() const             { return static_cast<float>(_width) / _height; }
+
 	const std::string& Field::name() const        { return _name; }
 
 	void Field::set_name(const std::string& name) { _name = name; }

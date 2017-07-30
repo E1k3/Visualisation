@@ -24,8 +24,9 @@ namespace vis
 		virtual void draw(float delta_time, float total_time) override;
 
 	private:
-		void init_gaussian(const std::vector<Field>& fields);
-		void init_gmm(const std::vector<Field>&);
+		void init_gaussian();
+		void init_gmm();
+		std::vector<Field> _fields{};
 
 		InputManager& _input;
 

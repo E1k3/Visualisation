@@ -54,4 +54,6 @@ DISTFILES += \
     Shader/text_fs.glsl \
     Shader/palette.glsl \
     Shader/gradient_fs.glsl \
-    Shader/gradient_vs.glsl
+    Shader/gradient_vs.glsl \
+    Shader/glyph_gs.glsl \
+    Shader/gmm_glyph_gs.glsl

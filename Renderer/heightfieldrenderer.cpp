@@ -15,6 +15,7 @@ namespace vis
 {
 	HeightfieldRenderer::HeightfieldRenderer(const std::vector<Field>& fields, InputManager& input)
 		: Renderer{},
+		  _fields{fields},
 		  _input{input}
 	{
 		if(fields.size() < 2)
@@ -24,15 +25,15 @@ namespace vis
 			throw std::invalid_argument("Heightfield renderer created using < 2 fields");
 		}
 		else if(fields.size() == 2)
-			init_gaussian(fields);
+			init_gaussian();
 		else
-			init_gmm(fields);
+			init_gmm();
 	}
 
-	void HeightfieldRenderer::init_gaussian(const std::vector<Field>& fields)
+	void HeightfieldRenderer::init_gaussian()
 	{
-		auto mean_field = fields[0];
-		auto var_field = fields[1];
+		auto mean_field = _fields[0];
+		auto var_field = _fields[1];
 
 		if(!mean_field.equal_layout(var_field))
 		{
@@ -46,7 +47,7 @@ namespace vis
 		glBindVertexArray(_vao);
 
 		// Grid (position)
-		auto grid = gen_grid_indexed(mean_field.width(), mean_field.height());
+		auto grid = gen_grid(mean_field.width(), mean_field.height());
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
@@ -96,11 +97,11 @@ namespace vis
 		_bounds = glm::vec4(mean_field.minima()[0], mean_field.maxima()[0], var_field.minima()[0], var_field.maxima()[0]);
 	}
 
-	void HeightfieldRenderer::init_gmm(const std::vector<Field>& fields)
+	void HeightfieldRenderer::init_gmm()
 	{
-		auto mean_field = fields[0];
-		auto var_field = fields[1];
-		auto weight_field = fields[2];
+		auto mean_field = _fields[0];
+		auto var_field = _fields[1];
+		auto weight_field = _fields[2];
 
 		if(!mean_field.equal_layout(var_field) || !var_field.equal_layout(weight_field))
 		{
@@ -113,7 +114,7 @@ namespace vis
 		glBindVertexArray(_vao);
 
 		// Grid (position)
-		auto grid = gen_grid_indexed(mean_field.width(), mean_field.height());
+		auto grid = gen_grid(mean_field.width(), mean_field.height());
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
@@ -199,7 +200,7 @@ namespace vis
 			framebuffer_size = glm::ivec2{1};
 
 		// MVP calculation
-		auto model = scale(mat4{1.f}, vec3{192.f/96.f, 1.f, 1.f});
+		auto model = scale(mat4{1.f}, vec3{_fields.front().aspect_ratio(), 1.f, .5f});
 		auto view = lookAt(_cam_position, vec3(0.f), vec3{0.f, 0.f, 1.f});
 		auto proj = perspective(radians(45.f), static_cast<float>(framebuffer_size.x)/framebuffer_size.y, .2f, 20.f);
 		auto mvp = proj * view * model;

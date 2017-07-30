@@ -1,18 +1,17 @@
 #version 330
 
-layout(location = 0) in vec4 pos;
+layout(location = 0) in vec2 pos;
 layout(location = 1) in float mean;
 layout(location = 2) in float var;
 
-smooth out vec2 uv;
-flat out vec2 data;
+out vec2 gs_pos;
+out vec2 gs_data;
 
 uniform mat4 mvp;
 uniform vec4 bounds;
 
 void main()
 {
-	gl_Position = mvp*vec4(pos.xy, 0.f, 1.f);
-	uv = pos.zw;
-	data = (vec2(mean, var)-bounds.xz) / bounds.yw - 10 * float(mean == 0.f && var == 0.f);
+	gs_pos = pos;
+	gs_data = vec2((mean - bounds.x) / bounds.y, sqrt(var) / (bounds.y - bounds.x)) - 10 * float(mean == 0.f && var == 0.f);
 }

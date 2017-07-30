@@ -19,7 +19,7 @@ namespace vis
 			Logger::instance() << Logger::Severity::ERROR
 							   << "Shader type is invalid.";
 			// TODO:ERROR handling. Shadertype is invalid.
-			throw std::runtime_error("Load Shader Error");
+			throw std::invalid_argument("Load Shader Error");
 		}
 		// Load code
 		auto sources = std::vector<std::string>{};
@@ -96,7 +96,7 @@ namespace vis
 		return _programs.back().get();
 	}
 
-	std::vector<float> Renderer::gen_grid_indexed(int width, int height)
+	std::vector<float> Renderer::gen_grid(int width, int height)
 	{
 		if(width < 0 || height < 0)
 		{
@@ -129,59 +129,6 @@ namespace vis
 			}
 			uv_y = 1.f - uv_y;
 		}
-		return grid;
-	}
-
-	std::vector<float> Renderer::gen_grid(int width, int height)
-	{
-		auto grid = std::vector<float>();
-		grid.reserve(static_cast<size_t>((width-1) * (height-1) * 6 * 4));
-
-		for(int y = 0; y < height-1; ++y)
-			for(int x = 0; x < width-1; ++x)
-			{
-				grid.push_back((x + 0)/(height - 1.f) * 2.f - 1.f);
-				grid.push_back((y + 1)/(width - 1.f) * 2.f - 1.f);
-
-				grid.push_back(0.f);
-				grid.push_back(0.f);
-
-
-				grid.push_back((x + 1)/(height - 1.f) * 2.f - 1.f);
-				grid.push_back((y + 1)/(width - 1.f) * 2.f - 1.f);
-
-				grid.push_back(1.f);
-				grid.push_back(0.f);
-
-
-				grid.push_back((x + 0)/(height - 1.f) * 2.f - 1.f);
-				grid.push_back((y + 0)/(width - 1.f) * 2.f - 1.f);
-
-				grid.push_back(0.f);
-				grid.push_back(1.f);
-
-
-				grid.push_back((x + 1)/(height - 1.f) * 2.f - 1.f);
-				grid.push_back((y + 1)/(width - 1.f) * 2.f - 1.f);
-
-				grid.push_back(1.f);
-				grid.push_back(0.f);
-
-
-				grid.push_back((x + 1)/(height - 1.f) * 2.f - 1.f);
-				grid.push_back((y + 0)/(width - 1.f) * 2.f - 1.f);
-
-				grid.push_back(1.f);
-				grid.push_back(1.f);
-
-
-				grid.push_back((x + 0)/(height - 1.f) * 2.f - 1.f);
-				grid.push_back((y + 0)/(width - 1.f) * 2.f - 1.f);
-
-				grid.push_back(0.f);
-				grid.push_back(1.f);
-			}
-
 		return grid;
 	}
 

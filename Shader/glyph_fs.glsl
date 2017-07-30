@@ -1,7 +1,7 @@
 #version 330 core
 
-smooth in vec2 uv;
-flat in vec2 data; // (mean, dev)
+in vec2 fs_uv;
+in vec2 fs_data; // (mean, dev)
 
 out vec4 color;
 
@@ -11,9 +11,9 @@ vec3 palette(float x);
 
 void main()
 {
-	if(data.x < 0.f && data.y < 0.f)
+	if(fs_data.x < 0.f && fs_data.y < 0.f)
 		discard;
 
-	vec3 mask = texture(mask, uv).rgb;
-	color = vec4(palette(mask.r*(data.x + data.y) + mask.g*data.x + mask.b*(data.x - data.y)), 1.f);
+	vec3 mask = texture(mask, fs_uv).rgb;
+	color = vec4(palette(mask.r*(fs_data.x + fs_data.y) + mask.g*fs_data.x + mask.b*(fs_data.x - fs_data.y)), 1.f);
 }

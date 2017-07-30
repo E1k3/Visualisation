@@ -49,12 +49,13 @@ namespace vis
 		glBindVertexArray(_vao);
 
 		// Grid (position)
-		auto grid = gen_grid_indexed(mean_field.width(), mean_field.height());
+		auto grid = gen_grid(mean_field.width(), mean_field.height());
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
 		glEnableVertexAttribArray(0);
+		_num_vertices = static_cast<int>(mean_field.area());
 
 
 		// Mean (ring)
@@ -71,13 +72,6 @@ namespace vis
 		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, var_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(2);
 
-		// Indices (element buffer)
-		auto indices = gen_grid_indices(mean_field.width(), mean_field.height());
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
-					 &indices[0], GL_STATIC_DRAW);
-		_num_vertices = static_cast<int>(indices.size());
-
 		// Mask (glyph)
 		auto mask = genMask(mask_res_x, mask_res_y);
 		_texture = gen_texture();
@@ -92,24 +86,30 @@ namespace vis
 
 		// Shaders
 		auto vertex_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/glyph_vs.glsl"},	//TODO:change location to relative
-										GL_VERTEX_SHADER);
+										 GL_VERTEX_SHADER);
+		auto geometry_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/glyph_gs.glsl"},	//TODO:change location to relative
+										   GL_GEOMETRY_SHADER);
 		auto fragment_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/glyph_fs.glsl",
 											"/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"},	//TODO:change location to relative
-										  GL_FRAGMENT_SHADER);
+										   GL_FRAGMENT_SHADER);
 
 		_program = gen_program();
 		glAttachShader(_program, vertex_shader);
+		glAttachShader(_program, geometry_shader);
 		glAttachShader(_program, fragment_shader);
 		glLinkProgram(_program);
 
 		glDetachShader(_program, vertex_shader);
+		glDetachShader(_program, geometry_shader);
 		glDetachShader(_program, fragment_shader);
 		glDeleteShader(vertex_shader);
+		glDeleteShader(geometry_shader);
 		glDeleteShader(fragment_shader);
 
 		glUseProgram(_program);
 
 		glUniform1i(glGetUniformLocation(_program, "mask"), 0);
+		glUniform2i(glGetUniformLocation(_program, "size"), mean_field.width(), mean_field.height());
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
 		_bounds = glm::vec4(mean_field.minima()[0], mean_field.maxima()[0], var_field.minima()[0], var_field.maxima()[0]);
@@ -143,12 +143,13 @@ namespace vis
 		glBindVertexArray(_vao);
 
 		// Grid (position)
-		auto grid = gen_grid_indexed(mean_field.width(), mean_field.height());
+		auto grid = gen_grid(mean_field.width(), mean_field.height());
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(float)*grid.size()),
+		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
 		glEnableVertexAttribArray(0);
+		_num_vertices = static_cast<int>(mean_field.area());
 
 		// Mean (ring)
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
@@ -171,13 +172,6 @@ namespace vis
 		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, weight_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(3);
 
-		// Indices (element buffer)
-		auto indices = gen_grid_indices(mean_field.width(), mean_field.height());
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
-					 &indices[0], GL_STATIC_DRAW);
-		_num_vertices = static_cast<int>(indices.size());
-
 		// Mask (glyph)
 		auto mask = genMask(mask_res_x, mask_res_y);
 		_texture = gen_texture();
@@ -192,24 +186,30 @@ namespace vis
 
 		// Shaders
 		auto vertex_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_vs.glsl"},	//TODO:change location to relative
-										GL_VERTEX_SHADER);
-		auto fragment_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_fs.glsl",
+										 GL_VERTEX_SHADER);
+		auto geometry_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_gs.glsl"},	//TODO:change location to relative
+										 GL_GEOMETRY_SHADER);
+		auto fragment_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_fs_2.glsl",
 											"/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"},	//TODO:change location to relative
-										  GL_FRAGMENT_SHADER);
+										   GL_FRAGMENT_SHADER);
 
 		_program = gen_program();
 		glAttachShader(_program, vertex_shader);
+		glAttachShader(_program, geometry_shader);
 		glAttachShader(_program, fragment_shader);
 		glLinkProgram(_program);
 
 		glDetachShader(_program, vertex_shader);
+		glDetachShader(_program, geometry_shader);
 		glDetachShader(_program, fragment_shader);
 		glDeleteShader(vertex_shader);
+		glDeleteShader(geometry_shader);
 		glDeleteShader(fragment_shader);
 
 		glUseProgram(_program);
 
 		glUniform1i(glGetUniformLocation(_program, "mask"), 0);
+		glUniform2i(glGetUniformLocation(_program, "size"), mean_field.width(), mean_field.height());
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
 		_bounds = glm::vec4(mean_field.minimum(), mean_field.maximum(), var_field.minimum(), var_field.maximum());
@@ -244,7 +244,7 @@ namespace vis
 		glUniform4f(_bounds_uniform, _bounds.x, _bounds.y, _bounds.z, _bounds.w);
 
 		// Draw
-		glDrawElements(GL_TRIANGLES, static_cast<int>(_num_vertices), GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_POINTS, 0, _num_vertices);
 
 		// Render palette
 		_palette.set_bounds(_bounds);

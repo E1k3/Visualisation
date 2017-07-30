@@ -20,6 +20,8 @@ namespace vis
 		 */
 		static GLuint load_shader(std::vector<std::string> paths, GLuint type);
 
+		virtual ~Renderer() = default;
+
 		virtual void draw(float delta_time, float total_time) = 0;
 
 		GLuint gen_vao();
@@ -29,8 +31,6 @@ namespace vis
 		GLuint gen_texture();
 
 		GLuint gen_program();
-
-		static std::vector<float> gen_grid_indexed(int width, int height);
 
 		static std::vector<float> gen_grid(int width, int height);
 

@@ -49,6 +49,8 @@ namespace vis
 		int height() const;
 		/// @brief Returns Returns the number of layers this field holds.
 		int depth() const;
+		/// @brief Returns the fields width/height ratio.
+		float aspect_ratio() const;
 		/// @brief Returns the fields name.
 		const std::string& name() const;
 		/// @brief Sets the fields name.
