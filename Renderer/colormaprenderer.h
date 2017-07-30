@@ -1,5 +1,5 @@
-#ifndef GRADIENTRENDERER_H
-#define GRADIENTRENDERER_H
+#ifndef COLORMAPRENDERER_H
+#define COLORMAPRENDERER_H
 
 #include <glm/glm.hpp>
 #include <GL/glew.h>
@@ -9,11 +9,11 @@
 
 namespace vis
 {
-	class GradientRenderer : public Renderer
+	class ColormapRenderer : public Renderer
 	{
 	public:
-		explicit GradientRenderer();
-		virtual ~GradientRenderer() = default;
+		explicit ColormapRenderer();
+		virtual ~ColormapRenderer() = default;
 
 		void set_position(const glm::vec2& position);
 		void set_size(const glm::vec2& size);
@@ -30,7 +30,7 @@ namespace vis
 		glm::vec2 _size{1.f};
 		glm::ivec2 _viewport{1};
 		glm::vec2 _bounds{0.f};
-		int _divisions{15};
+		int _divisions{8};
 
 		GLint _position_uniform{0};
 		GLint _size_uniform{0};
@@ -41,4 +41,4 @@ namespace vis
 		GLuint _program{0};
 	};
 }
-#endif // GRADIENTRENDERER_H
+#endif // COLORMAPRENDERER_H

@@ -1,30 +1,30 @@
-#include "gradientrenderer.h"
+#include "colormaprenderer.h"
 
 #include <vector>
 
 namespace vis
 {
-	GradientRenderer::GradientRenderer()
+	ColormapRenderer::ColormapRenderer()
 		: Renderer{}
 	{
 		_vao = gen_vao();
 		glBindVertexArray(_vao);
 
 		float vertices[] = {0.f, 0.f,
+							1.f, 0.f,
 							0.f, 1.f,
-							1.f, 1.f,
-							0.f, 0.f,
-							1.f, 1.f,
-							1.f, 0.f};
+							0.f, 1.f,
+							1.f, 0.f,
+							1.f, 1.f};
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
 
 		// Shaders
-		auto vertex_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/gradient_vs.glsl"},	//TODO:change location to relative
+		auto vertex_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/colormap_vs.glsl"},	//TODO:change location to relative
 										 GL_VERTEX_SHADER);
-		auto fragment_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/gradient_fs.glsl",
+		auto fragment_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/colormap_fs.glsl",
 											"/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"},	//TODO:change location to relative
 										   GL_FRAGMENT_SHADER);
 		_program = gen_program();
@@ -44,37 +44,37 @@ namespace vis
 		_division_uniform = glGetUniformLocation(_program, "divisions");
 	}
 
-	void GradientRenderer::set_position(const glm::vec2& position)
+	void ColormapRenderer::set_position(const glm::vec2& position)
 	{
 		if(_position != position)
 			_position = position;
 	}
 
-	void GradientRenderer::set_size(const glm::vec2& size)
+	void ColormapRenderer::set_size(const glm::vec2& size)
 	{
 		if(_size != size)
 			_size = size;
 	}
 
-	void GradientRenderer::set_viewport(const glm::ivec2& viewport)
+	void ColormapRenderer::set_viewport(const glm::ivec2& viewport)
 	{
 		if(_viewport != viewport)
 			_viewport = viewport;
 	}
 
-	void GradientRenderer::set_bounds(const glm::vec2& bounds)
+	void ColormapRenderer::set_bounds(const glm::vec2& bounds)
 	{
 		if(_bounds != bounds)
 			_bounds = bounds;
 	}
 
-	void GradientRenderer::set_divisions(int divisions)
+	void ColormapRenderer::set_divisions(int divisions)
 	{
 		if(_divisions != divisions)
-			_divisions = divisions;
+			_divisions = std::max(divisions, 1);
 	}
 
-	void GradientRenderer::draw(float delta_time, float total_time)
+	void ColormapRenderer::draw(float delta_time, float total_time)
 	{
 		auto depthtest = glIsEnabled(GL_DEPTH_TEST);
 		glDisable(GL_DEPTH_TEST);
@@ -91,10 +91,17 @@ namespace vis
 		if(depthtest)
 			glEnable(GL_DEPTH_TEST);
 
+		auto lines = std::vector<std::string>(static_cast<size_t>(_divisions+1));
+		auto line_positions = std::vector<glm::vec2>(static_cast<size_t>(_divisions+1));
+		for(int i = 0; i <= _divisions; ++i)
+		{
+			lines[static_cast<size_t>(i)] = std::to_string(_bounds.x + ((_bounds.y - _bounds.x) / _divisions) * i);
+			line_positions[static_cast<size_t>(i)] = glm::vec2(_position.x + (_size.x / _divisions) * i, _position.y + _size.y);
+		}
+		_text.set_lines(lines);
+		_text.set_positions(line_positions);
 		_text.set_viewport(_viewport);
-		_text.set_lines({std::to_string(_bounds.x), std::to_string(_bounds.y)});
-		_text.set_positions({{_position.x, _position.y + _size.y},
-							 {_position.x + _size.x, _position.y + _size.y}});
+
 		_text.draw(delta_time, total_time);
 	}
 }

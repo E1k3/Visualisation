@@ -119,7 +119,7 @@ namespace vis
 	void TextRenderer::set_positions(const std::vector<glm::vec2>& positions)
 	{
 		_positions = positions;
-		_positions.resize(std::max(_positions.size(), _lines.size()));
+//		_positions.resize(std::max(_positions.size(), _lines.size()));
 	}
 
 	void TextRenderer::set_viewport(const glm::ivec2& viewport)
@@ -215,7 +215,7 @@ namespace vis
 		for(size_t i = 0; i < _last_vertex_indices.size(); ++i)
 		{
 			glUniform2f(_position_uniform, _positions[i].x, _positions[i].y);
-			glDrawArrays(GL_TRIANGLES, old_last, _last_vertex_indices[i]);
+			glDrawArrays(GL_TRIANGLES, old_last, _last_vertex_indices[i]-old_last);
 			old_last = _last_vertex_indices[i];
 		}
 

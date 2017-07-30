@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 
 #include "renderer.h"
-#include "gradientrenderer.h"
+#include "colormaprenderer.h"
 #include "Data/field.h"
 #include "inputmanager.h"
 
@@ -30,7 +30,7 @@ namespace vis
 
 		InputManager& _input;
 
-		GradientRenderer _palette;
+		ColormapRenderer _palette;
 
 
 		GLuint _vao{0};

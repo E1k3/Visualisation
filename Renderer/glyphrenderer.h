@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "renderer.h"
-#include "gradientrenderer.h"
+#include "colormaprenderer.h"
 #include "inputmanager.h"
 #include "Data/field.h"
 
@@ -25,7 +25,7 @@ namespace vis
 		std::vector<float> genMask(int width, int height) const;
 
 		InputManager& _input;
-		GradientRenderer _palette{};
+		ColormapRenderer _palette{};
 
 		GLuint _vao{0};
 		GLuint _texture{0};
