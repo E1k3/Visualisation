@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 
 #include "renderer.h"
+#include "textrenderer.h"
 #include "colormaprenderer.h"
 #include "Data/field.h"
 #include "inputmanager.h"
@@ -26,22 +27,36 @@ namespace vis
 	private:
 		void init_gaussian();
 		void init_gmm();
-		std::vector<Field> _fields{};
+
+		void init_scale_planes(int divisions);
+		void draw_scale_planes(const glm::mat4& mvp, int count);
+
+		std::vector<Field> _fields;
 
 		InputManager& _input;
 
 		ColormapRenderer _palette;
 
+		TextRenderer _scale_plane_text;
 
 		GLuint _vao{0};
 		GLuint _program{0};
 
-		int _num_vertices{};
-		GLint _mvp_uniform{};
-		GLint _bounds_uniform{};
-		GLint _time_uniform{};
+		GLuint _scale_plane_vao{0};
+		GLuint _scale_plane_program{0};
 
-		glm::vec4 _bounds{};
+
+		int _num_vertices{0};
+		GLint _mvp_uniform{0};
+		GLint _bounds_uniform{0};
+		GLint _time_uniform{0};
+
+		int _scale_plane_num_vertices{0};
+		GLint _scale_plane_mvp_uniform{0};
+		GLint _scale_plane_count_uniform{0};
+		GLint _scale_plane_opacity_uniform{0};
+
+		glm::vec4 _bounds;
 		glm::vec3 _cam_position{-1.8f, -1.8f, 1.8f};
 	};
 }

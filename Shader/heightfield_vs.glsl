@@ -11,7 +11,7 @@ uniform vec4 bounds;
 
 void main()
 {
-	float mean_ = (mean-bounds.x)/bounds.y;
+	float mean_ = (mean-bounds.x)/(bounds.y-bounds.x);
 	gl_Position = mvp*vec4(pos, mean_, 1.f);
-	intensity = (var-bounds.z)/bounds.w - 10 * float(mean == 0.f && var == 0.f);
+	intensity = (var-bounds.z)/(bounds.w-bounds.z) - 10 * float(mean == 0.f && var == 0.f);
 }

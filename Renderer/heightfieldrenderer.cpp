@@ -28,6 +28,7 @@ namespace vis
 			init_gaussian();
 		else
 			init_gmm();
+		init_scale_planes(20);
 	}
 
 	void HeightfieldRenderer::init_gaussian()
@@ -172,6 +173,91 @@ namespace vis
 		_bounds = glm::vec4(mean_field.minimum(), mean_field.maximum(), var_field.minimum(), var_field.maximum());
 	}
 
+	void HeightfieldRenderer::init_scale_planes(int divisions)
+	{
+		_scale_plane_vao = gen_vao();
+		glBindVertexArray(_scale_plane_vao);
+
+		divisions = std::max(divisions, 0);
+		_scale_plane_num_vertices = (divisions + 1) * 4 * 2;
+		auto vertices = std::vector<float>(static_cast<size_t>(_scale_plane_num_vertices));
+		for(int i = 0; i <= divisions; ++i)
+		{
+			vertices[static_cast<size_t>(i * 8 + 0)] = i * 2.f / divisions - 1.f;
+			vertices[static_cast<size_t>(i * 8 + 1)] = -1.f;
+			vertices[static_cast<size_t>(i * 8 + 2)] = i * 2.f / divisions - 1.f;
+			vertices[static_cast<size_t>(i * 8 + 3)] = 1.f;
+
+			vertices[static_cast<size_t>(i * 8 + 4)] = -1.f;
+			vertices[static_cast<size_t>(i * 8 + 5)] = i * 2.f / divisions - 1.f;
+			vertices[static_cast<size_t>(i * 8 + 6)] = 1.f;
+			vertices[static_cast<size_t>(i * 8 + 7)] = i * 2.f / divisions - 1.f;
+		}
+
+		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizei>(sizeof(float) * vertices.size()), vertices.data(), GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+
+		// Shaders
+		auto vertex_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/scale_plane_vs.glsl"},	//TODO:change location to relative
+										 GL_VERTEX_SHADER);
+		auto fragment_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/scale_plane_fs.glsl"},	//TODO:change location to relative
+										   GL_FRAGMENT_SHADER);
+		_scale_plane_program = gen_program();
+		glAttachShader(_scale_plane_program, vertex_shader);
+		glAttachShader(_scale_plane_program, fragment_shader);
+		glLinkProgram(_scale_plane_program);
+
+		glDetachShader(_scale_plane_program, vertex_shader);
+		glDetachShader(_scale_plane_program, fragment_shader);
+		glDeleteShader(vertex_shader);
+		glDeleteShader(fragment_shader);
+
+		glUseProgram(_scale_plane_program);
+		_scale_plane_mvp_uniform = glGetUniformLocation(_scale_plane_program, "mvp");
+		_scale_plane_count_uniform = glGetUniformLocation(_scale_plane_program, "count");
+		_scale_plane_opacity_uniform = glGetUniformLocation(_scale_plane_program, "opacity");
+	}
+
+	void HeightfieldRenderer::draw_scale_planes(const glm::mat4& mvp, int count)
+	{
+		// Save old OpenGL state and setup
+		auto blending = glIsEnabled(GL_BLEND);
+		int blendfunc;
+		glGetIntegerv(GL_SRC_ALPHA, &blendfunc);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Setup and render planes
+		glUseProgram(_scale_plane_program);
+		glBindVertexArray(_scale_plane_vao);
+		count = std::max(count, 1);
+		glUniformMatrix4fv(_scale_plane_mvp_uniform, 1, GL_FALSE, glm::value_ptr(mvp));
+		glUniform1i(_scale_plane_count_uniform, count);
+		glUniform1f(_scale_plane_opacity_uniform, 0.1f);
+		glDrawArraysInstanced(GL_LINES, 0, _scale_plane_num_vertices, count);
+
+		// Reset OpenGL state
+		if(!blending)
+			glDisable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, static_cast<GLenum>(blendfunc));
+
+		// Setup and render labels
+		auto lines = std::vector<std::string>(static_cast<size_t>(count));
+		auto positions = std::vector<glm::vec2>(static_cast<size_t>(count));
+		for(int i = 0; i < count; ++i)
+		{
+			lines[static_cast<size_t>(i)] = std::to_string(_bounds.x + i * (_bounds.y - _bounds.x) / (count - 1));
+			auto pos = mvp * glm::vec4{0.f, 0.f, static_cast<float>(i) / (count - 1), 1.f};
+			positions[static_cast<size_t>(i)] = glm::vec2{pos / pos.w};
+		}
+
+		_scale_plane_text.set_lines(lines);
+		_scale_plane_text.set_positions(positions);
+		_scale_plane_text.draw(0.f, 0.f);
+	}
+
 	void HeightfieldRenderer::draw(float delta_time, float total_time)
 	{
 		glBindVertexArray(_vao);
@@ -200,7 +286,8 @@ namespace vis
 			framebuffer_size = glm::ivec2{1};
 
 		// MVP calculation
-		auto model = scale(mat4{1.f}, vec3{_fields.front().aspect_ratio(), 1.f, .5f});
+		constexpr float height_scale = .5f;
+		auto model = scale(mat4{1.f}, vec3{_fields.front().aspect_ratio(), 1.f, height_scale});
 		auto view = lookAt(_cam_position, vec3(0.f), vec3{0.f, 0.f, 1.f});
 		auto proj = perspective(radians(45.f), static_cast<float>(framebuffer_size.x)/framebuffer_size.y, .2f, 20.f);
 		auto mvp = proj * view * model;
@@ -215,8 +302,11 @@ namespace vis
 		// Draw
 		glDrawElements(GL_TRIANGLES, _num_vertices, GL_UNSIGNED_INT, 0);
 
+		_scale_plane_text.set_viewport(framebuffer_size);
+		draw_scale_planes(mvp, height_scale*10);
 
 		// Render palette
+		_palette.set_divisions(8);
 		_palette.set_bounds({_bounds.z, _bounds.w});
 		_palette.set_viewport(framebuffer_size);
 		_palette.set_position({-.75f, -1.f});

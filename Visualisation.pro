@@ -56,4 +56,6 @@ DISTFILES += \
     Shader/glyph_gs.glsl \
     Shader/gmm_glyph_gs.glsl \
     Shader/colormap_fs.glsl \
-    Shader/colormap_vs.glsl
+    Shader/colormap_vs.glsl \
+    Shader/scale_plane_vs.glsl \
+    Shader/scale_plane_fs.glsl

@@ -13,5 +13,5 @@ uniform vec4 bounds;
 void main()
 {
 	gs_pos = pos;
-	gs_data = vec2((mean - bounds.x) / bounds.y, sqrt(var) / (bounds.y - bounds.x)) - 10 * float(mean == 0.f && var == 0.f);
+	gs_data = vec2((mean - bounds.x) / (bounds.y-bounds.x), var / (bounds.y - bounds.x)) - 10 * float(mean == 0.f && var == 0.f);
 }

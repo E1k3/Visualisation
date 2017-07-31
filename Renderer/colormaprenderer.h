@@ -30,7 +30,7 @@ namespace vis
 		glm::vec2 _size{1.f};
 		glm::ivec2 _viewport{1};
 		glm::vec2 _bounds{0.f};
-		int _divisions{8};
+		int _divisions{5};
 
 		GLint _position_uniform{0};
 		GLint _size_uniform{0};

@@ -104,8 +104,8 @@ namespace vis
 
 		if(true)	// true->STUDYMODE
 		{
-			constexpr int step_index_input = 100;
-			constexpr int aggregation_count = 1;
+			constexpr int step_index_input = 1400;
+			constexpr int aggregation_count = 7;
 			constexpr int aggregation_stride = 1;
 			constexpr int field_index_input = 2;
 			constexpr Ensemble::Analysis analysis_input = Ensemble::Analysis::GAUSSIAN_MIXTURE;

@@ -7,6 +7,8 @@ namespace vis
 	ColormapRenderer::ColormapRenderer()
 		: Renderer{}
 	{
+		set_divisions(_divisions);
+
 		_vao = gen_vao();
 		glBindVertexArray(_vao);
 

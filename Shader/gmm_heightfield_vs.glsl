@@ -14,8 +14,8 @@ uniform float time;
 void main()
 {
 	float t = abs((time-int(time)-.5f)*2.f);
-	vec4 norm_mean = (mean-bounds.x)/bounds.y;
-	vec4 norm_var = (var-bounds.z)/bounds.w;
+	vec4 norm_mean = (mean-bounds.x)/(bounds.y-bounds.x);
+	vec4 norm_var = (var-bounds.z)/(bounds.w-bounds.z);
 
 	vec4 weight_ = vec4(weight.x, weight.x+weight.y, weight.x+weight.y+weight.z, weight.x+weight.y+weight.z+weight.w);
 

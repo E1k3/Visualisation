@@ -16,7 +16,7 @@ uniform vec4 bounds;
 void main()
 {
 	gs_pos = pos;
-	gs_mean = (mean-bounds.x) / bounds.y;
+	gs_mean = (mean-bounds.x) / (bounds.y-bounds.x);
 	gs_var = sqrt(var) / (bounds.y - bounds.x);
 	gs_weight = weight - 10 * float(/*weight.z == 0.f || */mean.x == 0.f && var.x == 0.f && weight.x == 1.f);
 }
