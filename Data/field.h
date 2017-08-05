@@ -67,10 +67,6 @@ namespace vis
 		/// @brief Returns a human readable string describing the layout and name of this field.
 		std::string layout_to_string() const;
 
-//		/// @brief Gives direct non const access to data without range checking.
-//		float& operator[](int index);
-//		/// @brief Gives direct const access to data without range checking.
-//		const float& operator[](int index) const;
 		const std::vector<float>& data() const;
 		/// @brief get_point Gets all components of the i-th point of the field. Only possible if initialized().
 		/// @return A vector containing point_dimension() floats.

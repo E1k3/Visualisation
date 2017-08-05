@@ -50,21 +50,21 @@ namespace vis
 		// Grid (position)
 		auto grid = gen_grid(mean_field.width(), mean_field.height());
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(float)*grid.size()),
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
 		glEnableVertexAttribArray(0);
 
 		// Mean (color)
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float))*mean_field.area()*mean_field.point_dimension(),
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float))*mean_field.area()*mean_field.point_dimension(),
 					 mean_field.data().data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, mean_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(1);
 
 		// Standard Deviation (height)
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float))*dev_field.area()*dev_field.point_dimension(),
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float))*dev_field.area()*dev_field.point_dimension(),
 					 dev_field.data().data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, dev_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(2);
@@ -72,7 +72,7 @@ namespace vis
 		// Indices (element buffer)
 		auto indices = gen_grid_indices(mean_field.width(), mean_field.height());
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(unsigned)*indices.size()),
 					 &indices[0], GL_STATIC_DRAW);
 		_num_vertices = static_cast<int>(indices.size());
 
@@ -117,28 +117,28 @@ namespace vis
 		// Grid (position)
 		auto grid = gen_grid(mean_field.width(), mean_field.height());
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(float)*grid.size()),
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
 		glEnableVertexAttribArray(0);
 
 		// Mean (color)
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float))*mean_field.area()*mean_field.point_dimension(),
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float))*mean_field.area()*mean_field.point_dimension(),
 					 mean_field.data().data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, mean_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(1);
 
 		// Standard Deviation (height)
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float))*dev_field.area()*dev_field.point_dimension(),
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float))*dev_field.area()*dev_field.point_dimension(),
 					 dev_field.data().data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, dev_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(2);
 
 		// Weight
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float))*weight_field.area()*weight_field.point_dimension(),
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float))*weight_field.area()*weight_field.point_dimension(),
 					 weight_field.data().data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, weight_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(3);
@@ -146,7 +146,7 @@ namespace vis
 		// Indices (element buffer)
 		auto indices = gen_grid_indices(mean_field.width(), mean_field.height());
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long>(sizeof(unsigned)*indices.size()),
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(unsigned)*indices.size()),
 					 &indices[0], GL_STATIC_DRAW);
 		_num_vertices = static_cast<int>(indices.size());
 
@@ -183,19 +183,20 @@ namespace vis
 		auto vertices = std::vector<float>(static_cast<size_t>(_scale_plane_num_vertices));
 		for(int i = 0; i <= divisions; ++i)
 		{
-			vertices[static_cast<size_t>(i * 8 + 0)] = i * 2.f / divisions - 1.f;
-			vertices[static_cast<size_t>(i * 8 + 1)] = -1.f;
-			vertices[static_cast<size_t>(i * 8 + 2)] = i * 2.f / divisions - 1.f;
-			vertices[static_cast<size_t>(i * 8 + 3)] = 1.f;
+			auto idx = static_cast<size_t>(i * 8);
+			vertices[idx + 0] = i * 2.f / divisions - 1.f;
+			vertices[idx + 1] = -1.f;
+			vertices[idx + 2] = i * 2.f / divisions - 1.f;
+			vertices[idx + 3] = 1.f;
 
-			vertices[static_cast<size_t>(i * 8 + 4)] = -1.f;
-			vertices[static_cast<size_t>(i * 8 + 5)] = i * 2.f / divisions - 1.f;
-			vertices[static_cast<size_t>(i * 8 + 6)] = 1.f;
-			vertices[static_cast<size_t>(i * 8 + 7)] = i * 2.f / divisions - 1.f;
+			vertices[idx + 4] = -1.f;
+			vertices[idx + 5] = i * 2.f / divisions - 1.f;
+			vertices[idx + 6] = 1.f;
+			vertices[idx + 7] = i * 2.f / divisions - 1.f;
 		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizei>(sizeof(float) * vertices.size()), vertices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float) * vertices.size()), vertices.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
 
@@ -303,7 +304,7 @@ namespace vis
 		glDrawElements(GL_TRIANGLES, _num_vertices, GL_UNSIGNED_INT, 0);
 
 		_scale_plane_text.set_viewport(framebuffer_size);
-		draw_scale_planes(mvp, height_scale*10);
+		draw_scale_planes(mvp, static_cast<int>(height_scale*10));
 
 		// Render palette
 		_palette.set_divisions(8);

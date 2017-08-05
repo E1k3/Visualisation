@@ -21,7 +21,6 @@ namespace vis
 							   << " width: " << width
 							   << " height: " << height
 							   << " depth: " << depth;
-			// TODO:ERROR handling. Dimensions invalid.
 			throw std::invalid_argument("Negative dimensions for field creation");
 		}
 		if(size() == 0)
@@ -140,28 +139,6 @@ namespace vis
 				+ " height: " + std::to_string(_height)
 				+ " depth: " + std::to_string(_depth);
 	}
-
-//	float& Field::operator[](int index)
-//	{
-//		if(!_initialized)
-//		{
-//			Logger::instance() << Logger::Severity::ERROR
-//							   << "Data access on uninitialized field.";
-//			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
-//		}
-//		return _data[static_cast<unsigned>(index)];
-//	}
-
-//	const float& Field::operator[](int index) const
-//	{
-//		if(!_initialized)
-//		{
-//			Logger::instance() << Logger::Severity::ERROR
-//							   << "Data access on uninitialized field.";
-//			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
-//		}
-//		return _data[static_cast<unsigned>(index)];
-//	}
 
 	const std::vector<float>& Field::data() const
 	{

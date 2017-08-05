@@ -69,7 +69,7 @@ namespace vis
 			if(FT_Load_Char(face, i, FT_LOAD_RENDER))
 				continue;
 
-			glTexSubImage2D(GL_TEXTURE_2D, 0, x_offset, 0, static_cast<int>(glyph->bitmap.width), static_cast<int>(glyph->bitmap.rows), GL_RED, GL_UNSIGNED_BYTE, glyph->bitmap.buffer);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, x_offset, 0, static_cast<GLsizei>(glyph->bitmap.width), static_cast<GLsizei>(glyph->bitmap.rows), GL_RED, GL_UNSIGNED_BYTE, glyph->bitmap.buffer);
 
 			_glyphs[i].advance = glm::vec2(glyph->advance.x >> 6, glyph->advance.y >> 6);
 			_glyphs[i].size = glm::vec2(glyph->bitmap.width, glyph->bitmap.rows);

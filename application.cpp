@@ -176,8 +176,9 @@ namespace vis
 		// Event loop
 		while(!glfwWindowShouldClose(&*_window))
 		{
-			_delta = 2.f * static_cast<float>(glfwGetTime() - time);
-			time = glfwGetTime();
+			auto new_time = glfwGetTime();
+			_delta = static_cast<float>(new_time - time);
+			time = new_time;
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			renderer->draw(_delta, static_cast<float>(time));

@@ -51,23 +51,23 @@ namespace vis
 		// Grid (position)
 		auto grid = gen_grid(mean_field.width(), mean_field.height());
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float)*grid.size()),
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
 		glEnableVertexAttribArray(0);
-		_num_vertices = static_cast<int>(mean_field.area());
+		_num_vertices = mean_field.area();
 
 
 		// Mean (ring)
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float))*mean_field.area()*mean_field.point_dimension(),
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float))*mean_field.area()*mean_field.point_dimension(),
 					 mean_field.data().data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, mean_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(1);
 
 		// Standard Deviation (circle and background)
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float))*dev_field.area()*dev_field.point_dimension(),
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float))*dev_field.area()*dev_field.point_dimension(),
 					 dev_field.data().data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, dev_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(2);
@@ -81,7 +81,7 @@ namespace vis
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, static_cast<int>(mask_res_x), static_cast<int>(mask_res_y),
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, static_cast<GLsizei>(mask_res_x), static_cast<GLsizei>(mask_res_y),
 					 0, GL_RGB, GL_FLOAT, mask.data());
 
 		// Shaders
@@ -145,29 +145,29 @@ namespace vis
 		// Grid (position)
 		auto grid = gen_grid(mean_field.width(), mean_field.height());
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float)*grid.size()),
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
 		glEnableVertexAttribArray(0);
-		_num_vertices = static_cast<int>(mean_field.area());
+		_num_vertices = mean_field.area();
 
 		// Mean (ring)
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float))*mean_field.area()*mean_field.point_dimension(),
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float))*mean_field.area()*mean_field.point_dimension(),
 					 mean_field.data().data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, mean_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(1);
 
 		// Standard Deviation (circle and background)
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float))*dev_field.area()*dev_field.point_dimension(),
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float))*dev_field.area()*dev_field.point_dimension(),
 					 dev_field.data().data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, dev_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(2);
 
 		// Weight (proportions)
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float))*weight_field.area()*weight_field.point_dimension(),
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float))*weight_field.area()*weight_field.point_dimension(),
 					 weight_field.data().data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, weight_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(3);
@@ -181,7 +181,7 @@ namespace vis
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, static_cast<int>(mask_res_x), static_cast<int>(mask_res_y),
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, static_cast<GLsizei>(mask_res_x), static_cast<GLsizei>(mask_res_y),
 					 0, GL_RGB, GL_FLOAT, mask.data());
 
 		// Shaders
@@ -274,19 +274,19 @@ namespace vis
 		{
 			for(int x = 0; x < width; ++x)
 			{
-				int i = (y*width + x) * 3;
+				size_t i = static_cast<size_t>((y*width + x) * 3);
 				float dist = distance(vec2(x, y)/vec2(width, height), vec2(.5f, .5f));
 				if(dist < r_inner)
 				{
-					mask[static_cast<size_t>(i)] = 1.f;
+					mask[i + 0] = 1.f;
 				}
 				else if(dist < r_outer)
 				{
-					mask[static_cast<size_t>(i)+1] = 1.f;
+					mask[i + 1] = 1.f;
 				}
 				else
 				{
-					mask[static_cast<size_t>(i)+2] = 1.f;
+					mask[i + 2] = 1.f;
 				}
 			}
 		}
