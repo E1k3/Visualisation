@@ -64,7 +64,7 @@ namespace vis
 
 		// E-step
 		{	// Scope i
-			unsigned i = 0;
+			size_t i = 0;
 			for(const auto& samp : samples)
 			{
 				auto sample_gmm_density = gmm_density(samp, gmm);	// TODO:make sure this is > 0
@@ -80,19 +80,19 @@ namespace vis
 			auto weight_sum = 0.f;
 
 			// Weight
-			for(unsigned s = 0; s < samples.size(); ++s)
+			for(size_t s = 0; s < samples.size(); ++s)
 				weight_sum += sample_weights[s * gmm.size() + c];
 			gmm[c]._weight = weight_sum / samples.size();
 
 			// Mean
 			gmm[c]._mean = 0.f;
-			for(unsigned s = 0; s < samples.size(); ++s)
+			for(size_t s = 0; s < samples.size(); ++s)
 				gmm[c]._mean += sample_weights[s * gmm.size() + c] * samples[s];
 			gmm[c]._mean /= weight_sum;
 
 			// Variance
 			gmm[c]._variance = 0.f;
-			for(unsigned s = 0; s < samples.size(); ++s)
+			for(size_t s = 0; s < samples.size(); ++s)
 				gmm[c]._variance += sample_weights[s * gmm.size() + c] * square(samples[s] - gmm[c]._mean);
 			gmm[c]._variance /= weight_sum;
 
