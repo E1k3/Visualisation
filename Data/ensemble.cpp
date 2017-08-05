@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <fstream>
 #include <string>
+#include <cmath>
+
 
 #include "logger.h"
 #include "math_util.h"
@@ -205,7 +207,7 @@ namespace vis
 		const auto& layout = fields.front();
 		auto result = std::vector<Field>(2, Field(1, layout.width(), layout.height(), layout.depth(), true));
 		result[0].set_name(layout.name() + "_mean");
-		result[1].set_name(layout.name() + "_variance");
+		result[1].set_name(layout.name() + "_deviation");
 
 		for(int i = 0; i < result.front().volume(); ++i)
 		{
@@ -215,7 +217,7 @@ namespace vis
 				samples.push_back(field.get_value(0, i));
 
 			result[0].set_value(0, i, math_util::mean(samples));
-			result[1].set_value(0, i, math_util::variance(samples, result[0].get_value(0, i)));
+			result[1].set_value(0, i, std::sqrt(math_util::variance(samples, result[0].get_value(0, i))));
 		}
 
 		Logger::instance() << Logger::Severity::DEBUG
@@ -238,7 +240,7 @@ namespace vis
 		const auto& layout = fields.front();
 		auto result = std::vector<Field>(3, Field(gmm_components, layout.width(), layout.height(), layout.depth(), true));
 		result[0].set_name(layout.name() + "_mean");
-		result[1].set_name(layout.name() + "_variance");
+		result[1].set_name(layout.name() + "_deviation");
 		result[2].set_name(layout.name() + "_weight");
 
 		for(int i = 0; i < result.front().volume(); ++i)
@@ -251,10 +253,10 @@ namespace vis
 			auto gmm = math_util::fit_gmm(samples, gmm_components);
 			for(int c = 0; c < gmm_components; ++c)
 			{
-				result[0].set_value(c, i, math_util::find_max(samples, gmm[static_cast<size_t>(c)]));
+//				result[0].set_value(c, i, math_util::find_max(samples, gmm[static_cast<size_t>(c)]));
 //				result[0].set_value(c, i, math_util::find_median(samples, gmm[static_cast<size_t>(c)]));
-//				result[0].set_value(c, i, gmm[static_cast<size_t>(c)]._mean);
-				result[1].set_value(c, i, gmm[static_cast<size_t>(c)]._variance);
+				result[0].set_value(c, i, gmm[static_cast<size_t>(c)]._mean);
+				result[1].set_value(c, i, std::sqrt(gmm[static_cast<size_t>(c)]._variance));
 				result[2].set_value(c, i, gmm[static_cast<size_t>(c)]._weight);
 			}
 		}

@@ -34,14 +34,14 @@ namespace vis
 	void HeightfieldRenderer::init_gaussian()
 	{
 		auto mean_field = _fields[0];
-		auto var_field = _fields[1];
+		auto dev_field = _fields[1];
 
-		if(!mean_field.equal_layout(var_field))
+		if(!mean_field.equal_layout(dev_field))
 		{
 			Logger::instance() << Logger::Severity::ERROR
-							   << "The mean and variance fields have differing sizes.";
+							   << "The mean and deviation fields have differing sizes.";
 			throw std::runtime_error("Heightfield rendering error.");
-			//TODO:ERROR handling. mean and var field have differing size.
+			//TODO:ERROR handling. mean and dev field have differing size.
 		}
 
 		_vao = gen_vao();
@@ -62,11 +62,11 @@ namespace vis
 		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, mean_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(1);
 
-		// Variance (height)
+		// Standard Deviation (height)
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float))*var_field.area()*var_field.point_dimension(),
-					 var_field.data().data(), GL_STATIC_DRAW);
-		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, var_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
+		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float))*dev_field.area()*dev_field.point_dimension(),
+					 dev_field.data().data(), GL_STATIC_DRAW);
+		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, dev_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(2);
 
 		// Indices (element buffer)
@@ -95,19 +95,19 @@ namespace vis
 		glUseProgram(_program);
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
-		_bounds = glm::vec4(mean_field.minima()[0], mean_field.maxima()[0], var_field.minima()[0], var_field.maxima()[0]);
+		_bounds = glm::vec4(mean_field.minima()[0], mean_field.maxima()[0], dev_field.minima()[0], dev_field.maxima()[0]);
 	}
 
 	void HeightfieldRenderer::init_gmm()
 	{
 		auto mean_field = _fields[0];
-		auto var_field = _fields[1];
+		auto dev_field = _fields[1];
 		auto weight_field = _fields[2];
 
-		if(!mean_field.equal_layout(var_field) || !var_field.equal_layout(weight_field))
+		if(!mean_field.equal_layout(dev_field) || !dev_field.equal_layout(weight_field))
 		{
 			Logger::instance() << Logger::Severity::ERROR
-							   << "The mean, variance and weight fields have differing layouts.";
+							   << "The mean, deviation and weight fields have differing layouts.";
 			throw std::invalid_argument("Heightfield creation using different fields");
 		}
 
@@ -129,11 +129,11 @@ namespace vis
 		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, mean_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(1);
 
-		// Variance (height)
+		// Standard Deviation (height)
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float))*var_field.area()*var_field.point_dimension(),
-					 var_field.data().data(), GL_STATIC_DRAW);
-		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, var_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
+		glBufferData(GL_ARRAY_BUFFER, static_cast<int>(sizeof(float))*dev_field.area()*dev_field.point_dimension(),
+					 dev_field.data().data(), GL_STATIC_DRAW);
+		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, dev_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(2);
 
 		// Weight
@@ -170,7 +170,7 @@ namespace vis
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
 		_time_uniform = glGetUniformLocation(_program, "time");
-		_bounds = glm::vec4(mean_field.minimum(), mean_field.maximum(), var_field.minimum(), var_field.maximum());
+		_bounds = glm::vec4(mean_field.minimum(), mean_field.maximum(), dev_field.minimum(), dev_field.maximum());
 	}
 
 	void HeightfieldRenderer::init_scale_planes(int divisions)

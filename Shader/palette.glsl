@@ -2,11 +2,11 @@ vec3 _palette_interpolate_(float x)
 {
 	// hot
 	vec4 points[5] = vec4[5](
-	            vec4(0.f, 0.f, 0.f, 0.f),
-	            vec4(.39f, .7f, .13f, .13f),
-	            vec4(.58f, .9f, .41f, .02f),
-	            vec4(.84f, .93f, .82f, .08f),
-	            vec4(1.f, 1.f, 1.f, 1.f));
+				vec4(0.f, 0.f, 0.f, 0.f),
+				vec4(.39f, .7f, .13f, .13f),
+				vec4(.58f, .9f, .41f, .02f),
+				vec4(.84f, .93f, .82f, .08f),
+				vec4(1.f, 1.f, 1.f, 1.f));
 //	// kindlmann
 //	vec4 points[11] = vec4[11](
 //	            vec4(.0f, 0.f, 0.f, 0.f),
@@ -23,12 +23,9 @@ vec3 _palette_interpolate_(float x)
 
 
 	for(int i = 0; i < points.length(); ++i)
-	{
 		if(x < points[i].x)
-		{
 			return mix(points[i-1].yzw, points[i].yzw, (x - points[i-1].x) / (points[i].x - points[i-1].x));
-		}
-	}
+
 	return points[points.length()-1].yzw;
 }
 
