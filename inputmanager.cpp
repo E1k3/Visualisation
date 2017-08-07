@@ -127,4 +127,9 @@ namespace vis
 	{
 		return _framebuffer_size.y;
 	}
+
+	float InputManager::get_framebuffer_aspect_ratio() const
+	{
+		return static_cast<float>(_framebuffer_size.x) / _framebuffer_size.y;
+	}
 }

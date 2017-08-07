@@ -58,6 +58,7 @@ namespace vis
 
 		glm::vec4 _bounds;
 		glm::vec3 _cam_position{-1.8f, -1.8f, 1.8f};
+		float _model_scale{1.f};
 	};
 }
 

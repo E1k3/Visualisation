@@ -28,7 +28,7 @@ namespace vis
 			init_gaussian();
 		else
 			init_gmm();
-		init_scale_planes(20);
+		init_scale_planes(1);
 	}
 
 	void HeightfieldRenderer::init_gaussian()
@@ -245,13 +245,22 @@ namespace vis
 		glBlendFunc(GL_SRC_ALPHA, static_cast<GLenum>(blendfunc));
 
 		// Setup and render labels
-		auto lines = std::vector<std::string>(static_cast<size_t>(count));
-		auto positions = std::vector<glm::vec2>(static_cast<size_t>(count));
-		for(int i = 0; i < count; ++i)
+		auto lines = std::vector<std::string>();
+		lines.reserve(static_cast<size_t>(count * 4));
+		auto positions = std::vector<glm::vec2>();
+		positions.reserve(static_cast<size_t>(count * 4));
+		float corners[4][2] = {{-1.f, -1.f}, {1.f, -1.f}, {-1.f, 1.f}, {1.f, 1.f}, };
+		for(const auto& corner : corners)
 		{
-			lines[static_cast<size_t>(i)] = std::to_string(_bounds.x + i * (_bounds.y - _bounds.x) / (count - 1));
-			auto pos = mvp * glm::vec4{0.f, 0.f, static_cast<float>(i) / (count - 1), 1.f};
-			positions[static_cast<size_t>(i)] = glm::vec2{pos / pos.w};
+			for(int i = 0; i < count; ++i)
+			{
+				lines.push_back(std::to_string(_bounds.x + i * (_bounds.y - _bounds.x) / (count - 1)));
+				auto pos = mvp * glm::vec4(corner[0], corner[1], static_cast<float>(i) / (count - 1), 1.f);
+				pos /= pos.w;
+				positions.push_back(glm::vec2{pos});
+				if(glm::clamp(pos, -1.f, 1.f) != pos)	// Clip text that should be outside of viewspace
+					positions.back() = glm::vec2{-10.f, -10.f};
+			}
 		}
 
 		_scale_plane_text.set_lines(lines);
@@ -279,7 +288,8 @@ namespace vis
 				|| (_cam_position.x < 0.f && old_cam_pos.x > 0.f && _cam_position.y < 0.f && old_cam_pos.y > 0.f))
 			_cam_position = old_cam_pos;
 		_cam_position = rotateZ(_cam_position, cursor_x*mousespeed);
-		_cam_position = _cam_position*(1 - _input.get_scroll_offset_y() * scrollspeed);
+
+		_model_scale *= 1 + _input.get_scroll_offset_y() * scrollspeed;
 
 
 		auto framebuffer_size = _input.get_framebuffer_size();
@@ -288,9 +298,10 @@ namespace vis
 
 		// MVP calculation
 		constexpr float height_scale = .5f;
-		auto model = scale(mat4{1.f}, vec3{_fields.front().aspect_ratio(), 1.f, height_scale});
+		auto model = scale(mat4{1.f}, vec3{_fields.front().aspect_ratio(), 1.f, height_scale} * _model_scale);
 		auto view = lookAt(_cam_position, vec3(0.f), vec3{0.f, 0.f, 1.f});
-		auto proj = perspective(radians(45.f), static_cast<float>(framebuffer_size.x)/framebuffer_size.y, .2f, 20.f);
+		auto proj = ortho(-_input.get_framebuffer_aspect_ratio(), _input.get_framebuffer_aspect_ratio(), -1.f, 1.f, -20.f, 20.f);
+		//		auto proj = perspective(radians(45.f), static_cast<float>(framebuffer_size.x)/framebuffer_size.y, .2f, 20.f);
 		auto mvp = proj * view * model;
 		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
 

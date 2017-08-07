@@ -114,6 +114,8 @@ namespace vis
 
 		int get_framebuffer_size_y() const;
 
+		float get_framebuffer_aspect_ratio() const;
+
 	private:
 		std::map<int, bool> _pressed;
 		std::map<int, bool> _released;
