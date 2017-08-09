@@ -236,7 +236,7 @@ namespace vis
 		count = std::max(count, 1);
 		glUniformMatrix4fv(_scale_plane_mvp_uniform, 1, GL_FALSE, glm::value_ptr(mvp));
 		glUniform1i(_scale_plane_count_uniform, count);
-		glUniform1f(_scale_plane_opacity_uniform, 0.1f);
+		glUniform1f(_scale_plane_opacity_uniform, 0.5f);
 		glDrawArraysInstanced(GL_LINES, 0, _scale_plane_num_vertices, count);
 
 		// Reset OpenGL state
@@ -298,7 +298,7 @@ namespace vis
 
 		// MVP calculation
 		constexpr float height_scale = .5f;
-		auto model = scale(mat4{1.f}, vec3{_fields.front().aspect_ratio(), 1.f, height_scale} * _model_scale);
+		auto model = translate(scale(mat4{}, vec3{_fields.front().aspect_ratio(), 1.f, height_scale} * _model_scale), vec3{0.f, 0.f, -.5f});
 		auto view = lookAt(_cam_position, vec3(0.f), vec3{0.f, 0.f, 1.f});
 		auto proj = ortho(-_input.get_framebuffer_aspect_ratio(), _input.get_framebuffer_aspect_ratio(), -1.f, 1.f, -20.f, 20.f);
 		//		auto proj = perspective(radians(45.f), static_cast<float>(framebuffer_size.x)/framebuffer_size.y, .2f, 20.f);
