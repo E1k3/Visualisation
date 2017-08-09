@@ -6,6 +6,7 @@ layout(location = 2) in vec4 var;
 layout(location = 3) in vec4 weight;
 
 out float intensity;
+out float indicator;
 
 uniform mat4 mvp;
 uniform vec4 bounds;
@@ -29,5 +30,6 @@ void main()
 	        norm_var.w * float(t >= weight_.z);
 
 	gl_Position = mvp*vec4(pos, mean_, 1.f);
-	intensity = var_ - 10 * float(mean.x == 0.f && var.x == 0.f && weight.x == 1.f);
+	intensity = var_;
+	indicator = 1.f - 1000.f * float(mean.x == 0.f && var.x == 0.f && weight.x == 1.f);
 }

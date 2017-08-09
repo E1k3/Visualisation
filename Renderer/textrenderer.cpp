@@ -14,6 +14,10 @@ namespace vis
 	TextRenderer::TextRenderer(unsigned height, const std::string& font)
 		: Renderer{}
 	{
+		constexpr FT_ULong begin_char = 32;
+		constexpr FT_ULong end_char = 128;
+		constexpr int char_spacing = 1;
+
 		// Load FT2
 		FT_Library ft;
 		if(FT_Init_FreeType(&ft))
@@ -37,7 +41,7 @@ namespace vis
 
 		// Gather char dimensions
 		auto glyph = face->glyph;
-		for(FT_ULong i = 32; i < 128; ++i)
+		for(FT_ULong i = begin_char; i < end_char; ++i)
 		{
 			if(FT_Load_Char(face, i, FT_LOAD_RENDER))
 			{
@@ -46,7 +50,7 @@ namespace vis
 				continue;
 			}
 
-			_atlas_width += glyph->bitmap.width;
+			_atlas_width += glyph->bitmap.width + char_spacing;	// 1px space between chars prevents artifacts due to uv interpolation
 			_atlas_height = std::max(_atlas_height, static_cast<int>(glyph->bitmap.rows));
 		}
 
@@ -64,7 +68,7 @@ namespace vis
 
 		int x_offset = 0;
 		_glyphs.resize(128);
-		for(FT_ULong i = 32; i < 128; ++i)
+		for(FT_ULong i = begin_char; i < end_char; ++i)
 		{
 			if(FT_Load_Char(face, i, FT_LOAD_RENDER))
 				continue;
@@ -76,7 +80,7 @@ namespace vis
 			_glyphs[i].bearing = glm::vec2(glyph->bitmap_left, glyph->bitmap_top);
 			_glyphs[i].atlas_offset = static_cast<float>(x_offset) / _atlas_width;
 
-			x_offset += glyph->bitmap.width;
+			x_offset += glyph->bitmap.width + char_spacing;	// 1px space between chars prevents artifacts due to uv interpolation
 		}
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);	// Reset unpack alignment to default value
 

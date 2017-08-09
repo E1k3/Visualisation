@@ -275,7 +275,7 @@ namespace vis
 
 		// Input handling
 		using namespace glm;
-		constexpr float mousespeed = 0.001f;
+		constexpr float mousespeed = 0.0005f;
 		constexpr float scrollspeed = 0.05f;
 		auto cursor_x = _input.get_cursor_offset_x();
 		auto cursor_y = _input.get_cursor_offset_y();
@@ -315,7 +315,7 @@ namespace vis
 		glDrawElements(GL_TRIANGLES, _num_vertices, GL_UNSIGNED_INT, 0);
 
 		_scale_plane_text.set_viewport(framebuffer_size);
-		draw_scale_planes(mvp, static_cast<int>(height_scale*10));
+		draw_scale_planes(mvp, static_cast<int>(height_scale*20));
 
 		// Render palette
 		_palette.set_divisions(8);
