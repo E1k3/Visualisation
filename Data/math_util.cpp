@@ -5,8 +5,9 @@
 #include <algorithm>
 #include <limits>
 #include <random>
-
 #include <iostream>
+
+#include <gsl/gsl_assert>
 
 namespace vis
 {
@@ -27,7 +28,7 @@ namespace vis
 
 	float math_util::normal_density(float x, float mean, float variance)
 	{
-		if(variance <= 0.f)
+		if(variance == 0.f)
 			return 0.f;
 		constexpr float pi = static_cast<float>(M_PI);
 		return (1 / (std::sqrt( 2 * pi * variance))) * std::exp(- square(x - mean) / (2 * variance));
@@ -109,10 +110,9 @@ namespace vis
 
 	std::vector<math_util::GMMComponent> math_util::fit_gmm(const std::vector<float>& samples, unsigned max_components)
 	{
-		if(max_components == 0)
-			return {};
+		Expects(max_components != 0);
 
-		// Initialize result with single gauss MLE
+		// Initialize with single gauss MLE
 		auto result = std::vector<GMMComponent>{{}};
 		result.push_back({});
 		result.front()._mean = mean(samples);
@@ -121,7 +121,7 @@ namespace vis
 
 		auto min_aic = gmm_aic(samples, result, fit_gmm_component_penalty_factor);
 
-		// Try GMMs with [2, max_components] components
+		// Try MLE GMMs with [2, max_components] components
 		// k = current number of components
 		for(unsigned k = 2; k <= max_components; ++k)
 		{
@@ -221,9 +221,8 @@ namespace vis
 
 	unsigned math_util::count_peaks(const std::vector<float>& samples, unsigned num_bins)
 	{
+		Expects(num_bins > 1);
 		auto bins = std::vector<unsigned>(num_bins);
-		if(bins.size() <= 2)
-			return {};
 
 		const float min = *std::min_element(samples.begin(), samples.end());
 		const float max = *std::max_element(samples.begin(), samples.end());
@@ -284,7 +283,7 @@ namespace vis
 		auto bin_width = (max - min) / (bins.size()-1);
 		for(int i = 0; i < static_cast<int>(bins.size()); ++i)
 			bins[static_cast<size_t>(i)] = std::count_if(samples_in_range.begin(), samples_in_range.end(),
-																		  [&i, &bin_width, &min] (const auto& s) { return s >= min + i * bin_width && s < min + i * (bin_width+1); });
+														 [&i, &bin_width, &min] (const auto& s) { return s >= min + i * bin_width && s < min + i * (bin_width+1); });
 
 		int max_i = 0;
 		for(int i = 1; i < static_cast<int>(bins.size()); ++i)
@@ -317,14 +316,25 @@ namespace vis
 	{
 		if(num_picks >= samples.size())
 			return {};
-
-		auto re = std::default_random_engine{std::random_device{}()};
-		for(unsigned i = 0; i < num_picks; ++i)
-		{
-			auto dist = std::uniform_int_distribution<size_t>{i, samples.size()-1};
-			std::swap(samples[i], samples[dist(re)]);
-		}
+		std::random_shuffle(samples.begin(), samples.end());
 		samples.resize(num_picks);
 		return samples;
+	}
+
+	std::vector<int> math_util::find_integer_divisions(float min, float max, int num_divisions)
+	{
+		Expects(min < max);
+		float r_min = std::round(min);
+		float r_max = std::round(max);
+		int offset = static_cast<int>(std::round((r_max - r_min) / num_divisions));
+
+		if(std::abs(offset) <= 1)
+			return {};
+
+		auto divs = std::vector<int>();
+		for(int i = static_cast<int>(r_min); i <= r_max; i+=offset)
+			divs.push_back(i);
+
+		return divs;
 	}
 }

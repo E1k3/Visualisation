@@ -154,6 +154,8 @@ namespace vis
 		 * @return The collection that contains all picks.
 		 */
 		std::vector<float> pick_randomly(std::vector<float> samples, unsigned num_picks);
+
+		std::vector<int> find_integer_divisions(float min, float max, int num_divisions);
 	}
 }
 

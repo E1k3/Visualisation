@@ -24,12 +24,16 @@ namespace vis
 		void draw(float delta_time, float total_time) override;
 
 	private:
+		void update();
+
 		TextRenderer _text{};
+		std::vector<std::string> _text_lines{};
+		std::vector<glm::vec2> _text_positions{};
 
 		glm::vec2 _position{0.f};
 		glm::vec2 _size{1.f};
 		glm::ivec2 _viewport{1};
-		glm::vec2 _bounds{0.f};
+		glm::vec2 _bounds{0.f, 1.f};
 		int _divisions{5};
 
 		GLint _position_uniform{0};

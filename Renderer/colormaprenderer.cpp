@@ -1,14 +1,15 @@
 #include "colormaprenderer.h"
 
 #include <vector>
+#include <algorithm>
+
+#include "Data/math_util.h"
 
 namespace vis
 {
 	ColormapRenderer::ColormapRenderer()
 		: Renderer{}
 	{
-		set_divisions(_divisions);
-
 		_vao = gen_vao();
 		glBindVertexArray(_vao);
 
@@ -44,36 +45,53 @@ namespace vis
 		_size_uniform = glGetUniformLocation(_program, "scale");
 		_viewport_uniform = glGetUniformLocation(_program, "viewport");
 		_division_uniform = glGetUniformLocation(_program, "divisions");
+
+		update();
 	}
 
 	void ColormapRenderer::set_position(const glm::vec2& position)
 	{
 		if(_position != position)
+		{
 			_position = position;
+			update();
+		}
 	}
 
 	void ColormapRenderer::set_size(const glm::vec2& size)
 	{
 		if(_size != size)
+		{
 			_size = size;
+			update();
+		}
 	}
 
 	void ColormapRenderer::set_viewport(const glm::ivec2& viewport)
 	{
 		if(_viewport != viewport)
+		{
 			_viewport = viewport;
+			update();
+		}
 	}
 
 	void ColormapRenderer::set_bounds(const glm::vec2& bounds)
 	{
 		if(_bounds != bounds)
+		{
 			_bounds = bounds;
+			update();
+		}
 	}
 
 	void ColormapRenderer::set_divisions(int divisions)
 	{
 		if(_divisions != divisions)
+		{
 			_divisions = std::max(divisions, 1);
+			update();
+		}
 	}
 
 	void ColormapRenderer::draw(float delta_time, float total_time)
@@ -93,17 +111,26 @@ namespace vis
 		if(depthtest)
 			glEnable(GL_DEPTH_TEST);
 
-		auto lines = std::vector<std::string>(static_cast<size_t>(_divisions+1));
-		auto line_positions = std::vector<glm::vec2>(static_cast<size_t>(_divisions+1));
+		_text.draw(delta_time, total_time);
+	}
+
+	void ColormapRenderer::update()
+	{
+		//auto divisions = math_util::find_integer_divisions(_bounds.x, _bounds.y, _divisions);
+
+		_text_lines = std::vector<std::string>(static_cast<size_t>(_divisions+1));
+		_text_positions = std::vector<glm::vec2>(static_cast<size_t>(_divisions+1));
+
+//		std::transform(divisions.begin(), divisions.end(), _text_lines.begin(), [](const auto& x) { return std::to_string(x); });
+//		std::transform(divisions.begin(), divisions.end(), _text_positions.begin(), [&](const auto& x) { return glm::vec2{static_cast<float>(x) / (_bounds.y - _bounds.x), -.8f}; } );
+
 		for(int i = 0; i <= _divisions; ++i)
 		{
-			lines[static_cast<size_t>(i)] = std::to_string(_bounds.x + ((_bounds.y - _bounds.x) / _divisions) * i);
-			line_positions[static_cast<size_t>(i)] = glm::vec2(_position.x + (_size.x / _divisions) * i, _position.y + _size.y);
+			_text_lines[static_cast<size_t>(i)] = std::to_string(_bounds.x + ((_bounds.y - _bounds.x) / _divisions) * i);
+			_text_positions[static_cast<size_t>(i)] = glm::vec2(_position.x + (_size.x / _divisions) * i, _position.y + _size.y);
 		}
-		_text.set_lines(lines);
-		_text.set_positions(line_positions);
+		_text.set_lines(_text_lines);
+		_text.set_positions(_text_positions);
 		_text.set_viewport(_viewport);
-
-		_text.draw(delta_time, total_time);
 	}
 }
