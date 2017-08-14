@@ -4,7 +4,7 @@ layout(location = 0) in vec2 pos;
 layout(location = 1) in float mean;
 layout(location = 2) in float var;
 
-flat out float intensity;
+out float intensity;
 out float indicator;
 
 uniform mat4 mvp;

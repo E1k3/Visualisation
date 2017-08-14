@@ -1,7 +1,8 @@
-#include <string>
+#define GSL_THROW_ON_CONTRACT_VIOLATION
 
 #include "application.h"
 #include "logger.h"
+
 
 using namespace vis;
 
@@ -17,5 +18,7 @@ int main(int /*argc*/, char */*argv*/[])
 	{
 		Logger::instance() << Logger::Severity::ERROR
 						   << "Terminating program due to exception: " << e.what();
+		return -1;
 	}
+	return 0;
 }

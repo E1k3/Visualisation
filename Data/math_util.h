@@ -2,6 +2,7 @@
 #define MATH_UTIL_H
 
 #include <vector>
+#include <tuple>
 
 namespace vis
 {
@@ -147,7 +148,7 @@ namespace vis
 		float pick_randomly(const std::vector<float>& samples);
 
 		/**
-		 * @brief pick_randomly Picks a collection of floats from a collection of possible values.
+		 * @brief pick_randomly Picks a collection of random floats from a collection of possible values.
 		 * No multiple picks of the same indices.
 		 * @param samples Collection of possible values.
 		 * @param num_picks Number of picks.
@@ -155,7 +156,7 @@ namespace vis
 		 */
 		std::vector<float> pick_randomly(std::vector<float> samples, unsigned num_picks);
 
-		std::vector<int> find_integer_divisions(float min, float max, int num_divisions);
+		std::tuple<float, float> round_interval(float lower_bound, float upper_bound);
 	}
 }
 

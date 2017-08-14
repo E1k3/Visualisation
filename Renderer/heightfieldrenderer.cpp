@@ -10,6 +10,7 @@
 #include <glm/gtx/rotate_vector.hpp>
 
 #include "logger.h"
+#include "Data/math_util.h"
 
 namespace vis
 {
@@ -93,9 +94,14 @@ namespace vis
 		glDeleteShader(fragment_shader);
 
 		glUseProgram(_program);
+
+		// Get uniform locations
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
-		_bounds = glm::vec4(mean_field.minima()[0], mean_field.maxima()[0], dev_field.minima()[0], dev_field.maxima()[0]);
+
+		// Set interval bounds
+		std::tie(_bounds.x, _bounds.y) = math_util::round_interval(mean_field.minima()[0], mean_field.maxima()[0]);
+		std::tie(_bounds.z, _bounds.w) = math_util::round_interval(dev_field.minima()[0], dev_field.maxima()[0]);
 	}
 
 	void HeightfieldRenderer::init_gmm()
@@ -167,10 +173,15 @@ namespace vis
 		glDeleteShader(fragment_shader);
 
 		glUseProgram(_program);
+
+		// Get uniform locations
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
 		_time_uniform = glGetUniformLocation(_program, "time");
-		_bounds = glm::vec4(mean_field.minimum(), mean_field.maximum(), dev_field.minimum(), dev_field.maximum());
+
+		// Set interval bounds
+		std::tie(_bounds.x, _bounds.y) = math_util::round_interval(mean_field.minimum(), mean_field.maximum());
+		std::tie(_bounds.z, _bounds.w) = math_util::round_interval(dev_field.minimum(), dev_field.maximum());
 	}
 
 	void HeightfieldRenderer::init_scale_planes(int divisions)
@@ -315,14 +326,14 @@ namespace vis
 		glDrawElements(GL_TRIANGLES, _num_vertices, GL_UNSIGNED_INT, 0);
 
 		_scale_plane_text.set_viewport(framebuffer_size);
-		draw_scale_planes(mvp, static_cast<int>(height_scale*20));
+		draw_scale_planes(mvp, 6);
 
 		// Render palette
-		_palette.set_divisions(8);
+		_palette.set_divisions(10);
 		_palette.set_bounds({_bounds.z, _bounds.w});
 		_palette.set_viewport(framebuffer_size);
 		_palette.set_position({-.75f, -1.f});
-		_palette.set_size({1.5f, .1f});
+		_palette.set_size({1.5f, .05f});
 		_palette.draw(delta_time, total_time);
 	}
 }

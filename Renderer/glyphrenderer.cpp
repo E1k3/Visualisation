@@ -9,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "logger.h"
+#include "Data/math_util.h"
 
 namespace vis
 {
@@ -108,11 +109,15 @@ namespace vis
 
 		glUseProgram(_program);
 
+		// Get uniform locations and set constant uniforms
 		glUniform1i(glGetUniformLocation(_program, "mask"), 0);
 		glUniform2i(glGetUniformLocation(_program, "field_size"), mean_field.width(), mean_field.height());
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
-		_bounds = glm::vec4(mean_field.minima()[0], mean_field.maxima()[0], dev_field.minima()[0], dev_field.maxima()[0]);
+
+		// Set interval bounds
+		std::tie(_bounds.x, _bounds.y) = math_util::round_interval(mean_field.minima()[0], mean_field.maxima()[0]);
+		std::tie(_bounds.z, _bounds.w) = math_util::round_interval(dev_field.minima()[0], dev_field.maxima()[0]);
 	}
 
 	void GlyphRenderer::init_gmm(const std::vector<Field>& fields)
@@ -208,11 +213,15 @@ namespace vis
 
 		glUseProgram(_program);
 
+		// Get uniform locations and set constant uniforms
 		glUniform1i(glGetUniformLocation(_program, "mask"), 0);
 		glUniform2i(glGetUniformLocation(_program, "field_size"), mean_field.width(), mean_field.height());
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
-		_bounds = glm::vec4(mean_field.minimum(), mean_field.maximum(), dev_field.minimum(), dev_field.maximum());
+
+		// Set interval bounds
+		std::tie(_bounds.x, _bounds.y) = math_util::round_interval(mean_field.minimum(), mean_field.maximum());
+		std::tie(_bounds.z, _bounds.w) = math_util::round_interval(dev_field.minimum(), dev_field.maximum());
 	}
 
 	void GlyphRenderer::draw(float delta_time, float total_time)

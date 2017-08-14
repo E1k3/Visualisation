@@ -321,20 +321,34 @@ namespace vis
 		return samples;
 	}
 
-	std::vector<int> math_util::find_integer_divisions(float min, float max, int num_divisions)
+	std::tuple<float, float> math_util::round_interval(float lower_bound, float upper_bound)
 	{
-		Expects(min < max);
-		float r_min = std::round(min);
-		float r_max = std::round(max);
-		int offset = static_cast<int>(std::round((r_max - r_min) / num_divisions));
+		Expects(lower_bound <= upper_bound);
 
-		if(std::abs(offset) <= 1)
-			return {};
+		if(upper_bound - lower_bound <= std::numeric_limits<float>::min())
+			return std::make_tuple(lower_bound, upper_bound);
 
-		auto divs = std::vector<int>();
-		for(int i = static_cast<int>(r_min); i <= r_max; i+=offset)
-			divs.push_back(i);
+		constexpr auto max_rounding_error = .1f;
+		constexpr auto accuracy_factor = 10;
 
-		return divs;
+		auto interval_width = upper_bound - lower_bound;
+		auto lower_rounded = std::floor(lower_bound);
+		auto upper_rounded = std::ceil(upper_bound);
+
+		int factor = accuracy_factor;
+		while(lower_bound - lower_rounded > interval_width * max_rounding_error)
+		{
+			lower_rounded = std::floor(lower_bound * factor) / factor;
+			factor *= accuracy_factor;
+		}
+
+		factor = accuracy_factor;
+		while(upper_rounded - upper_bound > interval_width * max_rounding_error)
+		{
+			upper_rounded = std::ceil(upper_bound * factor) / factor;
+			factor *= accuracy_factor;
+		}
+
+		return std::make_tuple(lower_rounded, upper_rounded);
 	}
 }
