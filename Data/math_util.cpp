@@ -1,6 +1,5 @@
 #include "math_util.h"
 
-#include <cmath>
 #include <random>
 #include <algorithm>
 #include <limits>
@@ -30,7 +29,6 @@ namespace vis
 	{
 		if(variance == 0.f)
 			return 0.f;
-		constexpr float pi = static_cast<float>(M_PI);
 		return (1 / (std::sqrt( 2 * pi * variance))) * std::exp(- square(x - mean) / (2 * variance));
 	}
 

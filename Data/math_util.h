@@ -3,11 +3,14 @@
 
 #include <vector>
 #include <tuple>
+#include <cmath>
 
 namespace vis
 {
 	namespace math_util
 	{
+		constexpr float pi = static_cast<float>(M_PI);
+
 		constexpr bool fit_gmm_random_init = false;
 		constexpr int fit_gmm_random_init_tries = 10;
 		constexpr int fit_gmm_max_iterations = 30;
