@@ -332,8 +332,6 @@ namespace vis
 		_palette.set_divisions(10);
 		_palette.set_bounds({_bounds.z, _bounds.w});
 		_palette.set_viewport(framebuffer_size);
-		_palette.set_position({-.75f, -1.f});
-		_palette.set_size({1.5f, .05f});
 		_palette.draw(delta_time, total_time);
 	}
 }

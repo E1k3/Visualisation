@@ -116,13 +116,8 @@ namespace vis
 
 	void ColormapRenderer::update()
 	{
-		//auto divisions = math_util::find_integer_divisions(_bounds.x, _bounds.y, _divisions);
-
 		_text_lines = std::vector<std::string>(static_cast<size_t>(_divisions+1));
 		_text_positions = std::vector<glm::vec2>(static_cast<size_t>(_divisions+1));
-
-//		std::transform(divisions.begin(), divisions.end(), _text_lines.begin(), [](const auto& x) { return std::to_string(x); });
-//		std::transform(divisions.begin(), divisions.end(), _text_positions.begin(), [&](const auto& x) { return glm::vec2{static_cast<float>(x) / (_bounds.y - _bounds.x), -.8f}; } );
 
 		for(int i = 0; i <= _divisions; ++i)
 		{

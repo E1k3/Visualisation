@@ -13,6 +13,17 @@ namespace vis
 		explicit InputManager() = default;
 
 		/**
+		 * @brief reset Resets all saved offsets and key states.
+		 */
+		void reset();
+
+		/**
+		 * @brief set_window_focused Call this to notify the input manager of un-/focussing of the window.
+		 * @param focused The current state if input focussing
+		 */
+		void set_window_focused(bool focused);
+
+		/**
 		 * @brief press_key Saves the pressed key until it is released and requested.
 		 * @param keycode The keycode of the pressed key.
 		 */
@@ -117,6 +128,8 @@ namespace vis
 		float get_framebuffer_aspect_ratio() const;
 
 	private:
+		bool _window_focused{true};
+
 		std::map<int, bool> _pressed;
 		std::map<int, bool> _released;
 

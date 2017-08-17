@@ -30,11 +30,11 @@ namespace vis
 		std::vector<std::string> _text_lines{};
 		std::vector<glm::vec2> _text_positions{};
 
-		glm::vec2 _position{0.f};
-		glm::vec2 _size{1.f};
+		glm::vec2 _position{-.75f, -1.f};
+		glm::vec2 _size{1.5f, .05f};
 		glm::ivec2 _viewport{1};
 		glm::vec2 _bounds{0.f, 1.f};
-		int _divisions{5};
+		int _divisions{10};
 
 		GLint _position_uniform{0};
 		GLint _size_uniform{0};

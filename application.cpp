@@ -38,7 +38,7 @@ namespace vis
 			// TODO:ERROR handling
 			throw std::runtime_error("GLFW window creation failed");
 		}
-		glfwMakeContextCurrent(&*_window);
+		glfwMakeContextCurrent(_window.get());
 
 		//DBG
 		Logger::instance() << Logger::Severity::DEBUG
@@ -64,7 +64,7 @@ namespace vis
 	{
 		// Set up input manager
 		auto input = InputManager{};
-		glfwSetWindowUserPointer(&*_window, &input);
+		glfwSetWindowUserPointer(_window.get(), &input);
 
 		auto key_callback = [] (GLFWwindow* window, int keycode, int /*scancode*/, int action, int /*mods*/)
 		{
@@ -79,28 +79,34 @@ namespace vis
 					break;
 				}
 		};
-		glfwSetKeyCallback(&*_window, key_callback);
+		glfwSetKeyCallback(_window.get(), key_callback);
 
-		glfwSetInputMode(&*_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetInputMode(_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		auto cursor_callback = [] (GLFWwindow* window, double x, double y)
 		{
 			if(glfwGetWindowUserPointer(window))
 				static_cast<InputManager*>(glfwGetWindowUserPointer(window))->set_cursor(static_cast<float>(x), static_cast<float>(y));
 		};
-		glfwSetCursorPosCallback(&*_window, cursor_callback);
+		glfwSetCursorPosCallback(_window.get(), cursor_callback);
 		auto scroll_callback = [] (GLFWwindow* window, double x, double y)
 		{
 			if(glfwGetWindowUserPointer(window))
 				static_cast<InputManager*>(glfwGetWindowUserPointer(window))->add_scroll_offset(static_cast<int>(x), static_cast<int>(y));
 		};
-		glfwSetScrollCallback(&*_window, scroll_callback);
+		glfwSetScrollCallback(_window.get(), scroll_callback);
 		auto framebuffer_callback = [] (GLFWwindow* window, int x, int y)
 		{
 			glViewport(0, 0, x, y);
 			if(glfwGetWindowUserPointer(window))
 				static_cast<InputManager*>(glfwGetWindowUserPointer(window))->resize_framebuffer(x, y);
 		};
-		glfwSetFramebufferSizeCallback(&*_window, framebuffer_callback);
+		glfwSetFramebufferSizeCallback(_window.get(), framebuffer_callback);
+		auto focus_callback = [] (GLFWwindow* window, int focused)
+		{
+			if(glfwGetWindowUserPointer(window))
+				static_cast<InputManager*>(glfwGetWindowUserPointer(window))->set_window_focused(focused == GLFW_TRUE);
+		};
+		glfwSetWindowFocusCallback(_window.get(), focus_callback);
 
 		if(true)	// true->STUDYMODE
 		{
@@ -171,10 +177,10 @@ namespace vis
 
 		glEnable(GL_DEPTH_TEST);
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glfwShowWindow(&*_window);
+		glfwShowWindow(_window.get());
 
 		// Event loop
-		while(!glfwWindowShouldClose(&*_window))
+		while(!glfwWindowShouldClose(_window.get()))
 		{
 			auto new_time = glfwGetTime();
 			_delta = static_cast<float>(new_time - time);
@@ -183,7 +189,7 @@ namespace vis
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			renderer->draw(_delta, static_cast<float>(time));
 
-			glfwSwapBuffers(&*_window);
+			glfwSwapBuffers(_window.get());
 			glfwPollEvents();
 		}
 

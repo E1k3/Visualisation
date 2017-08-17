@@ -3,15 +3,37 @@
 #include <iostream>
 namespace vis
 {
+	void InputManager::reset()
+	{
+		for(auto& kv : _pressed)
+			kv.second = false;
+		for(auto& kv : _released)
+			kv.second = true;
+
+		_cursor_offset = glm::vec2{0.f};
+		_scroll_offset = glm::ivec2{0};
+	}
+
+	void InputManager::set_window_focused(bool focused)
+	{
+		if(_window_focused != focused)
+			reset();
+		_window_focused = focused;
+	}
+
 	void InputManager::press_key(int keycode)
 	{
-		_pressed[keycode] = true;
-		_released[keycode] = false;
+		if(_window_focused)
+		{
+			_pressed[keycode] = true;
+			_released[keycode] = false;
+		}
 	}
 
 	void InputManager::release_key(int keycode)
 	{
-		_released[keycode] = true;
+		if(_window_focused)
+			_released[keycode] = true;
 	}
 
 	bool InputManager::get_key(int keycode)
@@ -26,14 +48,18 @@ namespace vis
 
 	void InputManager::set_cursor(float x_pos, float y_pos)
 	{
-		set_cursor(glm::vec2{x_pos, y_pos});
+		if(_window_focused)
+			set_cursor(glm::vec2{x_pos, y_pos});
 	}
 
 	void InputManager::set_cursor(glm::vec2	position)
 	{
-		if(_cursor_pos != glm::vec2{})
-			_cursor_offset += _cursor_pos - position;
-		_cursor_pos = position;
+		if(_window_focused)
+		{
+			if(_cursor_pos != glm::vec2{})
+				_cursor_offset += _cursor_pos - position;
+			_cursor_pos = position;
+		}
 	}
 
 	glm::vec2 InputManager::get_cursor_position() const
@@ -74,18 +100,20 @@ namespace vis
 
 	void InputManager::add_scroll_offset(glm::ivec2 offset)
 	{
-		_scroll_offset += offset;
+		if(_window_focused)
+			_scroll_offset += offset;
 	}
 
 	void InputManager::add_scroll_offset(int x_offset, int y_offset)
 	{
-		_scroll_offset += glm::ivec2(x_offset, y_offset);
+		if(_window_focused)
+			_scroll_offset += glm::ivec2(x_offset, y_offset);
 	}
 
 	glm::ivec2 InputManager::get_scroll_offset()
 	{
 		auto offset = _scroll_offset;
-		_scroll_offset = glm::ivec2{};
+		_scroll_offset = glm::ivec2{0};
 		return offset;
 	}
 
@@ -105,12 +133,14 @@ namespace vis
 
 	void InputManager::resize_framebuffer(int x, int y)
 	{
-		resize_framebuffer(glm::ivec2(x, y));
+		if(_window_focused)
+			resize_framebuffer(glm::ivec2(x, y));
 	}
 
 	void InputManager::resize_framebuffer(glm::ivec2 size)
 	{
-		_framebuffer_size = size;
+		if(_window_focused)
+			_framebuffer_size = size;
 	}
 
 	glm::ivec2 InputManager::get_framebuffer_size() const
