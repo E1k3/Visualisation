@@ -110,7 +110,7 @@ namespace vis
 
 		if(true)	// true->STUDYMODE
 		{
-			constexpr int step_index_input = 1300;
+			constexpr int step_index_input = 300;
 			constexpr int aggregation_count = 1;
 			constexpr int aggregation_stride = 4;
 			constexpr int field_index_input = 2;

@@ -122,7 +122,7 @@ namespace vis
 		for(int i = 0; i <= _divisions; ++i)
 		{
 			_text_lines[static_cast<size_t>(i)] = std::to_string(_bounds.x + ((_bounds.y - _bounds.x) / _divisions) * i);
-			_text_positions[static_cast<size_t>(i)] = glm::vec2(_position.x + (_size.x / _divisions) * i, _position.y + _size.y);
+			_text_positions[static_cast<size_t>(i)] = glm::vec2(_position.x + (_size.x / _divisions) * i, _position.y + _size.y * 1.1f);
 		}
 		_text.set_lines(_text_lines);
 		_text.set_positions(_text_positions);
