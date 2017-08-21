@@ -4,6 +4,7 @@ in vec2 fs_uv;
 in vec4 fs_mean;
 in vec4 fs_var;
 in vec4 fs_weight;
+in float fs_indicator;
 
 out vec4 color;
 
@@ -14,7 +15,7 @@ vec3 palette(float x);
 
 void main()
 {
-	if(fs_weight.x <= 0.f)
+	if(fs_indicator < 0.f)
 		discard;
 
 	vec4 weightsum = vec4(fs_weight.x, fs_weight.x+fs_weight.y, fs_weight.x+fs_weight.y+fs_weight.z, fs_weight.x+fs_weight.y+fs_weight.z+fs_weight.w) * (1 - dot_radius) + dot_radius;

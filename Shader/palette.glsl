@@ -53,9 +53,9 @@ vec3 palette(float x)
 //	color = vec3(1.f-x, 0.f, x);
 //	color = vec3(0.f, 1.f-x, x);
 
-	color = _palette_interpolate_(x);
+//	color = _palette_interpolate_(x);
 
-//	color = vec3(sqrt(x), pow(x,3.f), clamp(sin(2.f * _palette_pi_ * x), 0.f, 1.f));
+	color = vec3(sqrt(x), pow(x,3.f), clamp(sin(2.f * _palette_pi_ * x), 0.f, 1.f));
 
 	return color;
 }

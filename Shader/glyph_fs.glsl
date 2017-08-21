@@ -2,6 +2,7 @@
 
 in vec2 fs_uv;
 in vec2 fs_data; // (mean, dev)
+in float fs_indicator;
 
 out vec4 color;
 
@@ -11,7 +12,7 @@ vec3 palette(float x);
 
 void main()
 {
-	if(fs_data.x < 0.f && fs_data.y < 0.f)
+	if(fs_indicator < 0.f)
 		discard;
 
 	vec3 mask = texture(mask, fs_uv).rgb;

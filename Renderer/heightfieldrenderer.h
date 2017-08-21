@@ -38,12 +38,14 @@ namespace vis
 		ColormapRenderer _palette;
 
 		TextRenderer _scale_plane_text;
-
 		GLuint _vao{0};
 		GLuint _program{0};
-
 		GLuint _scale_plane_vao{0};
 		GLuint _scale_plane_program{0};
+		int _scale_plane_num_vertices{0};
+		GLint _scale_plane_mvp_uniform{0};
+		GLint _scale_plane_count_uniform{0};
+		GLint _scale_plane_opacity_uniform{0};
 
 
 		int _num_vertices{0};
@@ -51,14 +53,12 @@ namespace vis
 		GLint _bounds_uniform{0};
 		GLint _time_uniform{0};
 
-		int _scale_plane_num_vertices{0};
-		GLint _scale_plane_mvp_uniform{0};
-		GLint _scale_plane_count_uniform{0};
-		GLint _scale_plane_opacity_uniform{0};
+		GLint _highlight_uniform{0};
 
 		glm::vec4 _bounds;
 		glm::vec3 _cam_position{-1.8f, -1.8f, 1.8f};
 		float _model_scale{1.f};
+		bool _ortho_projection{true};
 	};
 }
 

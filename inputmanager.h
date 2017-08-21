@@ -12,6 +12,8 @@ namespace vis
 	public:
 		explicit InputManager() = default;
 
+		void set_paused(bool paused);
+
 		/**
 		 * @brief reset Resets all saved offsets and key states.
 		 */
@@ -36,7 +38,7 @@ namespace vis
 
 		/**
 		 * @brief get_key Returns the status of a key.
-		 * Resets the pressed status if it was released befor this function was called.
+		 * Resets the pressed status if it was released before this function was called.
 		 * @param keycode The keycode of the requested key.
 		 * @return The status of the requested key.
 		 */
@@ -128,6 +130,7 @@ namespace vis
 		float get_framebuffer_aspect_ratio() const;
 
 	private:
+		bool _paused{false};
 		bool _window_focused{true};
 
 		std::map<int, bool> _pressed;

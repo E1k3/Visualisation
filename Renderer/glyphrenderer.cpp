@@ -114,6 +114,7 @@ namespace vis
 		glUniform2i(glGetUniformLocation(_program, "field_size"), mean_field.width(), mean_field.height());
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
+		_highlight_uniform = glGetUniformLocation(_program, "highlight_area");
 
 		// Set interval bounds
 		std::tie(_bounds.x, _bounds.y) = math_util::round_interval(mean_field.minima()[0], mean_field.maxima()[0]);
@@ -218,6 +219,7 @@ namespace vis
 		glUniform2i(glGetUniformLocation(_program, "field_size"), mean_field.width(), mean_field.height());
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
+		_highlight_uniform = glGetUniformLocation(_program, "highlight_area");
 
 		// Set interval bounds
 		std::tie(_bounds.x, _bounds.y) = math_util::round_interval(mean_field.minimum(), mean_field.maximum());

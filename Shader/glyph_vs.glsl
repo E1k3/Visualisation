@@ -6,6 +6,7 @@ layout(location = 2) in float var;
 
 out vec2 gs_pos;
 out vec2 gs_data;
+out float gs_indicator;
 
 uniform mat4 mvp;
 uniform vec4 bounds;
@@ -13,5 +14,6 @@ uniform vec4 bounds;
 void main()
 {
 	gs_pos = pos;
-	gs_data = vec2((mean - bounds.x) / (bounds.y-bounds.x), var / (bounds.y - bounds.x)) - 10 * float(mean == 0.f && var == 0.f);
+	gs_data = vec2((mean - bounds.x) / (bounds.y-bounds.x), var / (bounds.y - bounds.x));
+	gs_indicator = 1.f - 10 * float(mean == 0.f && var == 0.f);
 }

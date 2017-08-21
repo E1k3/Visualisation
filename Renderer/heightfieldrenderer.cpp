@@ -98,6 +98,7 @@ namespace vis
 		// Get uniform locations
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
+		_highlight_uniform = glGetUniformLocation(_program, "highlight_area");
 
 		// Set interval bounds
 		std::tie(_bounds.x, _bounds.y) = math_util::round_interval(mean_field.minima()[0], mean_field.maxima()[0]);
@@ -178,6 +179,7 @@ namespace vis
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
 		_time_uniform = glGetUniformLocation(_program, "time");
+		_highlight_uniform = glGetUniformLocation(_program, "highlight_area");
 
 		// Set interval bounds
 		std::tie(_bounds.x, _bounds.y) = math_util::round_interval(mean_field.minimum(), mean_field.maximum());
@@ -195,15 +197,15 @@ namespace vis
 		for(int i = 0; i <= divisions; ++i)
 		{
 			auto idx = static_cast<size_t>(i * 8);
-			vertices[idx + 0] = i * 2.f / divisions - 1.f;
+			vertices[idx + 0] = i * 2.f / std::max(divisions , 1) - 1.f;
 			vertices[idx + 1] = -1.f;
-			vertices[idx + 2] = i * 2.f / divisions - 1.f;
+			vertices[idx + 2] = i * 2.f / std::max(divisions , 1) - 1.f;
 			vertices[idx + 3] = 1.f;
 
 			vertices[idx + 4] = -1.f;
-			vertices[idx + 5] = i * 2.f / divisions - 1.f;
+			vertices[idx + 5] = i * 2.f / std::max(divisions , 1) - 1.f;
 			vertices[idx + 6] = 1.f;
-			vertices[idx + 7] = i * 2.f / divisions - 1.f;
+			vertices[idx + 7] = i * 2.f / std::max(divisions , 1) - 1.f;
 		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
@@ -260,7 +262,7 @@ namespace vis
 		lines.reserve(static_cast<size_t>(count * 4));
 		auto positions = std::vector<glm::vec2>();
 		positions.reserve(static_cast<size_t>(count * 4));
-		float corners[4][2] = {{-1.f, -1.f}, {1.f, -1.f}, {-1.f, 1.f}, {1.f, 1.f}, };
+		float corners[4][2] = {{-1.f, -1.f}, {1.f, -1.f}, {-1.f, 1.f}, {1.f, 1.f}};
 		for(const auto& corner : corners)
 		{
 			for(int i = 0; i < count; ++i)
@@ -307,12 +309,18 @@ namespace vis
 		if(framebuffer_size == glm::ivec2{0})	// Prevent aspect ratio = 0/0
 			framebuffer_size = glm::ivec2{1};
 
+
+		_input.release_key(GLFW_KEY_SPACE);
+		if(_input.get_key(GLFW_KEY_SPACE))
+			_ortho_projection = !_ortho_projection;
+
 		// MVP calculation
 		constexpr float height_scale = .5f;
 		auto model = translate(scale(mat4{}, vec3{_fields.front().aspect_ratio(), 1.f, height_scale} * _model_scale), vec3{0.f, 0.f, -.5f});
 		auto view = lookAt(_cam_position, vec3(0.f), vec3{0.f, 0.f, 1.f});
 		auto proj = ortho(-_input.get_framebuffer_aspect_ratio(), _input.get_framebuffer_aspect_ratio(), -1.f, 1.f, -20.f, 20.f);
-		//		auto proj = perspective(radians(45.f), static_cast<float>(framebuffer_size.x)/framebuffer_size.y, .2f, 20.f);
+		if(!_ortho_projection)
+			proj = perspective(radians(45.f), static_cast<float>(framebuffer_size.x)/framebuffer_size.y, .2f, 20.f);
 		auto mvp = proj * view * model;
 		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
 
@@ -326,7 +334,7 @@ namespace vis
 		glDrawElements(GL_TRIANGLES, _num_vertices, GL_UNSIGNED_INT, 0);
 
 		_scale_plane_text.set_viewport(framebuffer_size);
-		draw_scale_planes(mvp, 6);
+		draw_scale_planes(mvp, 11);
 
 		// Render palette
 		_palette.set_divisions(10);

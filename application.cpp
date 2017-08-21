@@ -62,13 +62,22 @@ namespace vis
 
 	void Application::execute()
 	{
+		glfwSetInputMode(_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		// Set up input manager
 		auto input = InputManager{};
 		glfwSetWindowUserPointer(_window.get(), &input);
 
 		auto key_callback = [] (GLFWwindow* window, int keycode, int /*scancode*/, int action, int /*mods*/)
 		{
+			static auto paused = false;
 			if(glfwGetWindowUserPointer(window))
+			{
+				if(keycode == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
+				{
+					paused = !paused;
+					static_cast<InputManager*>(glfwGetWindowUserPointer(window))->set_paused(paused);
+				}
+
 				switch(action)
 				{
 				case GLFW_PRESS:
@@ -78,10 +87,13 @@ namespace vis
 					static_cast<InputManager*>(glfwGetWindowUserPointer(window))->release_key(keycode);
 					break;
 				}
+			}
+			if(!paused)
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			else
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		};
 		glfwSetKeyCallback(_window.get(), key_callback);
-
-		glfwSetInputMode(_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		auto cursor_callback = [] (GLFWwindow* window, double x, double y)
 		{
 			if(glfwGetWindowUserPointer(window))

@@ -35,6 +35,8 @@ namespace vis
 		GLint _mvp_uniform;
 		GLint _bounds_uniform;
 
+		GLint _highlight_uniform{0};
+
 		glm::vec4 _bounds{0.f};
 		glm::vec3 _translate{0.f};
 		float _scale{1.f};

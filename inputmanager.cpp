@@ -3,6 +3,13 @@
 #include <iostream>
 namespace vis
 {
+	void InputManager::set_paused(bool paused)
+	{
+		if(_paused && !paused)
+			reset();
+		_paused = paused;
+	}
+
 	void InputManager::reset()
 	{
 		for(auto& kv : _pressed)
@@ -23,7 +30,7 @@ namespace vis
 
 	void InputManager::press_key(int keycode)
 	{
-		if(_window_focused)
+		if(_window_focused && !_paused)
 		{
 			_pressed[keycode] = true;
 			_released[keycode] = false;
@@ -32,13 +39,13 @@ namespace vis
 
 	void InputManager::release_key(int keycode)
 	{
-		if(_window_focused)
+		if(_window_focused && !_paused)
 			_released[keycode] = true;
 	}
 
 	bool InputManager::get_key(int keycode)
 	{
-		if(_pressed[keycode])
+		if(_pressed[keycode] && !_paused)
 		{
 			_pressed[keycode] = !_released[keycode];
 			return true;
@@ -48,13 +55,13 @@ namespace vis
 
 	void InputManager::set_cursor(float x_pos, float y_pos)
 	{
-		if(_window_focused)
+		if(_window_focused && !_paused)
 			set_cursor(glm::vec2{x_pos, y_pos});
 	}
 
 	void InputManager::set_cursor(glm::vec2	position)
 	{
-		if(_window_focused)
+		if(_window_focused && !_paused)
 		{
 			if(_cursor_pos != glm::vec2{})
 				_cursor_offset += _cursor_pos - position;
@@ -100,13 +107,13 @@ namespace vis
 
 	void InputManager::add_scroll_offset(glm::ivec2 offset)
 	{
-		if(_window_focused)
+		if(_window_focused && !_paused)
 			_scroll_offset += offset;
 	}
 
 	void InputManager::add_scroll_offset(int x_offset, int y_offset)
 	{
-		if(_window_focused)
+		if(_window_focused && !_paused)
 			_scroll_offset += glm::ivec2(x_offset, y_offset);
 	}
 
