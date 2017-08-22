@@ -11,6 +11,7 @@ out float fs_indicator;
 uniform mat4 mvp;
 uniform vec4 bounds;
 uniform float time;
+uniform vec4 highlight_area;
 
 void main()
 {
@@ -31,5 +32,7 @@ void main()
 
 	gl_Position = mvp*vec4(pos, mean_, 1.f);
 	fs_intensity = var_;
-	fs_indicator = 1.f - 1000.f * float(mean.x == 0.f && var.x == 0.f && weight.x == 1.f);
+	fs_indicator = 1.f
+			+ 101.f * float(pos.x >= highlight_area.x && pos.y >= highlight_area.y && pos.x <= highlight_area.z && pos.y >= highlight_area.w)
+			- 100.f * float(mean.x == 0.f && var.x == 0.f && weight.x == 1.f);
 }

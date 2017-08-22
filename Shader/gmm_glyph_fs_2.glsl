@@ -17,6 +17,10 @@ void main()
 {
 	if(fs_indicator < 0.f)
 		discard;
+	if(fs_indicator > 0.f)
+	{
+
+	}
 
 	vec4 weightsum = vec4(fs_weight.x, fs_weight.x+fs_weight.y, fs_weight.x+fs_weight.y+fs_weight.z, fs_weight.x+fs_weight.y+fs_weight.z+fs_weight.w) * (1 - dot_radius) + dot_radius;
 	float distance = length(vec2(.5f) - fs_uv)*2.f;

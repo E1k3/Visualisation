@@ -17,6 +17,10 @@ void main()
 {
 	if(fs_indicator < 0.f)
 		discard;
+	if(fs_indicator > 0.f)
+	{
+
+	}
 
 	vec4 weightsum = vec4(fs_weight.x, fs_weight.x+fs_weight.y, fs_weight.x+fs_weight.y+fs_weight.z, fs_weight.x+fs_weight.y+fs_weight.z+fs_weight.w) * pi * 2.f;
 	vec3 mask = texture(mask, fs_uv).rgb;
