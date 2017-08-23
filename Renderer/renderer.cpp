@@ -16,9 +16,7 @@ namespace vis
 					  GL_GEOMETRY_SHADER};
 		if(std::find(types.begin(), types.end(), type) == types.end())
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Shader type is invalid.";
-			// TODO:ERROR handling. Shadertype is invalid.
+			Logger::error() << "Shader type is invalid.";
 			throw std::invalid_argument("Load Shader Error");
 		}
 		// Load code
@@ -52,10 +50,7 @@ namespace vis
 			log.resize(static_cast<unsigned>(logsize+1));
 			glGetShaderInfoLog(id, logsize+1, nullptr, &log[0]);
 
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Shader did not compile."
-							   << &log[0];
-			// TODO:ERROR handling. Shader compilation failed.
+			Logger::error() << "Shader did not compile." << &log[0];
 			throw std::runtime_error("Load Shader Error");
 		}
 
@@ -100,9 +95,8 @@ namespace vis
 	{
 		if(width < 0 || height < 0)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Grid generation using negative dimensions.\n"
-							   << "width: " << width << " height: " << height;
+			Logger::error() << "Grid generation using negative dimensions.\n"
+							<< "width: " << width << " height: " << height;
 			throw std::invalid_argument("Negative grid generation dimensions");
 		}
 
@@ -136,9 +130,8 @@ namespace vis
 	{
 		if(width < 0 || height < 0)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Grid index generation using negative dimensions.\n"
-							   << "width: " << width << " height: " << height;
+			Logger::error() << "Grid index generation using negative dimensions.\n"
+							<< "width: " << width << " height: " << height;
 			throw std::invalid_argument("Negative grid index generation dimensions");
 		}
 

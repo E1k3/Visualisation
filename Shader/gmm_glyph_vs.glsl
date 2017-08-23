@@ -22,6 +22,6 @@ void main()
 	gs_var = sqrt(var) / (bounds.y - bounds.x);
 	gs_weight = weight;
 	gs_indicator = 1.f
-			+ 101.f * float(pos.x >= highlight_area.x && pos.y >= highlight_area.y && pos.x <= highlight_area.z && pos.y >= highlight_area.w)
+			+ 2.f * float(pos.x >= highlight_area.x && pos.y >= highlight_area.y && pos.x <= highlight_area.z && pos.y <= highlight_area.w)
 			- 100.f * float(mean.x == 0.f && var.x == 0.f && weight.x == 1.f);
 }

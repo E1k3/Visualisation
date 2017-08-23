@@ -54,7 +54,7 @@ namespace vis
 
 	private:
 		unsigned _id{0};
-		std::function<void(unsigned)> _deleter{ [] (unsigned) { Logger::instance() << Logger::Severity::ERROR << "GLObject with empty deleter was destroyed."; } };
+		std::function<void(unsigned)> _deleter{ [] (unsigned) { Logger::error() << "GLObject with empty deleter was destroyed."; } };
 	};
 }
 #endif // GLOBJECT_H

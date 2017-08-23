@@ -19,13 +19,15 @@ namespace vis
 		virtual void draw(float delta_time, float total_time) override;
 
 	private:
-		void init_gaussian(const std::vector<Field>& fields);
-		void init_gmm(const std::vector<Field>& fields);
+		void init_gaussian();
+		void init_gmm();
 
 		std::vector<float> genMask(int width, int height) const;
 
 		InputManager& _input;
 		ColormapRenderer _palette{};
+
+		std::vector<Field> _fields;
 
 		GLuint _vao{0};
 		GLuint _texture{0};

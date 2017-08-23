@@ -15,7 +15,8 @@ uniform vec4 highlight_area;
 
 void main()
 {
-	float t = abs((time-int(time)-.5f)*2.f);
+//	float t = abs((time-int(time)-.5f)*2.f);
+	float t = mod(time, 1.f);
 	vec4 norm_mean = (mean-bounds.x)/(bounds.y-bounds.x);
 	vec4 norm_var = (var-bounds.z)/(bounds.w-bounds.z);
 
@@ -33,6 +34,6 @@ void main()
 	gl_Position = mvp*vec4(pos, mean_, 1.f);
 	fs_intensity = var_;
 	fs_indicator = 1.f
-			+ 101.f * float(pos.x >= highlight_area.x && pos.y >= highlight_area.y && pos.x <= highlight_area.z && pos.y >= highlight_area.w)
+			+ 2.f * float(pos.x >= highlight_area.x && pos.y >= highlight_area.y && pos.x <= highlight_area.z && pos.y <= highlight_area.w)
 			- 100.f * float(mean.x == 0.f && var.x == 0.f && weight.x == 1.f);
 }

@@ -15,16 +15,15 @@ namespace vis
 	{
 		if(_dimension < 0 || _width < 0 || _height < 0 || _depth < 0)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Field created with negative dimensions\n"
-							   << "dimension: " << point_dimension
-							   << " width: " << width
-							   << " height: " << height
-							   << " depth: " << depth;
+			Logger::error() << "Field created with negative dimensions\n"
+							<< "dimension: " << point_dimension
+							<< " width: " << width
+							<< " height: " << height
+							<< " depth: " << depth;
 			throw std::invalid_argument("Negative dimensions for field creation");
 		}
 		if(size() == 0)
-			Logger::instance() << Logger::Severity::WARNING << "Field created with size 0.";
+			Logger::warning() << "Field created with size 0.";
 
 		if(init)
 			initialize();
@@ -75,8 +74,7 @@ namespace vis
 	{
 		if(!_initialized)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Data access on uninitialized field.";
+			Logger::error() << "Data access on uninitialized field.";
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 		return *std::min_element(_data.begin(), _data.end());
@@ -86,8 +84,7 @@ namespace vis
 	{
 		if(!_initialized)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Data access on uninitialized field.";
+			Logger::error() << "Data access on uninitialized field.";
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 		return *std::max_element(_data.begin(), _data.end());
@@ -97,8 +94,7 @@ namespace vis
 	{
 		if(!_initialized)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Data access on uninitialized field.";
+			Logger::error() << "Data access on uninitialized field.";
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 		auto minima = std::vector<float>(static_cast<size_t>(_dimension), std::numeric_limits<float>::infinity());
@@ -112,8 +108,7 @@ namespace vis
 	{
 		if(!_initialized)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Data access on uninitialized field.";
+			Logger::error() << "Data access on uninitialized field.";
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 		auto maxima = std::vector<float>(static_cast<size_t>(_dimension), -std::numeric_limits<float>::infinity());
@@ -149,8 +144,7 @@ namespace vis
 	{
 		if(!_initialized)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Data access on uninitialized field.";
+			Logger::error() << "Data access on uninitialized field.";
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 
@@ -163,8 +157,7 @@ namespace vis
 	{
 		if(!_initialized)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Data access on uninitialized field.";
+			Logger::error() << "Data access on uninitialized field.";
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 
@@ -177,8 +170,7 @@ namespace vis
 	{
 		if(!_initialized)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Data access on uninitialized field.";
+			Logger::error() << "Data access on uninitialized field.";
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 
@@ -189,8 +181,7 @@ namespace vis
 	{
 		if(!_initialized)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Data access on uninitialized field.";
+			Logger::error() << "Data access on uninitialized field.";
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 
@@ -201,8 +192,7 @@ namespace vis
 	{
 		if(!_initialized)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Data access on uninitialized field.";
+			Logger::error() << "Data access on uninitialized field.";
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 
@@ -214,8 +204,7 @@ namespace vis
 	{
 		if(!_initialized)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Data access on uninitialized field.";
+			Logger::error() << "Data access on uninitialized field.";
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 
@@ -227,8 +216,7 @@ namespace vis
 	{
 		if(!_initialized)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Data access on uninitialized field.";
+			Logger::error() << "Data access on uninitialized field.";
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 
@@ -239,8 +227,7 @@ namespace vis
 	{
 		if(!_initialized)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Data access on uninitialized field.";
+			Logger::error() << "Data access on uninitialized field.";
 			throw std::runtime_error("Field data accessed before initializing");	// TODO:ERROR handling. Field not initialized.
 		}
 
@@ -251,11 +238,10 @@ namespace vis
 	{
 		if(i < 0 || i > volume())
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Data of field " << _name << " was accessed at index:\n"
-							   << "i: " << i
-							   << "\nField volume:\n"
-							   << "volume: " << volume();
+			Logger::error() << "Data of field " << _name << " was accessed at index:\n"
+							<< "i: " << i
+							<< "\nField volume:\n"
+							<< "volume: " << volume();
 			throw std::out_of_range("Field data access out of range.");	// TODO:ERROR handling. Negative index.
 		}
 		return i*_dimension;
@@ -265,11 +251,10 @@ namespace vis
 	{
 		if(d < 0 || d >= _dimension)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Data of field " << _name << " was accessed at point dimension:\n"
-							   << "d: " << d
-							   << "\nField point dimension:\n"
-							   << "dimension: " << _dimension ;
+			Logger::error() << "Data of field " << _name << " was accessed at point dimension:\n"
+							<< "d: " << d
+							<< "\nField point dimension:\n"
+							<< "dimension: " << _dimension ;
 			throw std::out_of_range("Field data access out of range.");	// TODO:ERROR handling. Negative index.
 		}
 		return validate_index(i) + d;
@@ -279,11 +264,10 @@ namespace vis
 	{
 		if(x < 0 || x >= _width || y < 0 || y >= _height || z < 0 || z >= _depth)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Data of field " << _name << " was accessed at indices:\n"
-							   << "x: " << x << " y: " << y << " z: " << z
-							   << "\nField dimensions:\n"
-							   << "width: " << _width << " height: " << _height << " depth: " << _depth;
+			Logger::error() << "Data of field " << _name << " was accessed at indices:\n"
+							<< "x: " << x << " y: " << y << " z: " << z
+							<< "\nField dimensions:\n"
+							<< "width: " << _width << " height: " << _height << " depth: " << _depth;
 			throw std::out_of_range("Field data access out of range.");	// TODO:ERROR handling. Negative index.
 		}
 		return (z*area() + y*_width + x) * _dimension;

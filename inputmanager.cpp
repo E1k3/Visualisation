@@ -53,12 +53,6 @@ namespace vis
 		return false;
 	}
 
-	void InputManager::set_cursor(float x_pos, float y_pos)
-	{
-		if(_window_focused && !_paused)
-			set_cursor(glm::vec2{x_pos, y_pos});
-	}
-
 	void InputManager::set_cursor(glm::vec2	position)
 	{
 		if(_window_focused && !_paused)
@@ -67,6 +61,11 @@ namespace vis
 				_cursor_offset += _cursor_pos - position;
 			_cursor_pos = position;
 		}
+	}
+
+	void InputManager::set_cursor(float x_pos, float y_pos)
+	{
+		set_cursor(glm::vec2{x_pos, y_pos});
 	}
 
 	glm::vec2 InputManager::get_cursor_position() const
@@ -113,8 +112,7 @@ namespace vis
 
 	void InputManager::add_scroll_offset(int x_offset, int y_offset)
 	{
-		if(_window_focused && !_paused)
-			_scroll_offset += glm::ivec2(x_offset, y_offset);
+		add_scroll_offset(glm::ivec2{x_offset, y_offset});
 	}
 
 	glm::ivec2 InputManager::get_scroll_offset()
@@ -140,8 +138,7 @@ namespace vis
 
 	void InputManager::resize_framebuffer(int x, int y)
 	{
-		if(_window_focused)
-			resize_framebuffer(glm::ivec2(x, y));
+		resize_framebuffer(glm::ivec2(x, y));
 	}
 
 	void InputManager::resize_framebuffer(glm::ivec2 size)

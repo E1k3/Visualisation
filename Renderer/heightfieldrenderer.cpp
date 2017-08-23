@@ -11,6 +11,7 @@
 
 #include "logger.h"
 #include "Data/math_util.h"
+#include "application.h"
 
 namespace vis
 {
@@ -21,8 +22,7 @@ namespace vis
 	{
 		if(fields.size() < 2)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Heightfield renderer creation with < 2 fields not possible.";
+			Logger::error() << "Heightfield renderer creation with < 2 fields not possible.";
 			throw std::invalid_argument("Heightfield renderer created using < 2 fields");
 		}
 		else if(fields.size() == 2)
@@ -39,8 +39,7 @@ namespace vis
 
 		if(!mean_field.equal_layout(dev_field))
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "The mean and deviation fields have differing sizes.";
+			Logger::error() << "The mean and deviation fields have differing sizes.";
 			throw std::runtime_error("Heightfield rendering error.");
 			//TODO:ERROR handling. mean and dev field have differing size.
 		}
@@ -113,8 +112,7 @@ namespace vis
 
 		if(!mean_field.equal_layout(dev_field) || !dev_field.equal_layout(weight_field))
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "The mean, deviation and weight fields have differing layouts.";
+			Logger::error() << "The mean, deviation and weight fields have differing layouts.";
 			throw std::invalid_argument("Heightfield creation using different fields");
 		}
 
@@ -310,9 +308,22 @@ namespace vis
 			framebuffer_size = glm::ivec2{1};
 
 
-		_input.release_key(GLFW_KEY_SPACE);
-		if(_input.get_key(GLFW_KEY_SPACE))
+		_input.release_key(GLFW_KEY_ENTER);
+		if(_input.get_key(GLFW_KEY_ENTER))
 			_ortho_projection = !_ortho_projection;
+		if(_input.get_key(GLFW_KEY_SPACE))
+		{
+			auto& h = Application::study_highlights[Application::study_select];
+			glUniform4f(_highlight_uniform,
+						(h[0]-.5f) * 2.f / _fields.front().width() - 1.f,
+					(h[1]-.5f) * 2.f / _fields.front().height() - 1.f,
+					(h[2]+.5f) * 2.f / _fields.front().width() - 1.f,
+					(h[3]+.5f) * 2.f / _fields.front().height() - 1.f);
+		}
+		else
+		{
+			glUniform4f(_highlight_uniform, -10.f, -10.f, -10.f, -10.f);
+		}
 
 		// MVP calculation
 		constexpr float height_scale = .5f;
@@ -322,13 +333,12 @@ namespace vis
 		if(!_ortho_projection)
 			proj = perspective(radians(45.f), static_cast<float>(framebuffer_size.x)/framebuffer_size.y, .2f, 20.f);
 		auto mvp = proj * view * model;
+
 		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
-
 		glUniform4f(_bounds_uniform, _bounds.x, _bounds.y, _bounds.z, _bounds.w);
-
 		// Set time uniform
 		if(_time_uniform != -1)
-			glUniform1f(_time_uniform, total_time/2.f);
+			glUniform1f(_time_uniform, total_time/5.f);
 
 		// Draw
 		glDrawElements(GL_TRIANGLES, _num_vertices, GL_UNSIGNED_INT, 0);

@@ -30,6 +30,14 @@ namespace vis
 		 */
 		static Logger& instance();
 
+		static Logger& log(const Severity& severity);
+
+		static Logger& error();
+
+		static Logger& debug();
+
+		static Logger& warning();
+
 		/**
 		 * @brief setStream Sets the stream (default is std::cout) to which all messages will be sent.
 		 */

@@ -10,38 +10,38 @@
 
 #include "logger.h"
 #include "Data/math_util.h"
+#include "application.h"
 
 namespace vis
 {
 	GlyphRenderer::GlyphRenderer(const std::vector<Field>& fields, InputManager& input)
 		: Renderer{},
-		  _input{input}
+		  _input{input},
+		  _fields{fields}
 	{
 		if(fields.size() <= 1)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Glyph renderer creation from less than 2 fields is impossible.";
+			Logger::error() << "Glyph renderer creation from less than 2 fields is impossible.";
 			throw std::invalid_argument("Glyph renderer creation with < 2 fields");
 		}
 		if(fields.size() == 2)
-			init_gaussian(fields);
+			init_gaussian();
 		if(fields.size() >= 3)
-			init_gmm(fields);
+			init_gmm();
 	}
 
 
-	void GlyphRenderer::init_gaussian(const std::vector<Field>& fields)
+	void GlyphRenderer::init_gaussian()
 	{
 		constexpr unsigned mask_res_x = 1000;
 		constexpr unsigned mask_res_y = 1000;
 
-		auto mean_field = fields[0];
-		auto dev_field = fields[1];
+		auto mean_field = _fields[0];
+		auto dev_field = _fields[1];
 
 		if(!mean_field.equal_layout(dev_field))
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "The mean and deviation fields have differing sizes.";
+			Logger::error() << "The mean and deviation fields have differing sizes.";
 			throw std::runtime_error("Glyph rendering error");
 			//TODO:ERROR handling. mean and dev field have differing size.
 		}
@@ -121,26 +121,24 @@ namespace vis
 		std::tie(_bounds.z, _bounds.w) = math_util::round_interval(dev_field.minima()[0], dev_field.maxima()[0]);
 	}
 
-	void GlyphRenderer::init_gmm(const std::vector<Field>& fields)
+	void GlyphRenderer::init_gmm()
 	{
 		constexpr unsigned mask_res_x = 1000;
 		constexpr unsigned mask_res_y = 1000;
 
-		auto mean_field = fields[0];
-		auto dev_field = fields[1];
-		auto weight_field = fields[2];
+		auto mean_field = _fields[0];
+		auto dev_field = _fields[1];
+		auto weight_field = _fields[2];
 
 		if(!mean_field.equal_layout(dev_field) || !mean_field.equal_layout(weight_field))
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "The mean, deviation and weight fields have differing sizes.";
+			Logger::error() << "The mean, deviation and weight fields have differing sizes.";
 			throw std::runtime_error("Glyph rendering error.");
 			//TODO:ERROR handling. mean and dev field have differing size.
 		}
 		if(mean_field.point_dimension() != 4)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Fields for GMM rendering do not have a point dimension of 4.";
+			Logger::error() << "Fields for GMM rendering do not have a point dimension of 4.";
 			throw std::runtime_error("Glyph rendering error.");
 			//TODO:ERROR handling. mean and dev field have differing size.
 		}
@@ -194,7 +192,7 @@ namespace vis
 		auto vertex_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_vs.glsl"},	//TODO:change location to relative
 										 GL_VERTEX_SHADER);
 		auto geometry_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_gs.glsl"},	//TODO:change location to relative
-										 GL_GEOMETRY_SHADER);
+										   GL_GEOMETRY_SHADER);
 		auto fragment_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_fs_2.glsl",
 											"/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"},	//TODO:change location to relative
 										   GL_FRAGMENT_SHADER);
@@ -254,6 +252,20 @@ namespace vis
 		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
 		glUniform4f(_bounds_uniform, _bounds.x, _bounds.y, _bounds.z, _bounds.w);
 
+		if(_input.get_key(GLFW_KEY_SPACE))
+		{
+			auto& h = Application::study_highlights[Application::study_select];
+			glUniform4f(_highlight_uniform,
+						(h[0]-.5f) * 2.f / _fields.front().width() - 1.f,
+					(h[1]-.5f) * 2.f / _fields.front().height() - 1.f,
+					(h[2]+.5f) * 2.f / _fields.front().width() - 1.f,
+					(h[3]+.5f) * 2.f / _fields.front().height() - 1.f);
+		}
+		else
+		{
+			glUniform4f(_highlight_uniform, -10.f, -10.f, -10.f, -10.f);
+		}
+
 		// Draw
 		glDrawArrays(GL_POINTS, 0, _num_vertices);
 
@@ -267,9 +279,8 @@ namespace vis
 	{
 		if(width < 0 || height < 0)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Mask generation using negative dimensions.\n"
-							   << "width: " << width << " height: " << height;
+			Logger::error() << "Mask generation using negative dimensions.\n"
+							<< "width: " << width << " height: " << height;
 			throw std::invalid_argument("Negative mask generation dimensions");
 		}
 

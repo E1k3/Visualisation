@@ -9,6 +9,11 @@
 
 namespace vis
 {
+	constexpr float Application::study_highlights[][4] = {{85, 80, 85, 80},
+														  {102, 47, 102, 47},
+														  {102, 47, 102, 47}};
+	constexpr int Application::study_steps[] = {100, 1300};
+	unsigned Application::study_select = 0;
 	namespace fs = std::experimental::filesystem;
 	Application::Application(std::string path)
 		: _ensemble{fs::path{path}}
@@ -18,7 +23,7 @@ namespace vis
 
 		if(!glfwInit())
 		{
-			Logger::instance() << Logger::Severity::ERROR << "GLFW init failed";
+			Logger::error() << "GLFW init failed";
 			// TODO:ERROR handling
 			throw std::runtime_error("GLFW init failed");
 		}
@@ -34,30 +39,28 @@ namespace vis
 		_window = std::unique_ptr<GLFWwindow, decltype (deleter)>(glfwCreateWindow(1520, 855, "Test", NULL, NULL), deleter);
 		if(!_window)
 		{
-			Logger::instance() << Logger::Severity::ERROR << "GLFW window creation failed";
+			Logger::error() << "GLFW window creation failed";
 			// TODO:ERROR handling
 			throw std::runtime_error("GLFW window creation failed");
 		}
 		glfwMakeContextCurrent(_window.get());
 
 		//DBG
-		Logger::instance() << Logger::Severity::DEBUG
-						   << "GLFW initialised.";
+		Logger::debug() << "GLFW initialised.";
 
 		// GLEW init
 		glewExperimental = GL_TRUE;
 		GLenum status = glewInit();
 		if(status != GLEW_OK)
 		{
-			Logger::instance() << Logger::Severity::ERROR << "GLEW init failed: "
-							   << reinterpret_cast<const char*>(glewGetErrorString(status));
+			Logger::error() << "GLEW init failed: "
+							<< reinterpret_cast<const char*>(glewGetErrorString(status));
 			// TODO:ERROR handling
 			throw std::runtime_error("GLEW init failed");
 		}
 
 		//DBG
-		Logger::instance() << Logger::Severity::DEBUG
-						   << "GLEW initialised.";
+		Logger::debug() << "GLEW initialised.";
 	}
 
 	void Application::execute()
@@ -122,12 +125,10 @@ namespace vis
 
 		if(true)	// true->STUDYMODE
 		{
-			constexpr int step_index_input = 300;
-			constexpr int aggregation_count = 1;
-			constexpr int aggregation_stride = 4;
-			constexpr int field_index_input = 2;
-			constexpr Ensemble::Analysis analysis_input = Ensemble::Analysis::GAUSSIAN_MIXTURE;
-			_ensemble.read_headers(step_index_input, aggregation_count, aggregation_stride);
+			//STUDY
+			std::cout << "\nNumber:\n";
+			std::cin >> study_select;
+			_ensemble.read_headers(study_steps[study_select], aggregation_count, aggregation_stride);
 			_ensemble.analyse_field(field_index_input, Ensemble::Analysis(analysis_input));
 		}
 		else
@@ -182,7 +183,7 @@ namespace vis
 		}
 
 		// OpenGL & window state
-		glClearColor(.2f, .2f, .2f, 1.f);
+		glClearColor(.1f, .1f, .1f, 1.f);
 
 		auto time = glfwGetTime();
 		_delta = 0.0;
@@ -205,12 +206,12 @@ namespace vis
 			glfwPollEvents();
 		}
 
-		Logger::instance() << Logger::Severity::DEBUG << "Application execution finished successfully\n";
+		Logger::debug() << "Application execution finished successfully\n";
 	}
 
 	void Application::error_callback(int error, const char* description)
 	{
-		Logger::instance() << Logger::Severity::ERROR << "GLFW ERROR: " << error << " " << description;
+		Logger::error() << "GLFW ERROR: " << error << " " << description;
 
 		// TODO:ERROR handling
 		throw std::runtime_error("GLFW ERROR");

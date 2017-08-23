@@ -20,9 +20,8 @@ namespace vis
 				|| std::adjacent_find(fs::directory_iterator{root}, fs::directory_iterator{}, not_equal)
 				!= fs::directory_iterator{})	// Search for a subdirectory of root with amount of files not equal to the others
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Ensemble root directory does not contain subdirectories of the same size. "
-							   << "Path: " << root;
+			Logger::error() << "Ensemble root directory does not contain subdirectories of the same size. "
+							<< "Path: " << root;
 
 			throw std::invalid_argument("Path does not follow the expected ensemble directory structure");
 		}
@@ -49,18 +48,16 @@ namespace vis
 	{
 		if(step_index < 0 || step_index >= _num_steps)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Headers of step " << step_index << " cannot be read. "
-							   << "Number of simulations: " << _num_simulations;
+			Logger::error() << "Headers of step " << step_index << " cannot be read. "
+							<< "Number of simulations: " << _num_simulations;
 
 			throw std::out_of_range("Index of simulation step is out of range");
 		}
 		if(count < 0 || stride < 0 || stride > _num_steps || count * stride > _num_steps)
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Headers of step " << step_index << " cannot be read. "
-							   << "Aggregation count or stride are out of range: steps:" << _num_steps
-							   << " count: " << count << " stride: " << stride;
+			Logger::error() << "Headers of step " << step_index << " cannot be read. "
+							<< "Aggregation count or stride are out of range: steps:" << _num_steps
+							<< " count: " << count << " stride: " << stride;
 
 			throw std::out_of_range("Index of simulation step is out of range");
 		}
@@ -97,10 +94,9 @@ namespace vis
 				auto total = std::stoi(buff);
 				if(total != width*height*depth)
 				{
-					Logger::instance() << Logger::Severity::ERROR
-									   << "Field in file " << file
-									   << " has invalid dimensions: "
-									   << "width: " << width << " height: " << height << " depth: " << depth << " total:" << total;
+					Logger::error() << "Field in file " << file
+									<< " has invalid dimensions: "
+									<< "width: " << width << " height: " << height << " depth: " << depth << " total:" << total;
 
 					throw std::runtime_error("Total size in simulation header is invalid");
 				}
@@ -126,8 +122,7 @@ namespace vis
 		auto not_equal = [](const auto& va, const auto& vb) { return !std::equal(va.begin(), va.end(), vb.begin(), [](const auto& fa, const auto& fb){ return fa.equal_layout(fb) && fa.name() == fb.name(); }); };
 		if(std::adjacent_find(fields.begin(), fields.end(), not_equal) != fields.end())
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Ensemble contains fields of differing layout or name.";
+			Logger::error() << "Ensemble contains fields of differing layout or name.";
 
 			throw std::runtime_error("Field layout mismatch");
 		}
@@ -144,9 +139,8 @@ namespace vis
 	{
 		if(field_index < 0 || static_cast<size_t>(field_index) >= _fields.size())
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Analysing field failed, field at index " << field_index << " does not exist. "
-							   << "Number of fields: " << _fields.size();
+			Logger::error() << "Analysing field failed, field at index " << field_index << " does not exist. "
+							<< "Number of fields: " << _fields.size();
 			throw std::invalid_argument("No field exists at index.");
 		}
 
@@ -171,9 +165,8 @@ namespace vis
 					fields[static_cast<size_t>(c * _num_simulations + i)].set_value(0, j, std::stof(buff));
 				}
 
-				Logger::instance() << Logger::Severity::DEBUG
-								   << "Field " << fields[static_cast<size_t>(c * _num_simulations + i)].name() << " has been read successfully from file "
-								   << _project_files[ static_cast<size_t>((_selected_step + c * _cluster_stride) * _num_simulations + i)];
+				Logger::debug() << "Field " << fields[static_cast<size_t>(c * _num_simulations + i)].name() << " has been read successfully from file "
+								<< _project_files[ static_cast<size_t>((_selected_step + c * _cluster_stride) * _num_simulations + i)];
 			}
 		}
 
@@ -199,9 +192,7 @@ namespace vis
 	{
 		if(fields.empty())
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "No data for gaussian analysis.";
-
+			Logger::error() << "No data for gaussian analysis.";
 			throw std::invalid_argument("Missing data for gaussian analysis");
 		}
 		const auto& layout = fields.front();
@@ -220,8 +211,7 @@ namespace vis
 			result[1].set_value(0, i, std::sqrt(math_util::variance(samples, result[0].get_value(0, i))));
 		}
 
-		Logger::instance() << Logger::Severity::DEBUG
-						   << "Fields " << result[0].name() << " and "<< result[1].name() << " have been calculated successfully.";
+		Logger::debug() << "Fields " << result[0].name() << " and "<< result[1].name() << " have been calculated successfully.";
 
 		return result;
 	}
@@ -232,9 +222,7 @@ namespace vis
 
 		if(fields.empty())
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "No data for gmm analysis.";
-
+			Logger::error() << "No data for gmm analysis.";
 			throw std::invalid_argument("Missing data for gmm analysis");
 		}
 		const auto& layout = fields.front();
@@ -253,19 +241,18 @@ namespace vis
 			auto gmm = math_util::fit_gmm(samples, gmm_components);
 			for(int c = 0; c < gmm_components; ++c)
 			{
-//				result[0].set_value(c, i, math_util::find_max(samples, gmm[static_cast<size_t>(c)]));
-//				result[0].set_value(c, i, math_util::find_median(samples, gmm[static_cast<size_t>(c)]));
+				//				result[0].set_value(c, i, math_util::find_max(samples, gmm[static_cast<size_t>(c)]));
+				//				result[0].set_value(c, i, math_util::find_median(samples, gmm[static_cast<size_t>(c)]));
 				result[0].set_value(c, i, gmm[static_cast<size_t>(c)]._mean);
 				result[1].set_value(c, i, std::sqrt(gmm[static_cast<size_t>(c)]._variance));
 				result[2].set_value(c, i, gmm[static_cast<size_t>(c)]._weight);
 			}
 		}
 
-		Logger::instance() << Logger::Severity::DEBUG
-						   << "Fields " << result[0].name()
-						   << ", "<< result[1].name()
-						   << " and "<< result[2].name()
-						   << " have been calculated successfully.";
+		Logger::debug() << "Fields " << result[0].name()
+						<< ", "<< result[1].name()
+						<< " and "<< result[2].name()
+						<< " have been calculated successfully.";
 
 		return result;
 	}
@@ -274,9 +261,8 @@ namespace vis
 	{
 		if(!fs::is_directory(dir))
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Counting files failed. "
-							   << dir.string() << " does not point to a directory.";
+			Logger::error() << "Counting files failed. "
+							<< dir.string() << " does not point to a directory.";
 			throw std::invalid_argument("Path does not point to directory");	// TODO:ERROR handling. Dir is not a directory.
 		}
 		return static_cast<int>(std::count_if(fs::directory_iterator(dir), fs::directory_iterator{},
@@ -287,9 +273,8 @@ namespace vis
 	{
 		if(!fs::is_directory(dir))
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Counting directories failed. "
-							   << dir.string() << " does not point to a directory.";
+			Logger::error() << "Counting directories failed. "
+							<< dir.string() << " does not point to a directory.";
 			throw std::invalid_argument("Path does not point to directory");	// TODO:ERROR handling. Dir is not a directory.
 		}
 		return static_cast<int>(std::count_if(fs::directory_iterator(dir), fs::directory_iterator{},

@@ -23,6 +23,26 @@ namespace vis
 		return instance;
 	}
 
+	Logger& Logger::log(const Logger::Severity& severity)
+	{
+		return instance() << severity;
+	}
+
+	Logger& Logger::error()
+	{
+		return instance() << Severity::ERROR;
+	}
+
+	Logger& Logger::warning()
+	{
+		return instance() << Severity::WARNING;
+	}
+
+	Logger& Logger::debug()
+	{
+		return instance() << Severity::DEBUG;
+	}
+
 	void Logger::set_stream(std::ostream* stream)
 	{
 		_stream = stream;

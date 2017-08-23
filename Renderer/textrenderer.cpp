@@ -22,8 +22,7 @@ namespace vis
 		FT_Library ft;
 		if(FT_Init_FreeType(&ft))
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Freetype library could not be initialized";
+			Logger::error() << "Freetype library could not be initialized";
 			throw std::runtime_error("Freetype failed to init");
 		}
 
@@ -31,8 +30,7 @@ namespace vis
 		FT_Face face;
 		if(FT_New_Face(ft, font.c_str(), 0, &face))
 		{
-			Logger::instance() << Logger::Severity::ERROR
-							   << "Freetype library could not load " << font << ".";
+			Logger::error() << "Freetype library could not load " << font << ".";
 			throw std::runtime_error("Freetype failed to load font");
 		}
 
@@ -45,8 +43,7 @@ namespace vis
 		{
 			if(FT_Load_Char(face, i, FT_LOAD_RENDER))
 			{
-				Logger::instance() << Logger::Severity::WARNING
-								   << "Freetype could not load character " << static_cast<char>(i) << " of font " << font;
+				Logger::warning() << "Freetype could not load character " << static_cast<char>(i) << " of font " << font;
 				continue;
 			}
 
@@ -123,7 +120,7 @@ namespace vis
 	void TextRenderer::set_positions(const std::vector<glm::vec2>& positions)
 	{
 		_positions = positions;
-//		_positions.resize(std::max(_positions.size(), _lines.size()));
+		//		_positions.resize(std::max(_positions.size(), _lines.size()));
 	}
 
 	void TextRenderer::set_viewport(const glm::ivec2& viewport)
@@ -163,9 +160,8 @@ namespace vis
 				// Check if the atlas contains c
 				if(c < 0 || static_cast<size_t>(c) >= _glyphs.size())
 				{
-					Logger::instance() << Logger::Severity::WARNING
-									   << "Texture atlas does not contain " << c
-									   << ". The character will be skipped.";
+					Logger::warning() << "Texture atlas does not contain " << c
+									  << ". The character will be skipped.";
 					continue;
 				}
 				const auto& glyph = _glyphs[static_cast<size_t>(c)];

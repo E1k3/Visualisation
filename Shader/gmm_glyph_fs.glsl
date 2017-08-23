@@ -17,10 +17,6 @@ void main()
 {
 	if(fs_indicator < 0.f)
 		discard;
-	if(fs_indicator > 0.f)
-	{
-
-	}
 
 	vec4 weightsum = vec4(fs_weight.x, fs_weight.x+fs_weight.y, fs_weight.x+fs_weight.y+fs_weight.z, fs_weight.x+fs_weight.y+fs_weight.z+fs_weight.w) * pi * 2.f;
 	vec3 mask = texture(mask, fs_uv).rgb;
@@ -32,4 +28,6 @@ void main()
 	                     comps.y * float(angle >= weightsum.x && angle < weightsum.y) +
 	                     comps.z * float(angle >= weightsum.y && angle < weightsum.z) +
 	                     comps.w * float(angle >= weightsum.z)), 1.f);
+	if(fs_indicator > 2.f)
+		color = vec4(1.f);
 }

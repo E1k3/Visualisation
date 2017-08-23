@@ -16,6 +16,16 @@ namespace vis
 	class Application
 	{
 	public:
+		static constexpr int step_index_input = 1300;
+		static constexpr int aggregation_count = 7;
+		static constexpr int aggregation_stride = 4;
+		static constexpr int field_index_input = 2;
+		static constexpr Ensemble::Analysis analysis_input = Ensemble::Analysis::GAUSSIAN_SINGLE;
+		static const float study_highlights[][4];
+		static const int study_steps[];
+		static unsigned study_select;
+
+
 		/**
 		 * @brief Application Constructor
 		 * @param path Path to the root directory of the ensemble files.

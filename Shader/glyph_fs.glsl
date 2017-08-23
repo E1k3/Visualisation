@@ -14,11 +14,9 @@ void main()
 {
 	if(fs_indicator < 0.f)
 		discard;
-	if(fs_indicator > 0.f)
-	{
-
-	}
 
 	vec3 mask = texture(mask, fs_uv).rgb;
 	color = vec4(palette(mask.r*(fs_data.x + fs_data.y) + mask.g*fs_data.x + mask.b*(fs_data.x - fs_data.y)), 1.f);
+	if(fs_indicator > 2.f)
+		color = vec4(1.f);
 }

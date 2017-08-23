@@ -9,11 +9,9 @@ vec3 palette(float x);
 
 void main()
 {
-	if(fs_indicator < 0.f)
+	if(fs_indicator < 1.f)
 		discard;
-	if(fs_indicator > 0.f)
-	{
-		//highlight
-	}
 	color = vec4(palette(fs_intensity), 1.0f);
+	if(fs_indicator > 2.f)
+		color = vec4(1.f);
 }

@@ -16,8 +16,7 @@ int main(int /*argc*/, char */*argv*/[])
 	}
 	catch(std::exception& e)
 	{
-		Logger::instance() << Logger::Severity::ERROR
-						   << "Terminating program due to exception: " << e.what();
+		Logger::error() << "Terminating program due to exception: " << e.what();
 		return -1;
 	}
 	return 0;
