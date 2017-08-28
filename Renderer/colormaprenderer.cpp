@@ -3,8 +3,6 @@
 #include <vector>
 #include <algorithm>
 
-#include "Data/math_util.h"
-
 namespace vis
 {
 	ColormapRenderer::ColormapRenderer()

@@ -103,7 +103,7 @@ namespace vis
 
 		auto grid = std::vector<float>(static_cast<size_t>(width * height * 4));
 
-		if(width*height == 0)
+		if(grid.empty())
 			return grid;	// TODO:error handling?
 
 		float uv_y = 1.f;
