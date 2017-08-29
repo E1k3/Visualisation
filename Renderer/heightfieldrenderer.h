@@ -59,6 +59,8 @@ namespace vis
 		glm::vec3 _cam_position{-1.8f, -1.8f, 1.8f};
 		float _model_scale{1.f};
 		bool _ortho_projection{true};
+
+		glm::vec2 _selection_cursor{0.f};
 	};
 }
 

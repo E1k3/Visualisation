@@ -25,6 +25,10 @@ namespace vis
 
 		virtual void draw(float delta_time, float total_time) = 0;
 
+		static std::vector<float> gen_grid(int width, int height);
+
+		static std::vector<unsigned> gen_grid_indices(int width, int height);
+
 		GLuint gen_vao();
 
 		GLuint gen_buffer();
@@ -33,14 +37,7 @@ namespace vis
 
 		GLuint gen_program();
 
-		static std::vector<float> gen_grid(int width, int height);
-
-		static std::vector<unsigned> gen_grid_indices(int width, int height);
-
-		static glm::vec3 unproject(glm::ivec2 screen_position, glm::ivec4 viewport, glm::mat4 mvp);
-
 	private:
-
 		/// GL IDs of the vertex array object.
 		std::vector<GLObject> _vaos;
 		/// GL IDs of vertex buffer objects.

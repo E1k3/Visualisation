@@ -38,7 +38,8 @@ HEADERS += \
     Data/ensemble.h \
     Data/field.h \
     Renderer/textrenderer.h \
-    Renderer/colormaprenderer.h
+    Renderer/colormaprenderer.h \
+    Renderer/globject2.h
 
 DISTFILES += \
     Shader/heightfield_vs.glsl \

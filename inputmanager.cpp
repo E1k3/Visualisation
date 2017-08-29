@@ -6,42 +6,79 @@ namespace vis
 {
 	void InputManager::reset()
 	{
-		for(auto& kv : _pressed)
+		for(auto& kv : _keys_pressed)
 			kv.second = false;
-		for(auto& kv : _released)
+		for(auto& kv : _keys_released)
 			kv.second = true;
 
-		_cursor_offset = glm::vec2{0.f};
 		_scroll_offset = glm::ivec2{0};
+		reset_cursor_offsets();
+	}
 
+	void InputManager::reset_cursor_offsets()
+	{
+		_cursor_offset = glm::vec2{0.f};
 		ignore_cursor_input = true;
 	}
 
 	void InputManager::press_key(int keycode)
 	{
-		_pressed[keycode] = true;
-		_released[keycode] = false;
+		_keys_pressed[keycode] = true;
+		_keys_released[keycode] = false;
 	}
 
 	void InputManager::release_key(int keycode)
 	{
-		_released[keycode] = true;
+		_keys_released[keycode] = true;
 	}
 
 	bool InputManager::get_key(int keycode)
 	{
-		if(_pressed[keycode])
+		if(_keys_pressed[keycode])
 		{
-			_pressed[keycode] = !_released[keycode];
+			_keys_pressed[keycode] = !_keys_released[keycode];
 			return true;
 		}
 		return false;
 	}
 
+	bool InputManager::release_get_key(int keycode)
+	{
+		_keys_released[keycode] = true;
+		return get_key(keycode);
+	}
+
+	void InputManager::press_button(int buttoncode)
+	{
+		_buttons_pressed[buttoncode] = true;
+		_buttons_released[buttoncode] = false;
+	}
+
+	void InputManager::release_button(int buttoncode)
+	{
+		_buttons_released[buttoncode] = true;
+	}
+
+	bool InputManager::get_button(int buttoncode)
+	{
+		if(_buttons_pressed[buttoncode])
+		{
+			_buttons_pressed[buttoncode] = !_buttons_released[buttoncode];
+			return true;
+		}
+		return false;
+	}
+
+	bool InputManager::release_get_button(int buttoncode)
+	{
+		_buttons_released[buttoncode] = true;
+		return get_button(buttoncode);
+	}
+
 	void InputManager::set_cursor(glm::vec2	position)
 	{
 		if(!ignore_cursor_input)
-			_cursor_offset += _cursor_pos - position;
+			_cursor_offset += position - _cursor_pos;
 		_cursor_pos = position;
 
 		ignore_cursor_input = false;
@@ -146,6 +183,8 @@ namespace vis
 
 	float InputManager::get_framebuffer_aspect_ratio() const
 	{
+		if(_framebuffer_size.y == 0)
+			return 1;
 		return static_cast<float>(_framebuffer_size.x) / _framebuffer_size.y;
 	}
 }

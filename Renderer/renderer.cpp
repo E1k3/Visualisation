@@ -152,13 +152,4 @@ namespace vis
 			}
 		return indices;
 	}
-
-	glm::vec3 Renderer::unproject(glm::ivec2 screen_position, glm::ivec4 viewport, glm::mat4 mvp)
-	{
-		using namespace glm;
-		auto screenpos = vec3(screen_position, 0.f);	// TODO: check if (x, y, 0.f) works. otherwise read depth buffer for z
-		screenpos = (screenpos - vec3(viewport.x, viewport.y, 0.f)) / vec3(viewport.z, viewport.w, 1.f);
-		screenpos = screenpos * 2.f - 1.f;
-		return vec3(inverse(mvp) * vec4(screenpos, 1.f));
-	}
 }

@@ -86,6 +86,22 @@ namespace vis
 			}
 		};
 		glfwSetKeyCallback(_window.get(), key_callback);
+		auto button_callback = [] (GLFWwindow* window, int buttoncode, int action, int /*modifier*/)
+		{
+			if(glfwGetWindowUserPointer(window))
+			{
+				switch(action)
+				{
+				case GLFW_PRESS:
+					static_cast<InputManager*>(glfwGetWindowUserPointer(window))->press_button(buttoncode);
+					break;
+				case GLFW_RELEASE:
+					static_cast<InputManager*>(glfwGetWindowUserPointer(window))->release_button(buttoncode);
+					break;
+				}
+			}
+		};
+		glfwSetMouseButtonCallback(_window.get(), button_callback);
 		auto cursor_callback = [] (GLFWwindow* window, double x, double y)
 		{
 			if(glfwGetWindowUserPointer(window))

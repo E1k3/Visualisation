@@ -286,12 +286,23 @@ namespace vis
 
 		// Input handling
 		using namespace glm;
-		constexpr float mousespeed = 0.0005f;
+		constexpr float mousespeed = 0.001f;
 		constexpr float scrollspeed = 0.05f;
-		auto cursor_x = _input.get_cursor_offset_x();
-		auto cursor_y = _input.get_cursor_offset_y();
+
+		auto framebuffer_size = _input.get_framebuffer_size();
+
+		if(!_input.get_button(GLFW_MOUSE_BUTTON_1))
+		{
+			_selection_cursor += vec2(_input.get_cursor_offset_x(), -_input.get_cursor_offset_y() * _input.get_framebuffer_aspect_ratio()) * mousespeed;
+			clamp(_selection_cursor, vec2(-1.f), vec2(1.f));
+		}
+
+		auto cursor_x = -_input.get_cursor_offset_x();
+		auto cursor_y = -_input.get_cursor_offset_y();
 		auto old_cam_pos = _cam_position;
+
 		_cam_position = rotate(_cam_position,  cursor_y*mousespeed, cross(-_cam_position, vec3(0.f, 0.f, 1.f)));
+
 		// Prevent flipping when reaching cam (x,y)==(0,0)
 		if((_cam_position.x > 0.f && old_cam_pos.x < 0.f && _cam_position.y >= 0.f && old_cam_pos.y < 0.f)
 				|| (_cam_position.x > 0.f && old_cam_pos.x < 0.f && _cam_position.y < 0.f && old_cam_pos.y > 0.f)
@@ -303,14 +314,24 @@ namespace vis
 		_model_scale *= 1 + _input.get_scroll_offset_y() * scrollspeed;
 
 
-		auto framebuffer_size = _input.get_framebuffer_size();
-		if(framebuffer_size == glm::ivec2{0})	// Prevent aspect ratio = 0/0
-			framebuffer_size = glm::ivec2{1};
-
-
-		_input.release_key(GLFW_KEY_ENTER);
-		if(_input.get_key(GLFW_KEY_ENTER))
+		if(_input.release_get_key(GLFW_KEY_ENTER))
 			_ortho_projection = !_ortho_projection;
+
+		// MVP calculation
+		constexpr float height_scale = .5f;
+		auto model = translate(scale(mat4{}, vec3{_fields.front().aspect_ratio(), 1.f, height_scale} * _model_scale), vec3{0.f, 0.f, -.5f});
+		auto view = lookAt(_cam_position, vec3(0.f), vec3{0.f, 0.f, 1.f});
+		auto proj = ortho(-_input.get_framebuffer_aspect_ratio(), _input.get_framebuffer_aspect_ratio(), -1.f, 1.f, -20.f, 20.f);
+		if(!_ortho_projection)
+			proj = perspective(radians(45.f), _input.get_framebuffer_aspect_ratio(), .2f, 20.f);
+		auto mvp = proj * view * model;
+
+		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
+		glUniform4f(_bounds_uniform, _bounds.x, _bounds.y, _bounds.z, _bounds.w);
+		// Set time uniform
+		if(_time_uniform != -1)
+			glUniform1f(_time_uniform, total_time/5.f);
+
 		if(_input.get_key(GLFW_KEY_SPACE))
 		{
 			auto& h = Application::study_highlights[Application::study_select];
@@ -322,23 +343,8 @@ namespace vis
 		}
 		else
 		{
-			glUniform4f(_highlight_uniform, -10.f, -10.f, -10.f, -10.f);
+			glUniform4f(_highlight_uniform, _selection_cursor.x - 1.f/_fields.front().width(), _selection_cursor.y - 1.f/_fields.front().height(), _selection_cursor.x + 1.f/_fields.front().width(), _selection_cursor.y + 1.f/_fields.front().height());
 		}
-
-		// MVP calculation
-		constexpr float height_scale = .5f;
-		auto model = translate(scale(mat4{}, vec3{_fields.front().aspect_ratio(), 1.f, height_scale} * _model_scale), vec3{0.f, 0.f, -.5f});
-		auto view = lookAt(_cam_position, vec3(0.f), vec3{0.f, 0.f, 1.f});
-		auto proj = ortho(-_input.get_framebuffer_aspect_ratio(), _input.get_framebuffer_aspect_ratio(), -1.f, 1.f, -20.f, 20.f);
-		if(!_ortho_projection)
-			proj = perspective(radians(45.f), static_cast<float>(framebuffer_size.x)/framebuffer_size.y, .2f, 20.f);
-		auto mvp = proj * view * model;
-
-		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
-		glUniform4f(_bounds_uniform, _bounds.x, _bounds.y, _bounds.z, _bounds.w);
-		// Set time uniform
-		if(_time_uniform != -1)
-			glUniform1f(_time_uniform, total_time/5.f);
 
 		// Draw
 		glDrawElements(GL_TRIANGLES, _num_vertices, GL_UNSIGNED_INT, 0);

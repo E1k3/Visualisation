@@ -235,7 +235,8 @@ namespace vis
 		using namespace glm;
 		const float mousespeed = 0.001f;
 		const float scrollspeed = -0.1f;
-
+		if(!_input.get_button(GLFW_MOUSE_BUTTON_1))
+			_input.reset_cursor_offsets();
 		auto trans_offset = _input.get_cursor_offset();
 		trans_offset.x = -trans_offset.x;
 		_translate += vec3(trans_offset * mousespeed * 1.f/_scale, 0.f);
@@ -262,8 +263,8 @@ namespace vis
 					(h[3]+.5f) * 2.f / _fields.front().height() - 1.f);
 		}
 		else
-		{
-			glUniform4f(_highlight_uniform, -10.f, -10.f, -10.f, -10.f);
+		{//TODO
+			glUniform4f(_highlight_uniform, 1.f, 1.f, 1.f, 1.f);
 		}
 
 		// Draw

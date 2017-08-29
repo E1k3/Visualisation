@@ -1,7 +1,7 @@
 #ifndef INPUTMANAGER_H
 #define INPUTMANAGER_H
 
-#include <map>
+#include <unordered_map>
 
 #include <glm/glm.hpp>
 
@@ -13,12 +13,17 @@ namespace vis
 		explicit InputManager() = default;
 
 		/**
-		 * @brief reset Resets all saved offsets and key states.
+		 * @brief reset Resets all offsets and key states.
 		 */
 		void reset();
 
 		/**
-		 * @brief press_key Saves the pressed key until it is released and requested.
+		 * @brief reset_offsets Resets the cursor offsets.
+		 */
+		void reset_cursor_offsets();
+
+		/**
+		 * @brief press_key Saves the pressed key until it is released and has been requested at least once.
 		 * @param keycode The keycode of the pressed key.
 		 */
 		void press_key(int keycode);
@@ -30,11 +35,41 @@ namespace vis
 
 		/**
 		 * @brief get_key Returns the status of a key.
-		 * Resets the pressed status if it was released before this function was called.
+		 * Resets the pressed status if it was released (and not pressed again) before this function was called.
 		 * @param keycode The keycode of the requested key.
 		 * @return The status of the requested key.
 		 */
 		bool get_key(int keycode);
+
+		/**
+		 * @brief get_release_key Acts identical to get_key, but resets the pressed state even when the physical key is still pressed.
+		 */
+		bool release_get_key(int keycode);
+
+		/**
+		 * @brief press_button Saves the pressed button until it is released and has been requested at least once.
+		 * @param buttoncode The buttoncode of the pressed button.
+		 */
+		void press_button(int buttoncode);
+
+		/**
+		 * @brief release_button Marks the released button until it is requested, then resets the buttons pressed status.
+		 * @param buttoncode The buttoncode of the released button.
+		 */
+		void release_button(int buttoncode);
+
+		/**
+		 * @brief get_button Returns the status of a key.
+		 * Resets the pressed status if it was released (and not pressed again) before this function was called.
+		 * @param buttoncode The buttoncode of the requested button.
+		 * @return The status of the requested button.
+		 */
+		bool get_button(int buttoncode);
+
+		/**
+		 * @brief get_release_button Acts identical to get_button, but resets the pressed state even when the physical button is still pressed.
+		 */
+		bool release_get_button(int buttoncode);
 
 		/**
 		 * @brief move_cursor Saves the mouse movement until it is requested.
@@ -109,23 +144,48 @@ namespace vis
 		 */
 		int get_scroll_offset_y();
 
+		/**
+		 * @brief resize_framebuffer Informs the input manager of the current framebuffer size.
+		 * @param size The size in pixels.
+		 */
 		void resize_framebuffer(glm::ivec2 size);
-
+		/**
+		 * @brief resize_framebuffer Informs the input manager of the current framebuffer size.
+		 * @param x The width in pixels.
+		 * @param y The height in pixels.
+		 */
 		void resize_framebuffer(int x, int y);
 
+		/**
+		 * @brief get_framebuffer_size Returns the latest framebuffer size.
+		 * @return The framebuffer size in pixels.
+		 */
 		glm::ivec2 get_framebuffer_size() const;
-
+		/**
+		 * @brief get_framebuffer_size_x Returns the latest framebuffer width.
+		 * @return The width in pixels.
+		 */
 		int get_framebuffer_size_x() const;
-
+		/**
+		 * @brief get_framebuffer_size_y Returns the latest framebuffer height.
+		 * @return The height in pixels.
+		 */
 		int get_framebuffer_size_y() const;
-
+		/**
+		 * @brief get_framebuffer_aspect_ratio Returns the latest framebuffer aspect ratio.
+		 * If height == 0, returns 1.
+		 * @return The pixel ratio.
+		 */
 		float get_framebuffer_aspect_ratio() const;
 
 	private:
 		bool ignore_cursor_input{true};
 
-		std::map<int, bool> _pressed;
-		std::map<int, bool> _released;
+		std::unordered_map<int, bool> _keys_pressed;
+		std::unordered_map<int, bool> _keys_released;
+
+		std::unordered_map<int, bool> _buttons_pressed;
+		std::unordered_map<int, bool> _buttons_released;
 
 		glm::vec2 _cursor_pos;
 		glm::vec2 _cursor_offset;
