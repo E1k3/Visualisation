@@ -9,8 +9,8 @@
 namespace vis
 {
 	/**
- * @brief The GLObject class wraps a single OpenGL object, to manage its ownership/lifetime.
- */
+	 * @brief The GLObject class wraps a single OpenGL object, to manage its ownership/lifetime.
+	 */
 	class GLObject
 	{
 	public:

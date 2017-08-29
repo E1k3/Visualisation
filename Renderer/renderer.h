@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <glm/glm.hpp>
 
 #include <GL/glew.h>
 
@@ -35,6 +36,8 @@ namespace vis
 		static std::vector<float> gen_grid(int width, int height);
 
 		static std::vector<unsigned> gen_grid_indices(int width, int height);
+
+		static glm::vec3 unproject(glm::ivec2 screen_position, glm::ivec4 viewport, glm::mat4 mvp);
 
 	private:
 

@@ -12,18 +12,10 @@ namespace vis
 	public:
 		explicit InputManager() = default;
 
-		void set_paused(bool paused);
-
 		/**
 		 * @brief reset Resets all saved offsets and key states.
 		 */
 		void reset();
-
-		/**
-		 * @brief set_window_focused Call this to notify the input manager of un-/focussing of the window.
-		 * @param focused The current state if input focussing
-		 */
-		void set_window_focused(bool focused);
 
 		/**
 		 * @brief press_key Saves the pressed key until it is released and requested.
@@ -46,15 +38,15 @@ namespace vis
 
 		/**
 		 * @brief move_cursor Saves the mouse movement until it is requested.
+		 * @param position The current position of the cursor.
+		 */
+		void set_cursor(glm::vec2 position);
+		/**
+		 * @brief move_cursor Saves the mouse movement until it is requested.
 		 * @param x_pos The current x position of the cursor.
 		 * @param y_pos The current y position of the cursor.
 		 */
 		void set_cursor(float x_pos, float y_pos);
-		/**
-		 * @brief move_cursor Saves the mouse movement until it is requested.
-		 * @param position The current position of the cursor.
-		 */
-		void set_cursor(glm::vec2 position);
 
 		/**
 		 * @brief get_cursor_position Returns the current cursor position.
@@ -130,8 +122,7 @@ namespace vis
 		float get_framebuffer_aspect_ratio() const;
 
 	private:
-		bool _paused{false};
-		bool _window_focused{true};
+		bool ignore_cursor_input{true};
 
 		std::map<int, bool> _pressed;
 		std::map<int, bool> _released;

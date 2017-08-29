@@ -1,15 +1,9 @@
 #include "inputmanager.h"
 
 #include <iostream>
+
 namespace vis
 {
-	void InputManager::set_paused(bool paused)
-	{
-		if(_paused && !paused)
-			reset();
-		_paused = paused;
-	}
-
 	void InputManager::reset()
 	{
 		for(auto& kv : _pressed)
@@ -19,33 +13,24 @@ namespace vis
 
 		_cursor_offset = glm::vec2{0.f};
 		_scroll_offset = glm::ivec2{0};
-	}
 
-	void InputManager::set_window_focused(bool focused)
-	{
-		if(_window_focused != focused)
-			reset();
-		_window_focused = focused;
+		ignore_cursor_input = true;
 	}
 
 	void InputManager::press_key(int keycode)
 	{
-		if(_window_focused && !_paused)
-		{
-			_pressed[keycode] = true;
-			_released[keycode] = false;
-		}
+		_pressed[keycode] = true;
+		_released[keycode] = false;
 	}
 
 	void InputManager::release_key(int keycode)
 	{
-		if(_window_focused && !_paused)
-			_released[keycode] = true;
+		_released[keycode] = true;
 	}
 
 	bool InputManager::get_key(int keycode)
 	{
-		if(_pressed[keycode] && !_paused)
+		if(_pressed[keycode])
 		{
 			_pressed[keycode] = !_released[keycode];
 			return true;
@@ -55,12 +40,11 @@ namespace vis
 
 	void InputManager::set_cursor(glm::vec2	position)
 	{
-		if(_window_focused && !_paused)
-		{
-			if(_cursor_pos != glm::vec2{})
-				_cursor_offset += _cursor_pos - position;
-			_cursor_pos = position;
-		}
+		if(!ignore_cursor_input)
+			_cursor_offset += _cursor_pos - position;
+		_cursor_pos = position;
+
+		ignore_cursor_input = false;
 	}
 
 	void InputManager::set_cursor(float x_pos, float y_pos)
@@ -106,8 +90,7 @@ namespace vis
 
 	void InputManager::add_scroll_offset(glm::ivec2 offset)
 	{
-		if(_window_focused && !_paused)
-			_scroll_offset += offset;
+		_scroll_offset += offset;
 	}
 
 	void InputManager::add_scroll_offset(int x_offset, int y_offset)
@@ -143,8 +126,7 @@ namespace vis
 
 	void InputManager::resize_framebuffer(glm::ivec2 size)
 	{
-		if(_window_focused)
-			_framebuffer_size = size;
+		_framebuffer_size = size;
 	}
 
 	glm::ivec2 InputManager::get_framebuffer_size() const

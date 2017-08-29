@@ -72,15 +72,8 @@ namespace vis
 
 		auto key_callback = [] (GLFWwindow* window, int keycode, int /*scancode*/, int action, int /*mods*/)
 		{
-			static auto paused = false;
 			if(glfwGetWindowUserPointer(window))
 			{
-				if(keycode == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
-				{
-					paused = !paused;
-					static_cast<InputManager*>(glfwGetWindowUserPointer(window))->set_paused(paused);
-				}
-
 				switch(action)
 				{
 				case GLFW_PRESS:
@@ -91,10 +84,6 @@ namespace vis
 					break;
 				}
 			}
-			if(!paused)
-				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-			else
-				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		};
 		glfwSetKeyCallback(_window.get(), key_callback);
 		auto cursor_callback = [] (GLFWwindow* window, double x, double y)
@@ -119,7 +108,11 @@ namespace vis
 		auto focus_callback = [] (GLFWwindow* window, int focused)
 		{
 			if(glfwGetWindowUserPointer(window))
-				static_cast<InputManager*>(glfwGetWindowUserPointer(window))->set_window_focused(focused == GLFW_TRUE);
+			{
+				if(focused == GLFW_TRUE)
+					glfwSetCursorPos(window, static_cast<InputManager*>(glfwGetWindowUserPointer(window))->get_cursor_position().x, static_cast<InputManager*>(glfwGetWindowUserPointer(window))->get_cursor_position().y);
+				static_cast<InputManager*>(glfwGetWindowUserPointer(window))->reset();
+			}
 		};
 		glfwSetWindowFocusCallback(_window.get(), focus_callback);
 
