@@ -28,17 +28,16 @@ namespace vis
 		auto scroll_in = _input.get_scroll_offset_y();
 		auto mouse_1_in = _input.get_button(GLFW_MOUSE_BUTTON_1);
 
-		if(mouse_1_in)
-		{
+		_scale *= 1.f + scroll_in * scroll_speed;
+		if(mouse_1_in)	// Only move model when dragging
 			_translation += mouse_in * mouse_speed * 1.f/_scale;
-			_scale *= 1.f + scroll_in * scroll_speed;
-		}
+
 		auto model = scale(mat4{}, vec3{1.f, 1.f/_fields.front().aspect_ratio(), 1.f});
 		auto view = translate(scale(mat4{1.f}, vec3{_scale, _scale, 1.f}), vec3{_translation, 0.f});
 		auto project = ortho(-1.f, 1.f, -1.f/_input.get_framebuffer_aspect_ratio(), 1.f/_input.get_framebuffer_aspect_ratio());
 		auto mvp = project * view * model;
 
-		if(!mouse_1_in)
+		if(!mouse_1_in)	// Only move cursor when not dragging
 			update_selection_cursor(mouse_in * vec2(1, -1), view * model);
 
 		glUseProgram(_program);
