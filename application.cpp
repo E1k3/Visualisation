@@ -13,7 +13,7 @@ namespace vis
 														  {102, 47, 102, 47},
 														  {102, 47, 102, 47}};
 	constexpr int Application::study_steps[] = {100, 1300};
-	unsigned Application::study_select = 0;
+	unsigned Application::study_select = 1;
 	namespace fs = std::experimental::filesystem;
 	Application::Application(std::string path)
 		: _ensemble{fs::path{path}}
@@ -198,7 +198,7 @@ namespace vis
 		_delta = 0.0;
 
 		glEnable(GL_DEPTH_TEST);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glfwShowWindow(_window.get());
 
 		// Event loop

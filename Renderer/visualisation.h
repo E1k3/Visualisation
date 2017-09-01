@@ -16,14 +16,8 @@ namespace vis
 		explicit Visualisation(InputManager& input, const std::vector<Field>& fields);
 		virtual ~Visualisation() = default;
 
-		/**
-		 * @brief setup_data Creates buffer(s), uploads data and configures attribute arrays.
-		 */
-		virtual void setup_data() = 0;
-		/**
-		 * @brief setup_shaders Creates, compiles shaders, links program(s) and configures uniform(s).
-		 */
-		virtual void setup_shaders() = 0;
+		void setup();
+
 		/**
 		 * @brief update Updates visualisation state.
 		 * Uses input to alter uniforms, data, whetever is needed.
@@ -37,6 +31,14 @@ namespace vis
 		virtual void draw() const = 0;
 
 	protected:
+		/// @brief setup_data Creates buffer(s), uploads data and configures attribute arrays.
+		virtual void setup_data() = 0;
+		/// @brief setup_shaders Creates, compiles shaders, links program(s) and configures uniform(s).
+		virtual void setup_shaders() = 0;
+
+		void update_selection_cursor(glm::vec2 mouse_offset);
+
+
 		// Input manager that is used to access HID data
 		InputManager& _input;
 		// Collection of data fields (visualisation input)
@@ -45,7 +47,7 @@ namespace vis
 		// OpenGL vertex array object
 		VertexArray _vao;
 		// Collection of OpenGL buffers
-		std::vector<Buffer> _vbos;
+		std::vector<Buffer> _buffers;
 		// OpenGL shader program
 		Program _program;
 

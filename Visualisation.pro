@@ -25,7 +25,10 @@ SOURCES += main.cpp \
     Data/field.cpp \
     Renderer/textrenderer.cpp \
     Renderer/colormaprenderer.cpp \
-    Renderer/visualisation.cpp
+    Renderer/visualisation.cpp \
+    Renderer/glyph.cpp \
+    Renderer/globject2.cpp \
+    Renderer/render_util.cpp
 
 HEADERS += \
     logger.h \
@@ -41,7 +44,9 @@ HEADERS += \
     Renderer/textrenderer.h \
     Renderer/colormaprenderer.h \
     Renderer/globject2.h \
-    Renderer/visualisation.h
+    Renderer/visualisation.h \
+    Renderer/glyph.h \
+    Renderer/render_util.h
 
 DISTFILES += \
     Shader/heightfield_vs.glsl \

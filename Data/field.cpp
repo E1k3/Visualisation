@@ -20,7 +20,7 @@ namespace vis
 							<< " width: " << width
 							<< " height: " << height
 							<< " depth: " << depth;
-			throw std::invalid_argument("Negative dimensions for field creation");
+			throw std::length_error("Negative dimensions for field creation");
 		}
 		if(size() == 0)
 			Logger::warning() << "Field created with size 0.";
@@ -242,7 +242,7 @@ namespace vis
 							<< "i: " << i
 							<< "\nField volume:\n"
 							<< "volume: " << volume();
-			throw std::out_of_range("Field data access out of range.");	// TODO:ERROR handling. Negative index.
+			throw std::length_error("Field data access out of range.");	// TODO:ERROR handling. Negative index.
 		}
 		return i*_dimension;
 	}
@@ -255,7 +255,7 @@ namespace vis
 							<< "d: " << d
 							<< "\nField point dimension:\n"
 							<< "dimension: " << _dimension ;
-			throw std::out_of_range("Field data access out of range.");	// TODO:ERROR handling. Negative index.
+			throw std::length_error("Field data access out of range.");	// TODO:ERROR handling. Negative index.
 		}
 		return validate_index(i) + d;
 	}
@@ -268,7 +268,7 @@ namespace vis
 							<< "x: " << x << " y: " << y << " z: " << z
 							<< "\nField dimensions:\n"
 							<< "width: " << _width << " height: " << _height << " depth: " << _depth;
-			throw std::out_of_range("Field data access out of range.");	// TODO:ERROR handling. Negative index.
+			throw std::length_error("Field data access out of range.");	// TODO:ERROR handling. Negative index.
 		}
 		return (z*area() + y*_width + x) * _dimension;
 	}

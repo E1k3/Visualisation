@@ -11,6 +11,7 @@
 #include "logger.h"
 #include "Data/math_util.h"
 #include "application.h"
+#include "render_util.h"
 
 namespace vis
 {
@@ -33,9 +34,6 @@ namespace vis
 
 	void GlyphRenderer::init_gaussian()
 	{
-		constexpr unsigned mask_res_x = 1000;
-		constexpr unsigned mask_res_y = 1000;
-
 		auto mean_field = _fields[0];
 		auto dev_field = _fields[1];
 
@@ -48,42 +46,36 @@ namespace vis
 
 		_vao = gen_vao();
 		glBindVertexArray(_vao);
-
-		// Grid (position)
-		auto grid = gen_grid(mean_field.width(), mean_field.height());
+		auto grid = render_util::gen_grid(mean_field.width(), mean_field.height());
+		// Setup VBO
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float)*grid.size()),
-					 &grid[0], GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
-		glEnableVertexAttribArray(0);
-		_num_vertices = mean_field.area();
+		auto total_buffersize = grid.size() + static_cast<size_t>(mean_field.area() * mean_field.point_dimension()
+																  + dev_field.area() * dev_field.point_dimension());
+		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float) * total_buffersize), nullptr, GL_STATIC_DRAW);
+		GLintptr buffer_offset = 0;
 
+		// Vertex grid (position)
+		glBufferSubData(GL_ARRAY_BUFFER, buffer_offset, static_cast<GLsizeiptr>(sizeof(float)*grid.size()),	grid.data());
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+		buffer_offset += sizeof(float)*grid.size();
 
 		// Mean (ring)
-		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float))*mean_field.area()*mean_field.point_dimension(),
-					 mean_field.data().data(), GL_STATIC_DRAW);
-		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, mean_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
+		glBufferSubData(GL_ARRAY_BUFFER, buffer_offset, static_cast<GLsizeiptr>(sizeof(float))*mean_field.area()*mean_field.point_dimension(), mean_field.data().data());
+		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, mean_field.point_dimension()*static_cast<int>(sizeof(float)), reinterpret_cast<void*>(buffer_offset));
 		glEnableVertexAttribArray(1);
+		buffer_offset += static_cast<GLsizeiptr>(sizeof(float))*mean_field.area()*mean_field.point_dimension();
 
-		// Standard Deviation (circle and background)
-		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
-		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float))*dev_field.area()*dev_field.point_dimension(),
-					 dev_field.data().data(), GL_STATIC_DRAW);
-		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, dev_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
+		// Deviation (dot & background)
+		glBufferSubData(GL_ARRAY_BUFFER, buffer_offset, static_cast<GLsizeiptr>(sizeof(float))*dev_field.area()*dev_field.point_dimension(), dev_field.data().data());
+		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, dev_field.point_dimension()*static_cast<int>(sizeof(float)), reinterpret_cast<void*>(buffer_offset));
 		glEnableVertexAttribArray(2);
+		buffer_offset += static_cast<GLsizeiptr>(sizeof(float))*dev_field.area()*dev_field.point_dimension();
 
-		// Mask (glyph)
-		auto mask = genMask(mask_res_x, mask_res_y);
-		_texture = gen_texture();
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, _texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, static_cast<GLsizei>(mask_res_x), static_cast<GLsizei>(mask_res_y),
-					 0, GL_RGB, GL_FLOAT, mask.data());
+		_num_vertices = mean_field.area();
+
+		Logger::debug() << grid.size() << ".." << mean_field.area() << "-.-" << dev_field.area();
+
 
 		// Shaders
 		auto vertex_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/glyph_vs.glsl"},	//TODO:change location to relative
@@ -110,7 +102,6 @@ namespace vis
 		glUseProgram(_program);
 
 		// Get uniform locations and set constant uniforms
-		glUniform1i(glGetUniformLocation(_program, "mask"), 0);
 		glUniform2i(glGetUniformLocation(_program, "field_size"), mean_field.width(), mean_field.height());
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
@@ -123,9 +114,6 @@ namespace vis
 
 	void GlyphRenderer::init_gmm()
 	{
-		constexpr unsigned mask_res_x = 1000;
-		constexpr unsigned mask_res_y = 1000;
-
 		auto mean_field = _fields[0];
 		auto dev_field = _fields[1];
 		auto weight_field = _fields[2];
@@ -151,7 +139,7 @@ namespace vis
 		glBindBuffer(GL_ARRAY_BUFFER, gen_buffer());
 		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeof(float)*grid.size()),
 					 &grid[0], GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
 		_num_vertices = mean_field.area();
 
@@ -175,18 +163,6 @@ namespace vis
 					 weight_field.data().data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, weight_field.point_dimension()*static_cast<int>(sizeof(float)), 0);
 		glEnableVertexAttribArray(3);
-
-		// Mask (glyph)
-		auto mask = genMask(mask_res_x, mask_res_y);
-		_texture = gen_texture();
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, _texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, static_cast<GLsizei>(mask_res_x), static_cast<GLsizei>(mask_res_y),
-					 0, GL_RGB, GL_FLOAT, mask.data());
 
 		// Shaders
 		auto vertex_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_vs.glsl"},	//TODO:change location to relative
@@ -213,7 +189,6 @@ namespace vis
 		glUseProgram(_program);
 
 		// Get uniform locations and set constant uniforms
-		glUniform1i(glGetUniformLocation(_program, "mask"), 0);
 		glUniform2i(glGetUniformLocation(_program, "field_size"), mean_field.width(), mean_field.height());
 		_mvp_uniform = glGetUniformLocation(_program, "mvp");
 		_bounds_uniform = glGetUniformLocation(_program, "bounds");
@@ -273,44 +248,6 @@ namespace vis
 		// Render palette
 		_palette.set_bounds(_bounds);
 		_palette.set_viewport(framebuffer_size);
-		_palette.draw(delta_time, total_time);
-	}
-
-	std::vector<float> GlyphRenderer::genMask(int width, int height) const
-	{
-		if(width < 0 || height < 0)
-		{
-			Logger::error() << "Mask generation using negative dimensions.\n"
-							<< "width: " << width << " height: " << height;
-			throw std::invalid_argument("Negative mask generation dimensions");
-		}
-
-		auto mask = std::vector<float>(static_cast<size_t>(width * height) * 3);
-
-		using namespace glm;
-		const float r_outer = sqrt(2.f / (3.f * pi<float>()));
-		const float r_inner = sqrt(r_outer * r_outer / 2.f);
-
-		for(int y = 0; y < height; ++y)
-		{
-			for(int x = 0; x < width; ++x)
-			{
-				size_t i = static_cast<size_t>((y*width + x) * 3);
-				float dist = distance(vec2(x, y)/vec2(width, height), vec2(.5f, .5f));
-				if(dist < r_inner)
-				{
-					mask[i + 0] = 1.f;
-				}
-				else if(dist < r_outer)
-				{
-					mask[i + 1] = 1.f;
-				}
-				else
-				{
-					mask[i + 2] = 1.f;
-				}
-			}
-		}
-		return mask;
+		//_palette.draw(delta_time, total_time);
 	}
 }

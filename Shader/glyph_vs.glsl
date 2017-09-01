@@ -8,7 +8,6 @@ out vec2 gs_pos;
 out vec2 gs_data;
 out float gs_indicator;
 
-uniform mat4 mvp;
 uniform vec4 bounds;
 uniform vec4 highlight_area;
 
@@ -19,4 +18,5 @@ void main()
 	gs_indicator = 1.f
 			+ 2.f * float(pos.x >= highlight_area.x && pos.y >= highlight_area.y && pos.x <= highlight_area.z && pos.y <= highlight_area.w)
 			- 100.f * float(mean == 0.f && var == 0.f);
+
 }

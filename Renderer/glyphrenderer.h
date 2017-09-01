@@ -22,8 +22,6 @@ namespace vis
 		void init_gaussian();
 		void init_gmm();
 
-		std::vector<float> genMask(int width, int height) const;
-
 		InputManager& _input;
 		ColormapRenderer _palette{};
 
