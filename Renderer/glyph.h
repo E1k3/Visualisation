@@ -19,12 +19,18 @@ namespace vis
 		void setup_data() override;
 		void setup_shaders() override;
 
+	private:
+		// Data
 		glm::vec2 _mean_bounds;	// (min, max)
 		glm::vec2 _dev_bounds;	// (min, max)
 
+		// Camera
+		float _scale{1.f};
+		glm::vec2 _translation{0.f};
 
-
-	private:
+		// Uniform locations
+		GLint _mvp_loc{0};
+		GLint _bounds_loc{0};
 	};
 }
 #endif // GLYPH_H

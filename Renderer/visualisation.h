@@ -7,6 +7,7 @@
 #include "globject2.h"
 #include "Data/field.h"
 #include "inputmanager.h"
+#include "colormaprenderer.h"
 
 namespace vis
 {
@@ -15,8 +16,6 @@ namespace vis
 	public:
 		explicit Visualisation(InputManager& input, const std::vector<Field>& fields);
 		virtual ~Visualisation() = default;
-
-		void setup();
 
 		/**
 		 * @brief update Updates visualisation state.
@@ -33,16 +32,19 @@ namespace vis
 	protected:
 		/// @brief setup_data Creates buffer(s), uploads data and configures attribute arrays.
 		virtual void setup_data() = 0;
-		/// @brief setup_shaders Creates, compiles shaders, links program(s) and configures uniform(s).
+		/// @brief setup_shaders Creates and compiles shaders, links program(s) and configures uniform(s).
 		virtual void setup_shaders() = 0;
-
-		void update_selection_cursor(glm::vec2 mouse_offset);
+		/// @brief update_selection_cursor Updates the cursor position.
+		/// Uses the model-view matrix to calculate view direction.
+		void update_selection_cursor(glm::vec2 mouse_offset, glm::mat4 mv);
 
 
 		// Input manager that is used to access HID data
 		InputManager& _input;
 		// Collection of data fields (visualisation input)
 		const std::vector<Field>& _fields;
+		// Renders the color map with divisions
+		ColormapRenderer _palette;
 
 		// OpenGL vertex array object
 		VertexArray _vao;
@@ -53,11 +55,12 @@ namespace vis
 
 		// Number of vertices to draw
 		int _vertex_count{0};
-		// Model-View-Projection matrix
-		glm::mat4 _mvp;
 
 		// Point in [(-1,-1), (1,1)] that is currently selected by the cursor
 		glm::vec2 _selection_cursor{0.f};
+		// Location of a vec4 uniform containing the LL and UR coordinates of a highlighted rectangle
+		// The vec4 looks like this (x1, y1, x2, y1) with (x1, y1) being LL and (x2, y2) being UR
+		GLint _highlight_loc{0};
 	};
 }
 #endif // VISUALISATION_H

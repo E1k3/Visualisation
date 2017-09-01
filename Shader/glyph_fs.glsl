@@ -22,5 +22,4 @@ void main()
 	                     + (fs_data.x - fs_data.y) * float (distance >= rad_out)), 1.f);
 	if(fs_indicator > 2.f)
 		color = vec4(1.f);
-	color = vec4(1.f);
 }

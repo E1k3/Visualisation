@@ -213,7 +213,7 @@ namespace vis
 		if(!_input.get_button(GLFW_MOUSE_BUTTON_1))
 			_input.reset_cursor_offsets();
 		auto trans_offset = _input.get_cursor_offset();
-		trans_offset.x = -trans_offset.x;
+		trans_offset.y = -trans_offset.y;
 		_translate += vec3(trans_offset * mousespeed * 1.f/_scale, 0.f);
 		auto scale_offset = _input.get_scroll_offset_y();
 		_scale *= 1.f + scale_offset*scrollspeed;
@@ -221,9 +221,9 @@ namespace vis
 		auto framebuffer_size = _input.get_framebuffer_size();
 
 		// MVP calculation
-		auto model = scale(mat4{1.f}, vec3{192.f/96.f * framebuffer_size.y/framebuffer_size.x, 1.f, 1.f});
-		auto view = glm::scale(glm::mat4{1.f}, vec3{_scale, _scale, 1.f}) * glm::translate(glm::mat4{1.f}, _translate);
-		auto proj = mat4{1.f};
+		auto model = scale(mat4{}, vec3{1.f, 1.f/_fields.front().aspect_ratio(), 1.f});
+		auto view =  glm::translate(glm::scale(glm::mat4{1.f}, vec3{_scale, _scale, 1.f}), _translate);
+		auto proj = ortho(-1.f, 1.f, 1.f/-_input.get_framebuffer_aspect_ratio(), 1.f/_input.get_framebuffer_aspect_ratio());
 		auto mvp = proj * view * model;
 		glUniformMatrix4fv(_mvp_uniform, 1, GL_FALSE, value_ptr(mvp));
 		glUniform4f(_bounds_uniform, _bounds.x, _bounds.y, _bounds.z, _bounds.w);
@@ -239,7 +239,7 @@ namespace vis
 		}
 		else
 		{//TODO
-			glUniform4f(_highlight_uniform, 1.f, 1.f, 1.f, 1.f);
+			//glUniform4f(_highlight_uniform, 1.f, 1.f, 1.f, 1.f);
 		}
 
 		// Draw

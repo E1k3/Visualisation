@@ -7,6 +7,8 @@
 #include "Renderer/heightfieldrenderer.h"
 #include "inputmanager.h"
 
+#include "Renderer/glyph.h"
+
 namespace vis
 {
 	constexpr float Application::study_highlights[][4] = {{85, 80, 85, 80},
@@ -173,23 +175,25 @@ namespace vis
 			_ensemble.analyse_field(field_index_input, Ensemble::Analysis(analysis_input));
 		}
 
-		// Select renderer
-		auto renderer = std::unique_ptr<Renderer>{};
-		std::cout << "\nRender result using:\n0 Heightfield renderer\n1 Glyph renderer\n";
-		int renderer_input = 0;
-		std::cin >> renderer_input;
-		switch (renderer_input)
-		{
-		case 0:
-			renderer = std::make_unique<HeightfieldRenderer>(_ensemble.fields(), input);
-			break;
-		case 1:
-			renderer = std::make_unique<GlyphRenderer>(_ensemble.fields(), input);
-			break;
-		default:
-			//TODO error
-			break;
-		}
+//		// Select renderer
+//		auto renderer = std::unique_ptr<Renderer>{};
+//		std::cout << "\nRender result using:\n0 Heightfield renderer\n1 Glyph renderer\n";
+//		int renderer_input = 0;
+//		std::cin >> renderer_input;
+//		switch (renderer_input)
+//		{
+//		case 0:
+//			renderer = std::make_unique<HeightfieldRenderer>(_ensemble.fields(), input);
+//			break;
+//		case 1:
+//			renderer = std::make_unique<GlyphRenderer>(_ensemble.fields(), input);
+//			break;
+//		default:
+//			//TODO error
+//			break;
+//		}
+
+		auto rend = std::make_unique<Glyph>(input, _ensemble.fields());
 
 		// OpenGL & window state
 		glClearColor(.1f, .1f, .1f, 1.f);
@@ -198,7 +202,7 @@ namespace vis
 		_delta = 0.0;
 
 		glEnable(GL_DEPTH_TEST);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glfwShowWindow(_window.get());
 
 		// Event loop
@@ -209,7 +213,9 @@ namespace vis
 			time = new_time;
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			renderer->draw(_delta, static_cast<float>(time));
+//			renderer->draw(_delta, static_cast<float>(time));
+			rend->update(_delta, static_cast<float>(time));
+			rend->draw();
 
 			glfwSwapBuffers(_window.get());
 			glfwPollEvents();

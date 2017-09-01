@@ -16,7 +16,6 @@ void main()
 	gs_pos = pos;
 	gs_data = vec2((mean - bounds.x) / (bounds.y-bounds.x), var / (bounds.y - bounds.x));
 	gs_indicator = 1.f
-			+ 2.f * float(pos.x >= highlight_area.x && pos.y >= highlight_area.y && pos.x <= highlight_area.z && pos.y <= highlight_area.w)
+			+ 200.f * float(pos.x >= highlight_area.x && pos.y >= highlight_area.y && pos.x <= highlight_area.z && pos.y <= highlight_area.w)
 			- 100.f * float(mean == 0.f && var == 0.f);
-
 }
