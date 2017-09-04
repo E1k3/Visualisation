@@ -5,13 +5,13 @@ layout(triangle_strip, max_vertices = 4) out;
 
 in vec2 gs_pos[];
 in vec4 gs_mean[];
-in vec4 gs_var[];
+in vec4 gs_dev[];
 in vec4 gs_weight[];
 in float gs_indicator[];
 
 out vec2 fs_uv;
 out vec4 fs_mean;
-out vec4 fs_var;
+out vec4 fs_dev;
 out vec4 fs_weight;
 out float fs_indicator;
 
@@ -21,7 +21,7 @@ uniform ivec2 field_size;
 void main()
 {
 	fs_mean = gs_mean[0];
-	fs_var = gs_var[0];
+	fs_dev = gs_dev[0];
 	fs_weight = gs_weight[0];
 	fs_indicator = gs_indicator[0];
 

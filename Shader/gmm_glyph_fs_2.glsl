@@ -2,7 +2,7 @@
 
 in vec2 fs_uv;
 in vec4 fs_mean;
-in vec4 fs_var;
+in vec4 fs_dev;
 in vec4 fs_weight;
 in float fs_indicator;
 
@@ -28,12 +28,14 @@ void main()
 		else ++last;
 	}
 
-	color = vec4(palette((fs_mean.x - fs_var.x) * float(distance < dot_radius) +
+	color = vec4(palette((fs_mean.x - fs_dev.x) * float(distance < dot_radius) +
 	                     fs_mean.x            * float(distance < weightsum.x                 && distance >= dot_radius) +
 	                     fs_mean.y            * float(distance < weightsum.y                 && distance >= weightsum.x) +
 	                     fs_mean.z            * float(distance < weightsum.z                 && distance >= weightsum.y) +
 	                     fs_mean.w            * float(distance < weightsum.w                 && distance >= weightsum.z) +
-	                     (fs_mean[last] + fs_var[last]) * float(                                distance >= 1.f) ), 1.f);
+						 (fs_mean[last] + fs_dev[last]) * float(                                distance >= 1.f) ), 1.f);
 	if(fs_indicator > 2.f)
+		color = vec4(1.f);
+	if(fs_weight.x == 0.f)
 		color = vec4(1.f);
 }

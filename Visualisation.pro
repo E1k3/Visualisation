@@ -18,7 +18,6 @@ SOURCES += main.cpp \
     Renderer/renderer.cpp \
     application.cpp \
     inputmanager.cpp \
-    Renderer/glyphrenderer.cpp \
     Data/math_util.cpp \
     Renderer/globject.cpp \
     Data/ensemble.cpp \
@@ -28,7 +27,8 @@ SOURCES += main.cpp \
     Renderer/visualisation.cpp \
     Renderer/glyph.cpp \
     Renderer/globject2.cpp \
-    Renderer/render_util.cpp
+    Renderer/render_util.cpp \
+    Renderer/glyphgmm.cpp
 
 HEADERS += \
     logger.h \
@@ -36,7 +36,6 @@ HEADERS += \
     Renderer/renderer.h \
     application.h \
     inputmanager.h \
-    Renderer/glyphrenderer.h \
     Data/math_util.h \
     Renderer/globject.h \
     Data/ensemble.h \
@@ -46,7 +45,8 @@ HEADERS += \
     Renderer/globject2.h \
     Renderer/visualisation.h \
     Renderer/glyph.h \
-    Renderer/render_util.h
+    Renderer/render_util.h \
+    Renderer/glyphgmm.h
 
 DISTFILES += \
     Shader/heightfield_vs.glsl \

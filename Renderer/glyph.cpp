@@ -13,8 +13,7 @@ namespace vis
 	Glyph::Glyph(InputManager& input, const std::vector<Field>& fields)
 		: Visualisation{input, fields}
 	{
-		setup_data();
-		setup_shaders();
+
 	}
 
 	void Glyph::update(float /*delta_time*/, float /*total_time*/)
@@ -43,6 +42,7 @@ namespace vis
 		glUseProgram(_program);
 		glUniformMatrix4fv(_mvp_loc, 1, GL_FALSE, value_ptr(mvp));
 		glUniform4f(_bounds_loc, _mean_bounds.x, _mean_bounds.y, _dev_bounds.x, _dev_bounds.y);
+		glUniform2i(_fieldsize_loc, _fields.front().width(), _fields.front().height());
 
 		auto cell_width = vec2(1.f)	/ vec2(_fields.front().width(), _fields.front().height());
 		auto highlight = vec4(_selection_cursor - .5f * cell_width, _selection_cursor + .5f * cell_width) * 2.f - 1.f;
@@ -63,12 +63,12 @@ namespace vis
 		if(_fields.size() < 2)
 		{
 			Logger::error() << "Glyph renderer needs at least two data fields to be created.";
-			throw std::invalid_argument("Glyph renderer creation with < 2 fields");
+			throw std::invalid_argument("Glyph renderer setup with < 2 fields");
 		}
 		if(!_fields[0].equal_layout(_fields[1]))
 		{
 			Logger::error() << "Glyph renderer needs data fields with matching format.";
-			throw std::runtime_error("Glyph rendering error");
+			throw std::runtime_error("Glyph renderer setup with mismatched fields");
 		}
 
 		auto& mean_field = _fields[0];	// Field holding the mean for each vertex
@@ -87,7 +87,7 @@ namespace vis
 		GLintptr buffer_offset = 0;
 
 		// Vertex grid (position)
-		glBufferSubData(GL_ARRAY_BUFFER, buffer_offset, static_cast<GLsizeiptr>(sizeof(float)*grid.size()),	&grid[0]);
+		glBufferSubData(GL_ARRAY_BUFFER, buffer_offset, static_cast<GLsizeiptr>(sizeof(float)*grid.size()),	grid.data());
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
 		buffer_offset += grid.size() * sizeof(float);
@@ -119,16 +119,15 @@ namespace vis
 
 		// Create, load and compile shaders
 		auto vertex_shader = gen_shader(GL_VERTEX_SHADER);
-		render_util::load_compile_shader(vertex_shader, {"/home/eike/Documents/Code/Visualisation/Shader/glyph_vs.glsl"});
+		render_util::load_compile_shader(vertex_shader, _vertex_shaders);
 		glAttachShader(_program, vertex_shader);
 
 		auto geometry_shader = gen_shader(GL_GEOMETRY_SHADER);
-		render_util::load_compile_shader(geometry_shader, {"/home/eike/Documents/Code/Visualisation/Shader/glyph_gs.glsl"});
+		render_util::load_compile_shader(geometry_shader, _geometry_shaders);
 		glAttachShader(_program, geometry_shader);
 
 		auto fragment_shader = gen_shader(GL_FRAGMENT_SHADER);
-		render_util::load_compile_shader(fragment_shader, {"/home/eike/Documents/Code/Visualisation/Shader/glyph_fs.glsl",
-														   "/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"});
+		render_util::load_compile_shader(fragment_shader, _fragment_shaders);
 		glAttachShader(_program, fragment_shader);
 
 		// Link and use program and free up memory
@@ -139,9 +138,9 @@ namespace vis
 		glDetachShader(_program, fragment_shader);
 
 		// Configure uniforms
-		glUniform2i(glGetUniformLocation(_program, "field_size"), _fields[0].width(), _fields[0].height());
 		_mvp_loc = glGetUniformLocation(_program, "mvp");
 		_bounds_loc = glGetUniformLocation(_program, "bounds");
 		_highlight_loc = glGetUniformLocation(_program, "highlight_area");
+		_fieldsize_loc = glGetUniformLocation(_program, "field_size");
 	}
 }

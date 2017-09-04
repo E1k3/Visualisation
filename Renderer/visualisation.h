@@ -17,6 +17,17 @@ namespace vis
 		explicit Visualisation(InputManager& input, const std::vector<Field>& fields);
 		virtual ~Visualisation() = default;
 
+		virtual void setup();
+
+		/**
+		 * @brief setup_data Creates buffer(s), uploads data and configures attribute arrays.
+		 */
+		virtual void setup_data() = 0;
+		/**
+		 * @brief setup_shaders Creates and compiles shaders, links program(s) and configures uniform(s).
+		 */
+		virtual void setup_shaders() = 0;
+
 		/**
 		 * @brief update Updates visualisation state.
 		 * Uses input to alter uniforms, data, whetever is needed.
@@ -30,10 +41,6 @@ namespace vis
 		virtual void draw() const = 0;
 
 	protected:
-		/// @brief setup_data Creates buffer(s), uploads data and configures attribute arrays.
-		virtual void setup_data() = 0;
-		/// @brief setup_shaders Creates and compiles shaders, links program(s) and configures uniform(s).
-		virtual void setup_shaders() = 0;
 		/// @brief update_selection_cursor Updates the cursor position.
 		/// Uses the model-view matrix to calculate view direction.
 		void update_selection_cursor(glm::vec2 mouse_offset, glm::mat4 mv);

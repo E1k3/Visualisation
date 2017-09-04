@@ -11,18 +11,23 @@ namespace vis
 		explicit Glyph(InputManager& input, const std::vector<Field>& fields);
 		~Glyph() = default;
 
-		void update(float delta_time, float total_time) override;
+		virtual void setup_data() override;
+		virtual void setup_shaders() override;
 
-		void draw() const override;
+		virtual void update(float delta_time, float total_time) override;
+
+		virtual void draw() const override;
 
 	protected:
-		void setup_data() override;
-		void setup_shaders() override;
-
-	private:
+		std::vector<std::string> _vertex_shaders{"/home/eike/Documents/Code/Visualisation/Shader/glyph_vs.glsl"};
+		std::vector<std::string> _geometry_shaders{"/home/eike/Documents/Code/Visualisation/Shader/glyph_gs.glsl"};
+		std::vector<std::string> _fragment_shaders{"/home/eike/Documents/Code/Visualisation/Shader/glyph_fs.glsl",
+												   "/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"};
 		// Data
 		glm::vec2 _mean_bounds;	// (min, max)
 		glm::vec2 _dev_bounds;	// (min, max)
+
+	private:
 
 		// Camera
 		float _scale{1.f};
@@ -31,6 +36,7 @@ namespace vis
 		// Uniform locations
 		GLint _mvp_loc{0};
 		GLint _bounds_loc{0};
+		GLint _fieldsize_loc{0};
 	};
 }
 #endif // GLYPH_H

@@ -2,7 +2,7 @@
 
 in vec2 fs_uv;
 in vec4 fs_mean;
-in vec4 fs_var;
+in vec4 fs_dev;
 in vec4 fs_weight;
 in float fs_indicator;
 
@@ -20,7 +20,7 @@ void main()
 
 	vec4 weightsum = vec4(fs_weight.x, fs_weight.x+fs_weight.y, fs_weight.x+fs_weight.y+fs_weight.z, fs_weight.x+fs_weight.y+fs_weight.z+fs_weight.w) * pi * 2.f;
 	vec3 mask = texture(mask, fs_uv).rgb;
-	vec4 comps = mask.r*(fs_mean + fs_var) + mask.g*fs_mean + mask.b*(fs_mean - fs_var);
+	vec4 comps = mask.r*(fs_mean + fs_dev) + mask.g*fs_mean + mask.b*(fs_mean - fs_dev);
 
 	float angle = acos((.5f-fs_uv.y) / length(fs_uv-vec2(.5f))) * (float(.5f-fs_uv.x < 0.f)*2 - 1) + pi;
 

@@ -8,6 +8,7 @@
 #include "inputmanager.h"
 
 #include "Renderer/glyph.h"
+#include "Renderer/glyphgmm.h"
 
 namespace vis
 {
@@ -193,7 +194,9 @@ namespace vis
 //			break;
 //		}
 
-		auto rend = std::make_unique<Glyph>(input, _ensemble.fields());
+		auto rend = std::make_unique<GlyphGMM>(input, _ensemble.fields());
+		rend->setup_data();
+		rend->setup_shaders();
 
 		// OpenGL & window state
 		glClearColor(.1f, .1f, .1f, 1.f);
