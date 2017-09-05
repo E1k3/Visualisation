@@ -3,12 +3,13 @@
 #include <experimental/filesystem>
 
 #include "logger.h"
-#include "Renderer/glyphrenderer.h"
 #include "Renderer/heightfieldrenderer.h"
 #include "inputmanager.h"
 
 #include "Renderer/glyph.h"
 #include "Renderer/glyphgmm.h"
+#include "Renderer/heightfield.h"
+#include "Renderer/heightfieldgmm.h"
 
 namespace vis
 {

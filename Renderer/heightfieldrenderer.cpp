@@ -234,10 +234,6 @@ namespace vis
 
 	void HeightfieldRenderer::draw_scale_planes(const glm::mat4& mvp, int count)
 	{
-		// Save old OpenGL state and setup
-		auto blending = glIsEnabled(GL_BLEND);
-		int blendfunc;
-		glGetIntegerv(GL_SRC_ALPHA, &blendfunc);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -249,11 +245,6 @@ namespace vis
 		glUniform1i(_scale_plane_count_uniform, count);
 		glUniform1f(_scale_plane_opacity_uniform, 0.5f);
 		glDrawArraysInstanced(GL_LINES, 0, _scale_plane_num_vertices, count);
-
-		// Reset OpenGL state
-		if(!blending)
-			glDisable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, static_cast<GLenum>(blendfunc));
 
 		// Setup and render labels
 		auto lines = std::vector<std::string>();

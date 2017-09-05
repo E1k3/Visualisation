@@ -15,7 +15,6 @@ namespace vis
 		virtual void setup_shaders() override;
 
 		virtual void update(float delta_time, float total_time) override;
-
 		virtual void draw() const override;
 
 	protected:
@@ -34,9 +33,9 @@ namespace vis
 		glm::vec2 _translation{0.f};
 
 		// Uniform locations
-		GLint _mvp_loc{0};
-		GLint _bounds_loc{0};
-		GLint _fieldsize_loc{0};
+		GLint _mvp_loc{-1};
+		GLint _bounds_loc{-1};
+		GLint _fieldsize_loc{-1};
 	};
 }
 #endif // GLYPH_H

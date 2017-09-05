@@ -28,7 +28,9 @@ SOURCES += main.cpp \
     Renderer/glyph.cpp \
     Renderer/globject2.cpp \
     Renderer/render_util.cpp \
-    Renderer/glyphgmm.cpp
+    Renderer/glyphgmm.cpp \
+    Renderer/heightfield.cpp \
+    Renderer/heightfieldgmm.cpp
 
 HEADERS += \
     logger.h \
@@ -46,7 +48,9 @@ HEADERS += \
     Renderer/visualisation.h \
     Renderer/glyph.h \
     Renderer/render_util.h \
-    Renderer/glyphgmm.h
+    Renderer/glyphgmm.h \
+    Renderer/heightfield.h \
+    Renderer/heightfieldgmm.h
 
 DISTFILES += \
     Shader/heightfield_vs.glsl \
