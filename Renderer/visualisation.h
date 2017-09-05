@@ -8,6 +8,7 @@
 #include "Data/field.h"
 #include "inputmanager.h"
 #include "colormaprenderer.h"
+#include "lines.h"
 
 namespace vis
 {
@@ -43,7 +44,8 @@ namespace vis
 	protected:
 		/// @brief update_selection_cursor Updates the cursor position.
 		/// Uses the model-view matrix to calculate view direction.
-		void update_selection_cursor(glm::vec2 mouse_offset, glm::mat4 mv, float aspect_ratio);
+		void update_selection_cursor(glm::vec2 mouse_offset, glm::mat4 modelview, glm::mat4 projection, float aspect_ratio);
+
 
 
 		// Input manager that is used to access HID data
@@ -68,6 +70,8 @@ namespace vis
 		// Location of a vec4 uniform containing the LL and UR coordinates of a highlighted rectangle
 		// The vec4 looks like this (x1, y1, x2, y1) with (x1, y1) being LL and (x2, y2) being UR
 		GLint _highlight_loc{-1};
+
+		Lines _cursor_line;
 	};
 }
 #endif // VISUALISATION_H

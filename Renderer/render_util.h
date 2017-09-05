@@ -5,6 +5,8 @@
 #include <tuple>
 #include <GL/glew.h>
 
+#include "globject2.h"
+
 
 namespace vis
 {
@@ -15,6 +17,12 @@ namespace vis
 		std::vector<float> gen_grid(int width, int height);
 
 		std::vector<GLuint> gen_grid_indices(int width, int height);
+
+		VertexArray gen_vertex_array();
+		Buffer gen_buffer();
+		Texture gen_texture();
+		Program gen_program();
+		Shader gen_shader(GLenum shadertype);
 	}
 }
 

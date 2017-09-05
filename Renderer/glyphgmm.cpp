@@ -13,6 +13,8 @@ namespace vis
 
 	void GlyphGMM::setup_data()
 	{
+		using namespace render_util;
+
 		if(_fields.size() < 3)
 		{
 			Logger::error() << "GlyphGMM renderer needs at least two data fields to be created.";

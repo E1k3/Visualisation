@@ -13,6 +13,7 @@ namespace vis
 		auto sources = std::vector<std::string>{};
 		for(const auto& path : paths)
 		{
+			Logger::debug() << "Loading shader from source: " << path;
 			sources.push_back("");
 			auto ifs = std::ifstream(path);
 			std::copy(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>(),
@@ -96,5 +97,36 @@ namespace vis
 				indices.push_back(i);
 			}
 		return indices;
+	}
+
+	VertexArray render_util::gen_vertex_array()
+	{
+		GLuint id = 0;
+		glGenVertexArrays(1, &id);
+		return VertexArray(id);
+	}
+
+	Buffer render_util::gen_buffer()
+	{
+		GLuint id = 0;
+		glGenBuffers(1, &id);
+		return Buffer(id);
+	}
+
+	Texture render_util::gen_texture()
+	{
+		GLuint id = 0;
+		glGenTextures(1, &id);
+		return Texture(id);
+	}
+
+	Program render_util::gen_program()
+	{
+		return Program{glCreateProgram()};
+	}
+
+	Shader render_util::gen_shader(GLenum shadertype)
+	{
+		return Shader(glCreateShader(shadertype));
 	}
 }

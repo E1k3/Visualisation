@@ -55,13 +55,6 @@ namespace vis
 	using Program = GLObject2<GLType::PROGRAM>;
 	using Shader = GLObject2<GLType::SHADER>;
 
-	// Helper functions
-	VertexArray gen_vertex_array();
-	Buffer gen_buffer();
-	Texture gen_texture();
-	Program gen_program();
-	Shader gen_shader(GLenum shadertype);
-
 	// GLObject implementation
 	template<GLType Type> GLObject2<Type>::GLObject2(GLuint id) : _id{id}	{  }
 

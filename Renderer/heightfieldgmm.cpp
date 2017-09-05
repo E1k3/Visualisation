@@ -13,6 +13,7 @@ namespace vis
 
 	void HeightfieldGMM::setup_data()
 	{
+		using namespace render_util;
 		if(_fields.size() < 3)
 		{
 			Logger::error() << "HeightfieldGMM renderer needs at least two data fields to be created.";

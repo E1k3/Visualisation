@@ -38,7 +38,9 @@ namespace vis
 		auto mvp = project * view * model;
 
 		if(!mouse_1_in)	// Only move cursor when not dragging
-			update_selection_cursor(mouse_in * vec2(1, -1), view * model, _input.get_framebuffer_aspect_ratio());
+			update_selection_cursor(mouse_in * vec2{1, -1}, view * model, project, _input.get_framebuffer_aspect_ratio());
+		else
+			update_selection_cursor(vec2{0.f}, view * model, project, _input.get_framebuffer_aspect_ratio());
 
 		// Set uniforms
 		glUseProgram(_program);
@@ -65,6 +67,8 @@ namespace vis
 
 	void Glyph::setup_data()
 	{
+		using namespace render_util;
+
 		if(_fields.size() < 2)
 		{
 			Logger::error() << "Glyph renderer needs at least two data fields to be created.";
@@ -119,6 +123,8 @@ namespace vis
 
 	void Glyph::setup_shaders()
 	{
+		using namespace render_util;
+
 		// Create program
 		_program = gen_program();
 

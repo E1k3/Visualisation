@@ -3,6 +3,8 @@
 
 #include "visualisation.h"
 
+#include "lines.h"
+
 namespace vis
 {
 	class Heightfield : public Visualisation
@@ -27,6 +29,9 @@ namespace vis
 		glm::vec2 _dev_bounds;	// (min, max)
 
 	private:
+		// Axes
+		Lines _axes;
+
 		// Camera
 		float _scale{1.f};
 		glm::vec3 _camera_position{-2.f, -2.f, 2.f};

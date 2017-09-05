@@ -51,9 +51,9 @@ namespace vis
 	std::string Logger::severity_string(Logger::Severity severity)
 	{
 		static const std::map<Logger::Severity, std::string> sevMap = {
-			{Logger::Severity::ERROR, "ERROR"},
+			{Logger::Severity::ERROR, "ERROR  "},
 			{Logger::Severity::WARNING, "WARNING"},
-			{Logger::Severity::DEBUG, "DEBUG"}};
+			{Logger::Severity::DEBUG, "DEBUG  "}};
 		return sevMap.at(severity);
 	}
 

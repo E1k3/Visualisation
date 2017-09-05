@@ -30,7 +30,8 @@ SOURCES += main.cpp \
     Renderer/render_util.cpp \
     Renderer/glyphgmm.cpp \
     Renderer/heightfield.cpp \
-    Renderer/heightfieldgmm.cpp
+    Renderer/heightfieldgmm.cpp \
+    Renderer/lines.cpp
 
 HEADERS += \
     logger.h \
@@ -50,7 +51,8 @@ HEADERS += \
     Renderer/render_util.h \
     Renderer/glyphgmm.h \
     Renderer/heightfield.h \
-    Renderer/heightfieldgmm.h
+    Renderer/heightfieldgmm.h \
+    Renderer/lines.h
 
 DISTFILES += \
     Shader/heightfield_vs.glsl \
@@ -70,4 +72,6 @@ DISTFILES += \
     Shader/colormap_fs.glsl \
     Shader/colormap_vs.glsl \
     Shader/scale_plane_vs.glsl \
-    Shader/scale_plane_fs.glsl
+    Shader/scale_plane_fs.glsl \
+    Shader/lines_vs.glsl \
+    Shader/lines_fs.glsl

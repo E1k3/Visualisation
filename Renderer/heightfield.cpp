@@ -12,15 +12,30 @@
 namespace vis
 {
 	Heightfield::Heightfield(InputManager& input, const std::vector<Field>& fields)
-		: Visualisation{input, fields}
+		: Visualisation{input, fields},
+		  _axes{{
+	{-1.f, -1.f, 0.f}, {1.f, -1.f, 0.f},
+	{-1.f, -1.f, 0.f}, {-1.f, 1.f, 0.f},
+	{-1.f, 1.f, 0.f}, {1.f, 1.f, 0.f},
+	{1.f, -1.f, 0.f}, {1.f, 1.f, 0.f}}}
 	{
-
+		_axes.set_translations({{0.f, 0.f, 0.f},
+								{0.f, 0.f, .1f},
+								{0.f, 0.f, .2f},
+								{0.f, 0.f, .3f},
+								{0.f, 0.f, .4f},
+								{0.f, 0.f, .5f},
+								{0.f, 0.f, .6f},
+								{0.f, 0.f, .7f},
+								{0.f, 0.f, .8f},
+								{0.f, 0.f, .9f},
+								{0.f, 0.f, 1.f}});
 	}
 
 	void Heightfield::update(float /*delta_time*/, float total_time)
 	{
 		using namespace glm;
-		constexpr vec2 mouse_speed = vec2(-0.001f, -0.001);	// Invert y-axis
+		constexpr vec2 mouse_speed = vec2{-0.001f, -0.001};	// Invert y-axis
 		constexpr float scroll_speed = -0.1f;	// Invert scrolling
 		constexpr float height_scale = .25f;	// Scale model height by this factor
 
@@ -34,7 +49,7 @@ namespace vis
 		if(mouse_1_in)	// Only move model when dragging
 		{
 			auto old_position = _camera_position;
-			_camera_position = rotate(_camera_position,  mouse_in.y * mouse_speed.y, cross(-_camera_position, vec3(0.f, 0.f, 1.f)));
+			_camera_position = rotate(_camera_position,  mouse_in.y * mouse_speed.y, cross(-_camera_position, vec3{0.f, 0.f, 1.f}));
 			// Prevent flipping when looking straight up or down
 			if(std::signbit(_camera_position.x) != std::signbit(old_position.x) && std::signbit(_camera_position.y) != std::signbit(old_position.y))
 				_camera_position = old_position;
@@ -44,21 +59,25 @@ namespace vis
 
 		// MVP calculation
 		auto model = translate(scale(mat4{}, vec3{1.f, 1.f/_fields.front().aspect_ratio(), height_scale} * _scale), vec3{0.f, 0.f, -.5f});
-		auto view = lookAt(_camera_position, vec3(0.f), vec3{0.f, 0.f, 1.f});
-		auto proj = ortho(-1.f, 1.f, -1.f/_input.get_framebuffer_aspect_ratio(), 1.f/_input.get_framebuffer_aspect_ratio(), -20.f, 20.f);
-		auto mvp = proj * view * model;
+		auto view = lookAt(_camera_position, vec3{0.f}, vec3{0.f, 0.f, 1.f});
+		auto project = ortho(-1.f, 1.f, -1.f/_input.get_framebuffer_aspect_ratio(), 1.f/_input.get_framebuffer_aspect_ratio(), -20.f, 20.f);
+		auto mvp = project * view * model;
 
 		if(!mouse_1_in)	// Only move cursor when not dragging
-			update_selection_cursor(mouse_in * vec2(1, -1), view * model, _input.get_framebuffer_aspect_ratio());
+			update_selection_cursor(mouse_in * vec2{1, -1}, view * model, project, _input.get_framebuffer_aspect_ratio());
+		else
+			update_selection_cursor(vec2{0.f}, view * model, project, _input.get_framebuffer_aspect_ratio());
 
 		glUseProgram(_program);
 		glUniformMatrix4fv(_mvp_loc, 1, GL_FALSE, value_ptr(mvp));
 		glUniform4f(_bounds_loc, _mean_bounds.x, _mean_bounds.y, _dev_bounds.x, _dev_bounds.y);
 		glUniform1f(_time_loc, total_time);
 
-		auto cell_width = vec2(1.f)	/ vec2(_fields.front().width(), _fields.front().height());
-		auto highlight = vec4(_selection_cursor - .5f * cell_width, _selection_cursor + .5f * cell_width) * 2.f - 1.f;
+		auto cell_width = vec2{1.f}	/ vec2{_fields.front().width(), _fields.front().height()};
+		auto highlight = vec4{_selection_cursor - .5f * cell_width, _selection_cursor + .5f * cell_width} * 2.f - 1.f;
 		glUniform4fv(_highlight_loc, 1, value_ptr(highlight));
+
+		_axes.update(mvp);
 	}
 
 	void Heightfield::draw() const
@@ -70,10 +89,13 @@ namespace vis
 		glUseProgram(_program);
 
 		glDrawElements(GL_TRIANGLES, _vertex_count, GL_UNSIGNED_INT, 0);
+		_axes.draw();
+		_cursor_line.draw();
 	}
 
 	void Heightfield::setup_data()
 	{
+		using namespace render_util;
 		if(_fields.size() < 2)
 		{
 			Logger::error() << "Heightfield renderer needs at least two data fields to be created.";
@@ -88,7 +110,7 @@ namespace vis
 		auto& mean_field = _fields[0];	// Field holding the mean for each vertex
 		auto& dev_field = _fields[1];	// Field holding the deviation for each vertex
 		// Vector holding the 2D position for each vertex
-		auto grid = render_util::gen_grid(mean_field.width(), mean_field.height());
+		auto grid = gen_grid(mean_field.width(), mean_field.height());
 
 		glBindVertexArray(_vao = gen_vertex_array());
 
@@ -133,16 +155,17 @@ namespace vis
 
 	void Heightfield::setup_shaders()
 	{
+		using namespace render_util;
 		// Create program
 		_program = gen_program();
 
 		// Create, load and compile shaders
 		auto vertex_shader = gen_shader(GL_VERTEX_SHADER);
-		render_util::load_compile_shader(vertex_shader, _vertex_shaders);
+		load_compile_shader(vertex_shader, _vertex_shaders);
 		glAttachShader(_program, vertex_shader);
 
 		auto fragment_shader = gen_shader(GL_FRAGMENT_SHADER);
-		render_util::load_compile_shader(fragment_shader, _fragment_shaders);
+		load_compile_shader(fragment_shader, _fragment_shaders);
 		glAttachShader(_program, fragment_shader);
 
 		// Link and use program and free up memory
