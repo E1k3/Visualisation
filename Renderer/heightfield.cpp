@@ -85,7 +85,7 @@ namespace vis
 				label_positions.push_back(glm::vec2{pos});
 
 				if(di == 0)
-					label_positions.back() -= vec2{label_sizes.front().x, 0.f};
+					label_positions.back() -= label_sizes.front();
 
 				if(glm::clamp(pos, -1.f, 1.f) != pos)	// Clip text that should be outside of viewspace
 					label_positions.back() = glm::vec2{-10.f, -10.f};
@@ -220,6 +220,6 @@ namespace vis
 
 		_axes_labels.set_lines(labels);
 
-		_palette.set_bounds(_mean_bounds, 10);
+		_palette.set_bounds(_dev_bounds, 10);
 	}
 }

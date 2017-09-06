@@ -181,7 +181,7 @@ namespace vis
 				line_pos += _glyphs[static_cast<size_t>(c)].advance;
 
 				_line_sizes.back().x = std::max(_line_sizes.back().x, std::abs(pos.x + size.x));
-				_line_sizes.back().y = std::max(_line_sizes.back().y, std::abs(pos.y - size.y));
+				_line_sizes.back().y = std::max(_line_sizes.back().y, std::abs(size.y));
 			}
 			_last_vertex_indices.push_back(static_cast<GLint>(quads.size()) / 4);
 		}
