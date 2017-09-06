@@ -1,4 +1,4 @@
-#include "lines.h"
+#include "primitives.h"
 
 #include <algorithm>
 #include <glm/gtc/type_ptr.hpp>
@@ -8,7 +8,7 @@
 
 namespace vis
 {
-	Lines::Lines(const std::vector<glm::vec3>& vertices)
+	Primitives::Primitives(const std::vector<glm::vec3>& vertices)
 	{
 		using namespace render_util;
 
@@ -54,31 +54,33 @@ namespace vis
 
 		_mvp_loc = glGetUniformLocation(_program, "mvp");
 		_translations_loc = glGetUniformLocation(_program, "translations");
+		_color_loc = glGetUniformLocation(_program, "color");
 	}
 
-	void Lines::update(const glm::mat4& mvp)
+	void Primitives::update(const glm::mat4& mvp)
 	{
 		glUseProgram(_program);
 		glUniformMatrix4fv(_mvp_loc, 1, GL_FALSE, glm::value_ptr(mvp));
 		glUniform3fv(_translations_loc, static_cast<GLsizei>(_translations.size() / 3), _translations.data());
+		glUniform4fv(_color_loc, 1, glm::value_ptr(_color));
 	}
 
-	void Lines::draw() const
+	void Primitives::draw(GLenum mode) const
 	{
 		glBindVertexArray(_vao);
 		glUseProgram(_program);
 
-		glDrawArraysInstanced(GL_LINES, 0, _vertex_count, static_cast<GLsizei>(_translations.size() / 3));
+		glDrawArraysInstanced(mode, 0, _vertex_count, static_cast<GLsizei>(_translations.size() / 3));
 	}
 
-	void Lines::add_translation(const glm::vec3& translation)
+	void Primitives::add_translation(const glm::vec3& translation)
 	{
 		_translations.push_back(translation.x);
 		_translations.push_back(translation.y);
 		_translations.push_back(translation.z);
 	}
 
-	void Lines::set_translations(const std::vector<glm::vec3>& translations)
+	void Primitives::set_translations(const std::vector<glm::vec3>& translations)
 	{
 		_translations.clear();
 		_translations.reserve(translations.size() * 3);
@@ -88,5 +90,10 @@ namespace vis
 			_translations.push_back(t.y);
 			_translations.push_back(t.z);
 		}
+	}
+
+	void Primitives::set_color(const glm::vec4& color)
+	{
+		_color = color;
 	}
 }

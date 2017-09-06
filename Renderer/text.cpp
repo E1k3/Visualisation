@@ -1,19 +1,21 @@
-#include "textrenderer.h"
+#include "text.h"
 
 #include <algorithm>
 #include <numeric>
 #include <GLFW/glfw3.h>
 
 #include "logger.h"
+#include "render_util.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
 namespace vis
 {
-	TextRenderer::TextRenderer(unsigned height, const std::string& font)
-		: Renderer{}
+	Text::Text(unsigned height, const std::string& font)
 	{
+		using namespace render_util;
+
 		constexpr FT_ULong begin_char = 32;
 		constexpr FT_ULong end_char = 128;
 		constexpr int char_spacing = 1;
@@ -82,33 +84,30 @@ namespace vis
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);	// Reset unpack alignment to default value
 
 
-		_vao = gen_vao();
-		glBindVertexArray(_vao);
-		_vbo = gen_buffer();
-		glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+		glBindVertexArray(_vao = gen_vertex_array());
+		glBindBuffer(GL_ARRAY_BUFFER, _vbo = gen_buffer());
 
 		// Shaders
-		auto vertex_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/text_vs.glsl"},	//TODO:change location to relative
-										 GL_VERTEX_SHADER);
-		auto fragment_shader = load_shader({"/home/eike/Documents/Code/Visualisation/Shader/text_fs.glsl"},	//TODO:change location to relative
-										   GL_FRAGMENT_SHADER);
 		_program = gen_program();
-		glAttachShader(_program, vertex_shader);
-		glAttachShader(_program, fragment_shader);
-		glLinkProgram(_program);
 
+		auto vertex_shader = gen_shader(GL_VERTEX_SHADER);
+		load_compile_shader(vertex_shader, _vertex_shaders);
+		glAttachShader(_program, vertex_shader);
+
+		auto fragment_shader = gen_shader(GL_FRAGMENT_SHADER);
+		load_compile_shader(fragment_shader, _fragment_shaders);
+		glAttachShader(_program, fragment_shader);
+
+		glLinkProgram(_program);
 		glDetachShader(_program, vertex_shader);
 		glDetachShader(_program, fragment_shader);
-		glDeleteShader(vertex_shader);
-		glDeleteShader(fragment_shader);
-
 		glUseProgram(_program);
 
-		_position_uniform = glGetUniformLocation(_program, "origin");
-		_viewport_uniform = glGetUniformLocation(_program, "viewport");
+		_position_loc = glGetUniformLocation(_program, "origin");
+		_viewport_loc = glGetUniformLocation(_program, "viewport");
 	}
 
-	void TextRenderer::set_lines(const std::vector<std::string>& lines)
+	void Text::set_lines(const std::vector<std::string>& lines)
 	{
 		if(_lines != lines)
 		{
@@ -117,18 +116,19 @@ namespace vis
 		}
 	}
 
-	void TextRenderer::set_positions(const std::vector<glm::vec2>& positions)
+	void Text::set_positions(const std::vector<glm::vec2>& positions)
 	{
 		_positions = positions;
-		//		_positions.resize(std::max(_positions.size(), _lines.size()));
+		//_positions.resize(std::max(_positions.size(), _lines.size())); TODO:find out why this is commented-out
 	}
 
-	void TextRenderer::set_viewport(const glm::ivec2& viewport)
+	void Text::set_viewport(const glm::ivec2& viewport)
 	{
 		_viewport = viewport;
 	}
 
-	glm::vec2 TextRenderer::total_relative_size() const
+
+	glm::vec2 Text::total_relative_size() const
 	{
 		return glm::vec2(std::max_element(_line_sizes.begin(), _line_sizes.end(),
 										  [](const auto& a, const auto& b) { return a.x < b.x; })->x,
@@ -136,14 +136,14 @@ namespace vis
 										  [](const auto& a, const auto& b) { return a.y < b.y; })->y);
 	}
 
-	std::vector<glm::vec2> TextRenderer::relative_sizes() const
+	std::vector<glm::vec2> Text::relative_sizes() const
 	{
 		auto sizes = _line_sizes;
 		std::transform(sizes.begin(), sizes.end(), sizes.begin(), [&](const auto& x) { return x / glm::vec2(_viewport); });
 		return sizes;
 	}
 
-	void TextRenderer::update()
+	void Text::update()
 	{
 		auto quads = std::vector<float>();
 		_last_vertex_indices.clear();
@@ -193,7 +193,7 @@ namespace vis
 		glEnableVertexAttribArray(0);
 	}
 
-	void TextRenderer::draw(float /*delta_time*/, float /*total_time*/)
+	void Text::draw() const
 	{
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
@@ -205,11 +205,11 @@ namespace vis
 		glUniform1i(glGetUniformLocation(_program, "tex"), 0);
 		glBindTexture(GL_TEXTURE_2D, _texture);
 
-		glUniform2i(_viewport_uniform, _viewport.x, _viewport.y);
+		glUniform2i(_viewport_loc, _viewport.x, _viewport.y);
 		GLint old_last = 0;
 		for(size_t i = 0; i < _last_vertex_indices.size(); ++i)
 		{
-			glUniform2f(_position_uniform, _positions[i].x, _positions[i].y);
+			glUniform2f(_position_loc, _positions[i].x, _positions[i].y);
 			glDrawArrays(GL_TRIANGLES, old_last, _last_vertex_indices[i]-old_last);
 			old_last = _last_vertex_indices[i];
 		}

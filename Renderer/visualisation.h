@@ -7,8 +7,8 @@
 #include "globject2.h"
 #include "Data/field.h"
 #include "inputmanager.h"
-#include "colormaprenderer.h"
-#include "lines.h"
+#include "colormap.h"
+#include "primitives.h"
 
 namespace vis
 {
@@ -53,7 +53,7 @@ namespace vis
 		// Collection of data fields (visualisation input)
 		const std::vector<Field>& _fields;
 		// Renders the color map with divisions
-		ColormapRenderer _palette;
+		Colormap _palette;
 
 		// OpenGL vertex array object
 		VertexArray _vao;
@@ -71,7 +71,7 @@ namespace vis
 		// The vec4 looks like this (x1, y1, x2, y1) with (x1, y1) being LL and (x2, y2) being UR
 		GLint _highlight_loc{-1};
 
-		Lines _cursor_line;
+		Primitives _cursor_line;
 	};
 }
 #endif // VISUALISATION_H

@@ -160,6 +160,8 @@ namespace vis
 		std::vector<float> pick_randomly(std::vector<float> samples, unsigned num_picks);
 
 		std::tuple<float, float> round_interval(float lower_bound, float upper_bound);
+
+		std::vector<float> reasonable_divisions(float lower_bound, float upper_bound, int division_count);
 	}
 }
 

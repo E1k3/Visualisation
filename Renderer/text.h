@@ -6,17 +6,18 @@
 #include <tuple>
 #include <glm/glm.hpp>
 
-#include "renderer.h"
+#include "globject2.h"
+
 
 namespace vis
 {
-	class TextRenderer : public Renderer
+	class Text
 	{
 	public:
-		explicit TextRenderer(unsigned height = 35, const std::string& font = "/usr/share/fonts/TTF/DroidSansMono.ttf");
-		virtual ~TextRenderer() = default;
+		explicit Text(unsigned height = 35, const std::string& font = "/usr/share/fonts/TTF/DroidSansMono.ttf");
+		virtual ~Text() = default;
 
-		void draw(float delta_time, float total_time) override;
+		void draw() const;
 
 		/**
 		 * @brief set_lines Sets text for each displayed line.
@@ -24,15 +25,15 @@ namespace vis
 		 */
 		void set_lines(const std::vector<std::string>& lines);
 		/**
-		 * @brief set_viewport Sets the viewport size in pixel coordinates.
-		 * @param viewport The viewport size.
-		 */
-		void set_viewport(const glm::ivec2& viewport);
-		/**
 		 * @brief set_positions Sets the origin of each line.
 		 * @param positions The collection of origin positions.
 		 */
 		void set_positions(const std::vector<glm::vec2>& positions);
+		/**
+		 * @brief set_viewport Sets the viewport size in pixel coordinates.
+		 * @param viewport The viewport size.
+		 */
+		void set_viewport(const glm::ivec2& viewport);
 
 		/**
 		 * @brief total_relative_size Returns the size of all lines together, relative to the viewport size.
@@ -59,13 +60,16 @@ namespace vis
 		int _atlas_width{0};
 		int _atlas_height{0};
 
-		GLuint _vao{0};
-		GLuint _vbo{0};
-		GLuint _texture{0};
-		GLuint _program{0};
+		std::vector<std::string> _vertex_shaders{"/home/eike/Documents/Code/Visualisation/Shader/text_vs.glsl"};
+		std::vector<std::string> _fragment_shaders{"/home/eike/Documents/Code/Visualisation/Shader/text_fs.glsl"};
 
-		GLint _position_uniform{0};
-		GLint _viewport_uniform{0};
+		VertexArray _vao;
+		Buffer _vbo;
+		Texture _texture;
+		Program _program;
+
+		GLint _position_loc{-1};
+		GLint _viewport_loc{-1};
 
 		std::vector<GLint> _last_vertex_indices{};
 

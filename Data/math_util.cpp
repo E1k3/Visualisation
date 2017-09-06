@@ -349,4 +349,43 @@ namespace vis
 
 		return std::make_tuple(lower_rounded, upper_rounded);
 	}
+
+	std::vector<float> math_util::reasonable_divisions(float lower_bound, float upper_bound, int division_count)
+	{
+		Expects(lower_bound <= upper_bound);
+		Expects(division_count > 0);
+
+		constexpr float readable_sizes[] = {.0001f, .001f, .01f, .1f, .25, .5, 1.f, 2.f, 5.f, 10.f, 20.f, 50.f, 100.f};
+
+		float best_size = 0.f;
+		int last_count = std::numeric_limits<int>::max();
+		for(const auto& size : readable_sizes)
+		{
+			// The effective number of divisions when chosing size as division width
+			auto count = static_cast<int>(std::floor(upper_bound / size) - std::ceil(lower_bound / size));
+
+
+			if(count < 0)
+				return {};
+
+			// If the distance to the target count is rising, the last size was the best
+			if(std::abs(last_count - division_count) < std::abs(count - division_count))
+				break;
+
+			last_count = count;
+			best_size = size;
+		}
+
+		float lower_rounded = std::ceil(lower_bound / best_size) * best_size;
+//		float upper_rounded = std::floor(upper_bound / best_size) * best_size; Not needed
+
+		auto divs = std::vector<float>(static_cast<size_t>(last_count) + 1);
+		for(auto& div : divs)
+		{
+			div = lower_rounded;
+			lower_rounded += best_size;
+		}
+
+		return divs;
+	}
 }

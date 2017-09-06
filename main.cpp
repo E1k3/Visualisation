@@ -2,6 +2,7 @@
 
 #include "application.h"
 #include "logger.h"
+#include "Data/math_util.h"
 
 
 using namespace vis;

@@ -117,8 +117,8 @@ namespace vis
 		_vertex_count = mean_field.area();
 
 		// Set data bounds
-		std::tie(_mean_bounds.x, _mean_bounds.y) = math_util::round_interval(mean_field.minima()[0], mean_field.maxima()[0]);
-		std::tie(_dev_bounds.x, _dev_bounds.y) = math_util::round_interval(dev_field.minima()[0], dev_field.maxima()[0]);
+		_mean_bounds = glm::vec2(mean_field.minima()[0], mean_field.maxima()[0]);
+		_dev_bounds = glm::vec2(dev_field.minima()[0], dev_field.maxima()[0]);
 	}
 
 	void Glyph::setup_shaders()

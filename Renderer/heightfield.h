@@ -3,7 +3,8 @@
 
 #include "visualisation.h"
 
-#include "lines.h"
+#include "primitives.h"
+#include "text.h"
 
 namespace vis
 {
@@ -20,6 +21,8 @@ namespace vis
 		virtual void draw() const override;
 
 	protected:
+		void setup_axes();
+
 		std::vector<std::string> _vertex_shaders{"/home/eike/Documents/Code/Visualisation/Shader/heightfield_vs.glsl"};
 		std::vector<std::string> _fragment_shaders{"/home/eike/Documents/Code/Visualisation/Shader/heightfield_fs.glsl",
 												   "/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"};
@@ -30,7 +33,9 @@ namespace vis
 
 	private:
 		// Axes
-		Lines _axes;
+		Primitives _axes;
+		Text _axes_labels;
+		std::vector<float> _axes_divisions;
 
 		// Camera
 		float _scale{1.f};

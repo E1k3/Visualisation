@@ -19,17 +19,7 @@ namespace vis
 	{-1.f, 1.f, 0.f}, {1.f, 1.f, 0.f},
 	{1.f, -1.f, 0.f}, {1.f, 1.f, 0.f}}}
 	{
-		_axes.set_translations({{0.f, 0.f, 0.f},
-								{0.f, 0.f, .1f},
-								{0.f, 0.f, .2f},
-								{0.f, 0.f, .3f},
-								{0.f, 0.f, .4f},
-								{0.f, 0.f, .5f},
-								{0.f, 0.f, .6f},
-								{0.f, 0.f, .7f},
-								{0.f, 0.f, .8f},
-								{0.f, 0.f, .9f},
-								{0.f, 0.f, 1.f}});
+
 	}
 
 	void Heightfield::update(float /*delta_time*/, float total_time)
@@ -37,7 +27,7 @@ namespace vis
 		using namespace glm;
 		constexpr vec2 mouse_speed = vec2{-0.001f, -0.001};	// Invert y-axis
 		constexpr float scroll_speed = -0.1f;	// Invert scrolling
-		constexpr float height_scale = .25f;	// Scale model height by this factor
+		constexpr float height_scale = .33f;	// Scale model height by this factor
 
 		// Get input
 		auto mouse_in = _input.get_cursor_offset();
@@ -49,12 +39,12 @@ namespace vis
 		if(mouse_1_in)	// Only move model when dragging
 		{
 			auto old_position = _camera_position;
-			_camera_position = rotate(_camera_position,  mouse_in.y * mouse_speed.y, cross(-_camera_position, vec3{0.f, 0.f, 1.f}));
+			_camera_position = rotate(_camera_position,  mouse_in.y * mouse_speed.y / _scale, cross(-_camera_position, vec3{0.f, 0.f, 1.f}));
 			// Prevent flipping when looking straight up or down
 			if(std::signbit(_camera_position.x) != std::signbit(old_position.x) && std::signbit(_camera_position.y) != std::signbit(old_position.y))
 				_camera_position = old_position;
 
-			_camera_position = rotateZ(_camera_position, mouse_in.x * mouse_speed.x);
+			_camera_position = rotateZ(_camera_position, mouse_in.x * mouse_speed.x / _scale);
 		}
 
 		// MVP calculation
@@ -77,7 +67,32 @@ namespace vis
 		auto highlight = vec4{_selection_cursor - .5f * cell_width, _selection_cursor + .5f * cell_width} * 2.f - 1.f;
 		glUniform4fv(_highlight_loc, 1, value_ptr(highlight));
 
+		// Update palette
+		_palette.set_viewport(_input.get_framebuffer_size());
+		// Update axes
 		_axes.update(mvp);
+		// Axes labels
+		_axes_labels.set_viewport(_input.get_framebuffer_size());
+		auto label_positions = std::vector<glm::vec2>();
+		auto label_sizes = _axes_labels.relative_sizes();
+		float corners[4][2] = {{-1.f, -1.f}, {1.f, -1.f}, {-1.f, 1.f}, {1.f, 1.f}};
+		for(const auto& corner : corners)
+		{
+			for(size_t di = 0; di < _axes_divisions.size(); ++di)
+			{
+				auto pos = mvp * vec4{corner[0], corner[1], (_axes_divisions[di] - _mean_bounds.x) / (_mean_bounds.y - _mean_bounds.x), 1.f};
+				pos /= pos.w;
+				label_positions.push_back(glm::vec2{pos});
+
+				if(di == 0)
+					label_positions.back() -= vec2{label_sizes.front().x, 0.f};
+
+				if(glm::clamp(pos, -1.f, 1.f) != pos)	// Clip text that should be outside of viewspace
+					label_positions.back() = glm::vec2{-10.f, -10.f};
+			}
+			label_positions.back() -= vec2{label_sizes.back().x, 0.f};
+		}
+		_axes_labels.set_positions(label_positions);
 	}
 
 	void Heightfield::draw() const
@@ -89,8 +104,13 @@ namespace vis
 		glUseProgram(_program);
 
 		glDrawElements(GL_TRIANGLES, _vertex_count, GL_UNSIGNED_INT, 0);
-		_axes.draw();
 		_cursor_line.draw();
+
+		_axes.draw();
+		_axes_labels.draw();
+
+		glDisable(GL_DEPTH_TEST);
+		_palette.draw();
 	}
 
 	void Heightfield::setup_data()
@@ -149,8 +169,10 @@ namespace vis
 		_vertex_count = static_cast<int>(indices.size());
 
 		// Set data bounds
-		std::tie(_mean_bounds.x, _mean_bounds.y) = math_util::round_interval(mean_field.minima()[0], mean_field.maxima()[0]);
-		std::tie(_dev_bounds.x, _dev_bounds.y) = math_util::round_interval(dev_field.minima()[0], dev_field.maxima()[0]);
+		_mean_bounds = glm::vec2(mean_field.minima()[0], mean_field.maxima()[0]);
+		_dev_bounds = glm::vec2(dev_field.minima()[0], dev_field.maxima()[0]);
+
+		setup_axes();
 	}
 
 	void Heightfield::setup_shaders()
@@ -179,5 +201,25 @@ namespace vis
 		_bounds_loc = glGetUniformLocation(_program, "bounds");
 		_highlight_loc = glGetUniformLocation(_program, "highlight_area");
 		_time_loc = glGetUniformLocation(_program, "time");
+	}
+
+	void Heightfield::setup_axes()
+	{
+		_axes_divisions = math_util::reasonable_divisions(_mean_bounds.x, _mean_bounds.y, 10);
+		_axes_divisions.insert(_axes_divisions.begin(), _mean_bounds.x);
+		_axes_divisions.push_back(_mean_bounds.y);
+
+		auto labels = std::vector<std::string>();
+		for(const auto& div : _axes_divisions)
+			_axes.add_translation({0.f, 0.f, (div - _mean_bounds.x) / (_mean_bounds.y - _mean_bounds.x)});
+
+		// Add labels for each corner
+		for(int i = 0; i < 4; ++i)
+			for(const auto& div : _axes_divisions)
+				labels.push_back(std::to_string(div));
+
+		_axes_labels.set_lines(labels);
+
+		_palette.set_bounds(_mean_bounds, 10);
 	}
 }

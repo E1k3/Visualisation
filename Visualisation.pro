@@ -14,16 +14,12 @@ INCLUDEPATH += /usr/include/freetype2
 
 SOURCES += main.cpp \
     logger.cpp \
-    Renderer/heightfieldrenderer.cpp \
-    Renderer/renderer.cpp \
     application.cpp \
     inputmanager.cpp \
     Data/math_util.cpp \
     Renderer/globject.cpp \
     Data/ensemble.cpp \
     Data/field.cpp \
-    Renderer/textrenderer.cpp \
-    Renderer/colormaprenderer.cpp \
     Renderer/visualisation.cpp \
     Renderer/glyph.cpp \
     Renderer/globject2.cpp \
@@ -31,20 +27,18 @@ SOURCES += main.cpp \
     Renderer/glyphgmm.cpp \
     Renderer/heightfield.cpp \
     Renderer/heightfieldgmm.cpp \
-    Renderer/lines.cpp
+    Renderer/primitives.cpp \
+    Renderer/text.cpp \
+    Renderer/colormap.cpp
 
 HEADERS += \
     logger.h \
-    Renderer/heightfieldrenderer.h \
-    Renderer/renderer.h \
     application.h \
     inputmanager.h \
     Data/math_util.h \
     Renderer/globject.h \
     Data/ensemble.h \
     Data/field.h \
-    Renderer/textrenderer.h \
-    Renderer/colormaprenderer.h \
     Renderer/globject2.h \
     Renderer/visualisation.h \
     Renderer/glyph.h \
@@ -52,7 +46,9 @@ HEADERS += \
     Renderer/glyphgmm.h \
     Renderer/heightfield.h \
     Renderer/heightfieldgmm.h \
-    Renderer/lines.h
+    Renderer/primitives.h \
+    Renderer/text.h \
+    Renderer/colormap.h
 
 DISTFILES += \
     Shader/heightfield_vs.glsl \
@@ -71,7 +67,5 @@ DISTFILES += \
     Shader/gmm_glyph_gs.glsl \
     Shader/colormap_fs.glsl \
     Shader/colormap_vs.glsl \
-    Shader/scale_plane_vs.glsl \
-    Shader/scale_plane_fs.glsl \
-    Shader/lines_vs.glsl \
-    Shader/lines_fs.glsl
+    Shader/primitives_fs.glsl \
+    Shader/primitives_vs.glsl
