@@ -6,7 +6,7 @@
 #include <tuple>
 #include <glm/glm.hpp>
 
-#include "globject2.h"
+#include "globject.h"
 
 
 namespace vis

@@ -2,59 +2,87 @@
 #define GLOBJECT_H
 
 #include <functional>
-#include <exception>
+#include <GL/glew.h>
 
 #include "logger.h"
 
 namespace vis
 {
+	enum class GLType
+	{
+		VERTEX_ARRAY = 0,
+		BUFFER,
+		TEXTURE,
+		SHADER,
+		PROGRAM,
+	};
+
+	template<GLType Type>
 	/**
-	 * @brief The GLObject class wraps a single OpenGL object, to manage its ownership/lifetime.
+	 * @brief The GLObject class TODO
 	 */
 	class GLObject
 	{
 	public:
-		/**
-		 * @brief GLObject Constructs a GLObject with its id and deleter function.
-		 * @param id The OpenGL ID.
-		 * @param deleter The function that has to be called for OpenGL to delete the object.
-		 */
-		GLObject(unsigned id, std::function<void(unsigned)> deleter);
-		/// @brief GLObject No copy construction.
-		GLObject(const GLObject& other) = delete;
-		/// @brief GLObject Deletes currently wrapped OpenGL object and replaces it with another one.
-		GLObject(GLObject&& other);
-		/// @brief operator= No copy assignment.
-		GLObject& operator=(const GLObject& other) = delete;
-		/// @brief operator = Deletes currently wrapped OpenGL object and replaces it with another one.
-		GLObject& operator=(GLObject&& other);
-		explicit operator bool() const;
-		/// @brief ~GLObject Deletes the wrapped OpenGL object using the deleter function.
-		~GLObject();
+		explicit GLObject<Type>(GLuint id = 0);
 
-		/**
-		 * @brief release Returns the id of the wrapped object and releases the ownership.
-		 * @return The OpenGL ID.
-		 */
-		unsigned release();
+		GLObject(GLObject<Type>&& other);
+		GLObject<Type>& operator=(GLObject<Type>&& other);
 
-		/**
-		 * @brief reset Replaces the wrapped object, keeping the deleter.
-		 * @param id The new OpenGL ID.
-		 */
-		void reset(unsigned id);
-		/**
-		 * @brief reset Replaces the wrapped object.
-		 * @param id The new OpenGL ID.
-		 * @param deleter The new deleter function.
-		 */
-		void reset(unsigned id, std::function<void(unsigned)> deleter);
-		/// @brief get Returns the OpenGL ID of the currently wrapped object.
-		unsigned get() const;
+		GLObject(const GLObject<Type>& other) = delete;
+		GLObject<Type>& operator=(GLObject<Type>& other) = delete;
+
+		operator GLuint() const;
+
+		virtual ~GLObject<Type>();
+
+		GLuint get() const;
+
+		GLuint release();
+
+		void reset(GLuint id);
 
 	private:
-		unsigned _id{0};
-		std::function<void(unsigned)> _deleter{ [] (unsigned) { Logger::error() << "GLObject with empty deleter was destroyed."; } };
+		void destroy();
+
+		GLuint _id{0};
 	};
+
+	// Typedefs
+	using VertexArray = GLObject<GLType::VERTEX_ARRAY>;
+	using Buffer = GLObject<GLType::BUFFER>;
+	using Texture = GLObject<GLType::TEXTURE>;
+	using Program = GLObject<GLType::PROGRAM>;
+	using Shader = GLObject<GLType::SHADER>;
+
+	// GLObject implementation
+	template<GLType Type> GLObject<Type>::GLObject(GLuint id) : _id{id}	{  }
+
+	template<GLType Type> GLObject<Type>::GLObject(GLObject<Type>&& other) : _id{std::move(other.release())}	{ }
+
+	template<GLType Type> GLObject<Type>& GLObject<Type>::operator=(GLObject<Type>&& other)
+	{
+		reset(other.release());
+		return *this;
+	}
+
+	template<GLType Type> GLObject<Type>::operator GLuint() const	{ return _id; }
+
+	template<GLType Type> GLObject<Type>::~GLObject()           	{ destroy(); }
+
+	template<GLType Type> GLuint GLObject<Type>::get() const     	{ return _id; }
+
+	template<GLType Type> GLuint GLObject<Type>::release()
+	{
+		auto id = _id;
+		_id = 0;
+		return id;
+	}
+
+	template<GLType Type> void GLObject<Type>::reset(GLuint id)
+	{
+		destroy();
+		_id = id;
+	}
 }
 #endif // GLOBJECT_H

@@ -17,29 +17,26 @@ SOURCES += main.cpp \
     application.cpp \
     inputmanager.cpp \
     Data/math_util.cpp \
-    Renderer/globject.cpp \
     Data/ensemble.cpp \
     Data/field.cpp \
     Renderer/visualisation.cpp \
     Renderer/glyph.cpp \
-    Renderer/globject2.cpp \
     Renderer/render_util.cpp \
     Renderer/glyphgmm.cpp \
     Renderer/heightfield.cpp \
     Renderer/heightfieldgmm.cpp \
     Renderer/primitives.cpp \
     Renderer/text.cpp \
-    Renderer/colormap.cpp
+    Renderer/colormap.cpp \
+    Renderer/globject.cpp
 
 HEADERS += \
     logger.h \
     application.h \
     inputmanager.h \
     Data/math_util.h \
-    Renderer/globject.h \
     Data/ensemble.h \
     Data/field.h \
-    Renderer/globject2.h \
     Renderer/visualisation.h \
     Renderer/glyph.h \
     Renderer/render_util.h \
@@ -48,7 +45,8 @@ HEADERS += \
     Renderer/heightfieldgmm.h \
     Renderer/primitives.h \
     Renderer/text.h \
-    Renderer/colormap.h
+    Renderer/colormap.h \
+    Renderer/globject.h
 
 DISTFILES += \
     Shader/heightfield_vs.glsl \

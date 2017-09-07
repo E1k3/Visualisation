@@ -84,7 +84,7 @@ namespace vis
 	{
 		_vertex_shaders = {"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_vs.glsl"};
 		_geometry_shaders = {"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_gs.glsl"};
-		_fragment_shaders = {"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_fs_2.glsl",
+		_fragment_shaders = {"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_fs.glsl",
 							 "/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"};
 		Glyph::setup_shaders();
 	}

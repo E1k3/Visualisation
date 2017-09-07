@@ -5,7 +5,7 @@
 #include <tuple>
 #include <GL/glew.h>
 
-#include "globject2.h"
+#include "globject.h"
 
 
 namespace vis

@@ -4,7 +4,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 
-#include "globject2.h"
+#include "globject.h"
 #include "Data/field.h"
 #include "inputmanager.h"
 #include "colormap.h"
