@@ -46,7 +46,7 @@ namespace vis
 		_position_loc = glGetUniformLocation(_program, "origin");
 		_size_loc = glGetUniformLocation(_program, "scale");
 
-		_division_lines.set_color({0.f, 1.f, 0.f, 1.f});
+		_division_lines.set_color({.7f, .7f, .7f, 1.f});
 		update();
 	}
 
@@ -70,7 +70,11 @@ namespace vis
 
 	void Colormap::set_viewport(const glm::ivec2& viewport)
 	{
-		_text.set_viewport(viewport);
+		if(_viewport != viewport)
+		{
+			_viewport = viewport;
+			update();
+		}
 	}
 
 	void Colormap::set_bounds(const glm::vec2& bounds, int preferred_divisions)
@@ -87,8 +91,14 @@ namespace vis
 			for(const auto& div : _divisions)
 			{
 				_division_lines.add_translation({(div - _bounds.x) / (_bounds.y - _bounds.x), 0.f, 0.f});
-				labels.push_back(std::to_string(div));
+
+				auto label_string = std::to_string(div);
+				label_string.erase ( label_string.find_last_not_of('0') + 1, std::string::npos );
+				label_string += '0';
+				labels.push_back(label_string);
 			}
+			labels.front() = labels.front() + "  ";
+			labels.back() = ' ' + labels.back();
 
 			_text.set_lines(labels);
 
@@ -110,11 +120,14 @@ namespace vis
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		_text.draw();
-		_division_lines.draw(GL_LINES);
+		glLineWidth(2.f);
+		_division_lines.draw();
 	}
 
 	void Colormap::update()
 	{
+		_text.set_viewport(_viewport);
+
 		auto lines_mvp = glm::translate(glm::mat4{}, glm::vec3{_position, 0.f}) * glm::scale(glm::mat4{}, glm::vec3{_size, 1.f});
 		_division_lines.update(lines_mvp);
 
@@ -122,6 +135,12 @@ namespace vis
 		for(const auto& div : _divisions)
 		{
 			text_positions.push_back(_position + glm::vec2{(div - _bounds.x) / (_bounds.y - _bounds.x), 1.f} * _size);
+		}
+		const auto& text_sizes = _text.relative_sizes();
+		if(!text_sizes.empty())
+		{
+			text_positions.front() -= glm::vec2{text_sizes.front().x, _size.y};
+			text_positions.back() -= glm::vec2{0.f, _size.y};
 		}
 		_text.set_positions(text_positions);
 	}

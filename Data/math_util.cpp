@@ -355,7 +355,7 @@ namespace vis
 		Expects(lower_bound <= upper_bound);
 		Expects(division_count > 0);
 
-		constexpr float readable_sizes[] = {.0001f, .001f, .01f, .1f, .25, .5, 1.f, 2.f, 5.f, 10.f, 20.f, 50.f, 100.f};
+		constexpr float readable_sizes[] = {.0001f, .0005f, .001f, .005f, .01f, .05f, .1f, .25, .5, 1.f, 2.f, 5.f, 10.f, 20.f, 50.f, 100.f};
 
 		float best_size = 0.f;
 		int last_count = std::numeric_limits<int>::max();

@@ -76,6 +76,8 @@ namespace vis
 		// Set data bounds
 		_mean_bounds = glm::vec2(mean_field.minimum(), mean_field.maximum());
 		_dev_bounds = glm::vec2(dev_field.minimum(), dev_field.maximum());
+
+		_palette.set_bounds(_mean_bounds, 15);
 	}
 
 	void GlyphGMM::setup_shaders()

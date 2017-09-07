@@ -15,9 +15,7 @@ namespace vis
 		: Visualisation{input, fields},
 		  _axes{{
 	{-1.f, -1.f, 0.f}, {1.f, -1.f, 0.f},
-	{-1.f, -1.f, 0.f}, {-1.f, 1.f, 0.f},
-	{-1.f, 1.f, 0.f}, {1.f, 1.f, 0.f},
-	{1.f, -1.f, 0.f}, {1.f, 1.f, 0.f}}}
+	{1.f, 1.f, 0.f}, {-1.f, 1.f, 0.f}}}
 	{
 
 	}
@@ -106,10 +104,10 @@ namespace vis
 		glDrawElements(GL_TRIANGLES, _vertex_count, GL_UNSIGNED_INT, 0);
 		_cursor_line.draw();
 
-		_axes.draw();
+		glLineWidth(1.f);
+		_axes.draw(GL_LINE_LOOP);
 		_axes_labels.draw();
 
-		glDisable(GL_DEPTH_TEST);
 		_palette.draw();
 	}
 
@@ -216,7 +214,12 @@ namespace vis
 		// Add labels for each corner
 		for(int i = 0; i < 4; ++i)
 			for(const auto& div : _axes_divisions)
-				labels.push_back(std::to_string(div));
+			{
+				auto label_string = std::to_string(div);
+				label_string.erase ( label_string.find_last_not_of('0') + 1, std::string::npos );
+				label_string += '0';
+				labels.push_back(label_string);
+			}
 
 		_axes_labels.set_lines(labels);
 

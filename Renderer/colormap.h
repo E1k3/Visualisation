@@ -38,6 +38,7 @@ namespace vis
 
 		std::vector<float> _divisions{0.f, 1.f};
 		glm::vec2 _bounds{0.f, 1.f};
+		glm::ivec2 _viewport{15};
 
 		GLint _position_loc{-1};
 		GLint _size_loc{-1};

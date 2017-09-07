@@ -51,6 +51,9 @@ namespace vis
 		auto cell_width = vec2(1.f)	/ vec2(_fields.front().width(), _fields.front().height());
 		auto highlight = vec4(_selection_cursor - .5f * cell_width, _selection_cursor + .5f * cell_width) * 2.f - 1.f;
 		glUniform4fv(_highlight_loc, 1, value_ptr(highlight));
+
+		// Update palette
+		_palette.set_viewport(_input.get_framebuffer_size());
 	}
 
 	void Glyph::draw() const
@@ -63,6 +66,8 @@ namespace vis
 
 		// Draw
 		glDrawArrays(GL_POINTS, 0, _vertex_count);
+
+		_palette.draw();
 	}
 
 	void Glyph::setup_data()
@@ -119,6 +124,8 @@ namespace vis
 		// Set data bounds
 		_mean_bounds = glm::vec2(mean_field.minima()[0], mean_field.maxima()[0]);
 		_dev_bounds = glm::vec2(dev_field.minima()[0], dev_field.maxima()[0]);
+
+		_palette.set_bounds(_mean_bounds, 15);
 	}
 
 	void Glyph::setup_shaders()
