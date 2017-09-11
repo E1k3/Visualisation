@@ -46,7 +46,6 @@ namespace vis
 		_position_loc = glGetUniformLocation(_program, "origin");
 		_size_loc = glGetUniformLocation(_program, "scale");
 
-		_division_lines.set_color({.7f, .7f, .7f, 1.f});
 		update();
 	}
 
@@ -88,12 +87,15 @@ namespace vis
 			_divisions.push_back(_bounds.y);
 
 			auto labels = std::vector<std::string>();
+			_division_lines.clear_translations();
+			_division_lines.clear_colors();
 			for(const auto& div : _divisions)
 			{
 				_division_lines.add_translation({(div - _bounds.x) / (_bounds.y - _bounds.x), 0.f, 0.f});
+				_division_lines.add_color({glm::vec3{1.f - (div - _bounds.x) / (_bounds.y - _bounds.x)}, 1.f});
 
 				auto label_string = std::to_string(div);
-				label_string.erase ( label_string.find_last_not_of('0') + 1, std::string::npos );
+				label_string.erase(label_string.find_last_not_of('0') + 1, std::string::npos);
 				label_string += '0';
 				labels.push_back(label_string);
 			}

@@ -54,15 +54,20 @@ namespace vis
 
 		_mvp_loc = glGetUniformLocation(_program, "mvp");
 		_translations_loc = glGetUniformLocation(_program, "translations");
-		_color_loc = glGetUniformLocation(_program, "color");
+		_colors_loc = glGetUniformLocation(_program, "colors");
 	}
 
 	void Primitives::update(const glm::mat4& mvp)
 	{
 		glUseProgram(_program);
+
+		auto color = _colors.size() < 4 ? glm::vec4{1.f} : glm::vec4{_colors[0], _colors[1], _colors[2], _colors[3]};
+		while(_colors.size()/4 < _translations.size()/3)
+			add_color(color);
+
 		glUniformMatrix4fv(_mvp_loc, 1, GL_FALSE, glm::value_ptr(mvp));
 		glUniform3fv(_translations_loc, static_cast<GLsizei>(_translations.size() / 3), _translations.data());
-		glUniform4fv(_color_loc, 1, glm::value_ptr(_color));
+		glUniform4fv(_colors_loc, static_cast<GLsizei>(_colors.size() / 4), _colors.data());
 	}
 
 	void Primitives::draw(GLenum mode) const
@@ -85,15 +90,37 @@ namespace vis
 		_translations.clear();
 		_translations.reserve(translations.size() * 3);
 		for(const auto& t : translations)
-		{
-			_translations.push_back(t.x);
-			_translations.push_back(t.y);
-			_translations.push_back(t.z);
-		}
+			add_translation(t);
+	}
+
+	void Primitives::clear_translations()
+	{
+		_translations.clear();
 	}
 
 	void Primitives::set_color(const glm::vec4& color)
 	{
-		_color = color;
+		set_colors({color});
+	}
+
+	void Primitives::add_color(const glm::vec4& color)
+	{
+		_colors.push_back(color.r);
+		_colors.push_back(color.g);
+		_colors.push_back(color.b);
+		_colors.push_back(color.a);
+	}
+
+	void Primitives::set_colors(const std::vector<glm::vec4>& colors)
+	{
+		_colors.clear();
+		_colors.reserve(colors.size() * 3);
+		for(const auto& c : colors)
+			add_color(c);
+	}
+
+	void Primitives::clear_colors()
+	{
+		_colors.clear();
 	}
 }

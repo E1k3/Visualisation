@@ -20,28 +20,30 @@ namespace vis
 
 		void add_translation(const glm::vec3& translation);
 		void set_translations(const std::vector<glm::vec3>& translations);
+		void clear_translations();
 
 		void set_color(const glm::vec4& color);
+		void add_color(const glm::vec4& color);
+		void set_colors(const std::vector<glm::vec4>& colors);
+		void clear_colors();
 
 	private:
 		std::vector<std::string> _vertex_shaders{"/home/eike/Documents/Code/Visualisation/Shader/primitives_vs.glsl"};
 		std::vector<std::string> _fragment_shaders{"/home/eike/Documents/Code/Visualisation/Shader/primitives_fs.glsl"};
 		int _vertex_count{0};
 
-		glm::vec4 _color{1.f};
-
 		// GL objects
 		VertexArray _vao;
 		Buffer _vbo;
 		Program _program;
 
-		// Transformations
+		std::vector<float> _colors;
 		std::vector<float> _translations;
 
 		// Uniforms
 		GLint _mvp_loc{-1};
 		GLint _translations_loc{-1};
-		GLint _color_loc{-1};
+		GLint _colors_loc{-1};
 	};
 }
 

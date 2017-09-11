@@ -124,14 +124,10 @@ namespace vis
 				static_cast<InputManager*>(glfwGetWindowUserPointer(window))->resize_framebuffer(x, y);
 		};
 		glfwSetFramebufferSizeCallback(_window.get(), framebuffer_callback);
-		auto focus_callback = [] (GLFWwindow* window, int focused)
+		auto focus_callback = [] (GLFWwindow* window, int /*focused*/)
 		{
 			if(glfwGetWindowUserPointer(window))
-			{
-				if(focused == GLFW_TRUE)
-					glfwSetCursorPos(window, static_cast<InputManager*>(glfwGetWindowUserPointer(window))->get_cursor_position().x, static_cast<InputManager*>(glfwGetWindowUserPointer(window))->get_cursor_position().y);
 				static_cast<InputManager*>(glfwGetWindowUserPointer(window))->reset();
-			}
 		};
 		glfwSetWindowFocusCallback(_window.get(), focus_callback);
 
