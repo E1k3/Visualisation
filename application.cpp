@@ -207,6 +207,8 @@ namespace vis
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glfwShowWindow(_window.get());
 
+		Text textrenderer;
+
 		// Event loop
 		while(!glfwWindowShouldClose(_window.get()))
 		{
@@ -217,6 +219,11 @@ namespace vis
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			vis->update(_delta, static_cast<float>(time));
 			vis->draw();
+
+//			textrenderer.set_positions({glm::vec2{-1.f}});
+//			textrenderer.set_viewport(input.get_framebuffer_size());
+//			textrenderer.set_lines({std::to_string(1.f/_delta)});
+//			textrenderer.draw();
 
 			glfwSwapBuffers(_window.get());
 			glfwPollEvents();
