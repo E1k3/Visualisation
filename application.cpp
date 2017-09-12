@@ -27,7 +27,6 @@ namespace vis
 		if(!glfwInit())
 		{
 			Logger::error() << "GLFW init failed";
-			// TODO:ERROR handling
 			throw std::runtime_error("GLFW init failed");
 		}
 
@@ -43,7 +42,6 @@ namespace vis
 		if(!_window)
 		{
 			Logger::error() << "GLFW window creation failed";
-			// TODO:ERROR handling
 			throw std::runtime_error("GLFW window creation failed");
 		}
 		glfwMakeContextCurrent(_window.get());
@@ -59,7 +57,6 @@ namespace vis
 		{
 			Logger::error() << "GLEW init failed: "
 							<< reinterpret_cast<const char*>(glewGetErrorString(status));
-			// TODO:ERROR handling
 			throw std::runtime_error("GLEW init failed");
 		}
 
@@ -193,7 +190,7 @@ namespace vis
 				vis = std::make_unique<GlyphGMM>(input, _ensemble.fields());
 			break;
 		default:
-			//TODO error
+			// error
 			break;
 		}
 		vis->setup();
@@ -238,8 +235,6 @@ namespace vis
 	void Application::error_callback(int error, const char* description)
 	{
 		Logger::error() << "GLFW ERROR: " << error << " " << description;
-
-		// TODO:ERROR handling
 		throw std::runtime_error("GLFW ERROR");
 	}
 }

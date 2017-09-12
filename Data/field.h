@@ -6,9 +6,6 @@
 
 namespace vis
 {
-	/**
-	 * @brief The Field class TODO:this
-	 */
 	class Field
 	{
 	public:

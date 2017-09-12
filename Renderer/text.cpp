@@ -119,7 +119,6 @@ namespace vis
 	void Text::set_positions(const std::vector<glm::vec2>& positions)
 	{
 		_positions = positions;
-		//_positions.resize(std::max(_positions.size(), _lines.size())); TODO:find out why this is commented-out
 	}
 
 	void Text::set_viewport(const glm::ivec2& viewport)

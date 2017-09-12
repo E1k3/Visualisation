@@ -263,7 +263,7 @@ namespace vis
 		{
 			Logger::error() << "Counting files failed. "
 							<< dir.string() << " does not point to a directory.";
-			throw std::invalid_argument("Path does not point to directory");	// TODO:ERROR handling. Dir is not a directory.
+			throw std::invalid_argument("Path does not point to directory");
 		}
 		return static_cast<int>(std::count_if(fs::directory_iterator(dir), fs::directory_iterator{},
 											  [] (const auto& path) { return fs::is_regular_file(path); }));
@@ -275,7 +275,7 @@ namespace vis
 		{
 			Logger::error() << "Counting directories failed. "
 							<< dir.string() << " does not point to a directory.";
-			throw std::invalid_argument("Path does not point to directory");	// TODO:ERROR handling. Dir is not a directory.
+			throw std::invalid_argument("Path does not point to directory");
 		}
 		return static_cast<int>(std::count_if(fs::directory_iterator(dir), fs::directory_iterator{},
 											  [] (const auto& path) { return fs::is_directory(path); }));

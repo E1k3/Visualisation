@@ -57,7 +57,7 @@ namespace vis
 		auto grid = std::vector<float>(static_cast<size_t>(width * height * 2));
 
 		if(grid.empty())
-			return grid;	// TODO:error handling?
+			return grid;
 
 		for(int row = 0; row < height; ++row)
 		{
@@ -83,7 +83,7 @@ namespace vis
 
 		auto indices = std::vector<unsigned>{};
 		if(width*height <= 2)
-			return indices;	// TODO:error handling?
+			return indices;
 
 		for(int y = 0; y < height-1; ++y)
 			for(int x = 0; x < width-1; ++x)

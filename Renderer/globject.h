@@ -18,9 +18,6 @@ namespace vis
 	};
 
 	template<GLType Type>
-	/**
-	 * @brief The GLObject class TODO
-	 */
 	class GLObject
 	{
 	public:

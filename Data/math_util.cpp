@@ -66,7 +66,7 @@ namespace vis
 			size_t i = 0;
 			for(const auto& samp : samples)
 			{
-				auto sample_gmm_density = gmm_density(samp, gmm);	// TODO:make sure this is > 0
+				auto sample_gmm_density = gmm_density(samp, gmm);
 				for(const auto& comp : gmm)
 					sample_weights[i++] = normal_density(samp, comp._mean, comp._variance) * comp._weight / sample_gmm_density;
 			}
@@ -98,7 +98,7 @@ namespace vis
 			// Avoid singularity (variance == 0 -> mean == NaN, weight == NaN, etc)
 			if(gmm[c]._variance <= std::numeric_limits<float>::min())
 			{
-				// TODO:test different resets
+				// Reset mean to a random sample and variance to the squared average deviation
 				gmm[c]._mean = pick_randomly(samples);
 				gmm[c]._variance = variance(samples, gmm[c]._mean);
 			}
@@ -273,10 +273,10 @@ namespace vis
 		std::copy_if(samples.begin(), samples.end(), std::back_inserter(samples_in_range),
 					 [&min, &max] (const auto& s) { return s >= min && s < max; });
 
-		auto bins = std::vector<long>(static_cast<size_t>(std::sqrt(samples_in_range.size()))); // TODO:best way to determine #bins?
+		auto bins = std::vector<long>(static_cast<size_t>(std::sqrt(samples_in_range.size())));
 
 		if(bins.size() < 2)
-			return comp._mean; // TODO error
+			return comp._mean;
 
 		auto bin_width = (max - min) / (bins.size()-1);
 		for(int i = 0; i < static_cast<int>(bins.size()); ++i)
