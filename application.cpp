@@ -47,6 +47,7 @@ namespace vis
 			throw std::runtime_error("GLFW window creation failed");
 		}
 		glfwMakeContextCurrent(_window.get());
+		glfwSwapInterval(1);	// VSYNC
 
 		//DBG
 		Logger::debug() << "GLFW initialised.";
@@ -220,10 +221,10 @@ namespace vis
 			vis->update(_delta, static_cast<float>(time));
 			vis->draw();
 
-//			textrenderer.set_positions({glm::vec2{-1.f}});
-//			textrenderer.set_viewport(input.get_framebuffer_size());
-//			textrenderer.set_lines({std::to_string(1.f/_delta)});
-//			textrenderer.draw();
+			textrenderer.set_positions({glm::vec2{-1.f}});
+			textrenderer.set_viewport(input.get_framebuffer_size());
+			textrenderer.set_lines({std::to_string(1.f/_delta)});
+			textrenderer.draw();
 
 			glfwSwapBuffers(_window.get());
 			glfwPollEvents();
