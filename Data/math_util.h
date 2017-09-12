@@ -5,6 +5,8 @@
 #include <tuple>
 #include <cmath>
 
+#include "field.h"
+
 namespace vis
 {
 	namespace math_util
@@ -162,6 +164,12 @@ namespace vis
 		std::tuple<float, float> round_interval(float lower_bound, float upper_bound);
 
 		std::vector<float> reasonable_divisions(float lower_bound, float upper_bound, int division_count);
+
+		std::vector<float> combined_maxima(const Field& mean_field, const Field& dev_field);
+		float combined_maximum(const Field& mean_field, const Field& dev_field);
+
+		std::vector<float> combined_minima(const Field& mean_field, const Field& dev_field);
+		float combined_minimum(const Field& mean_field, const Field& dev_field);
 	}
 }
 

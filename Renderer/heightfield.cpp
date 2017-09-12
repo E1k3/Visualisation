@@ -52,9 +52,9 @@ namespace vis
 		auto mvp = project * view * model;
 
 		if(!mouse_1_in)	// Only move cursor when not dragging
-			update_selection_cursor(mouse_in * vec2{1, -1}, view * model, project, _input.get_framebuffer_aspect_ratio());
+			update_selection_cursor(mouse_in * vec2{1, -1}, view * model, _input.get_framebuffer_aspect_ratio());
 		else
-			update_selection_cursor(vec2{0.f}, view * model, project, _input.get_framebuffer_aspect_ratio());
+			update_selection_cursor(vec2{0.f}, view * model, _input.get_framebuffer_aspect_ratio());
 
 		glUseProgram(_program);
 		glUniformMatrix4fv(_mvp_loc, 1, GL_FALSE, value_ptr(mvp));
@@ -65,6 +65,8 @@ namespace vis
 		auto highlight = vec4{_selection_cursor - .5f * cell_width, _selection_cursor + .5f * cell_width} * 2.f - 1.f;
 		glUniform4fv(_highlight_loc, 1, value_ptr(highlight));
 
+
+		// UI
 		// Update palette
 		_palette.set_viewport(_input.get_framebuffer_size());
 		// Update axes
@@ -91,6 +93,9 @@ namespace vis
 			label_positions.back() -= vec2{label_sizes.back().x, 0.f};
 		}
 		_axes_labels.set_positions(label_positions);
+		// Update cursor
+		_cursor_indicator.set_translations({{_selection_cursor * 2.f - 1.f, 0.f}});
+		_cursor_indicator.update(mvp);
 	}
 
 	void Heightfield::draw() const
@@ -102,12 +107,14 @@ namespace vis
 		glUseProgram(_program);
 
 		glDrawElements(GL_TRIANGLES, _vertex_count, GL_UNSIGNED_INT, 0);
-		_cursor_line.draw();
-
-		glLineWidth(1.f);
-		_axes.draw(GL_LINE_LOOP);
-		_axes_labels.draw();
-
+		// Cursor
+		glLineWidth(2.f);
+		_cursor_indicator.draw(GL_LINES);
+//		// Axes
+//		glLineWidth(1.f);
+//		_axes.draw(GL_LINE_LOOP);
+//		_axes_labels.draw();
+		// Palette
 		_palette.draw();
 	}
 
@@ -167,8 +174,8 @@ namespace vis
 		_vertex_count = static_cast<int>(indices.size());
 
 		// Set data bounds
-		_mean_bounds = glm::vec2(mean_field.minima()[0], mean_field.maxima()[0]);
-		_dev_bounds = glm::vec2(dev_field.minima()[0], dev_field.maxima()[0]);
+		_mean_bounds = glm::vec2(mean_field.minima().front(), mean_field.maxima().front());
+		_dev_bounds = glm::vec2(dev_field.minima().front(), dev_field.maxima().front());
 
 		setup_axes();
 	}
@@ -224,5 +231,10 @@ namespace vis
 		_axes_labels.set_lines(labels);
 
 		_palette.set_bounds(_dev_bounds, 10);
+	}
+
+	glm::ivec2 Heightfield::point_under_cursor() const
+	{
+		return _selection_cursor * glm::vec2{_fields.front().width()-1, _fields.front().height()-1} + glm::vec2{.5f};
 	}
 }

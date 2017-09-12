@@ -37,9 +37,9 @@ namespace vis
 			std::vector<char> log;
 			glGetShaderiv(id, GL_INFO_LOG_LENGTH, &logsize);
 			log.resize(static_cast<unsigned>(logsize));
-			glGetShaderInfoLog(id, logsize, nullptr, &log[0]);
+			glGetShaderInfoLog(id, logsize, nullptr, log.data());
 
-			Logger::error() << "Shader did not compile." << &log[0];
+			Logger::error() << "Shader did not compile." << log.data();
 			throw std::runtime_error("Load Shader Error");
 		}
 	}

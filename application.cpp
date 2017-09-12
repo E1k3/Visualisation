@@ -205,14 +205,14 @@ namespace vis
 		_delta = 0.0;
 
 		glEnable(GL_DEPTH_TEST);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glfwShowWindow(_window.get());
 
-		Text textrenderer;
+		Text fpscounter;
 
 		// Event loop
 		while(!glfwWindowShouldClose(_window.get()))
 		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			auto new_time = glfwGetTime();
 			_delta = static_cast<float>(new_time - time);
 			time = new_time;
@@ -221,10 +221,12 @@ namespace vis
 			vis->update(_delta, static_cast<float>(time));
 			vis->draw();
 
-			textrenderer.set_positions({glm::vec2{-1.f}});
-			textrenderer.set_viewport(input.get_framebuffer_size());
-			textrenderer.set_lines({std::to_string(1.f/_delta)});
-			textrenderer.draw();
+			fpscounter.set_viewport(input.get_framebuffer_size());
+			fpscounter.set_lines({std::to_string(vis->point_under_cursor().x) + " " + std::to_string(vis->point_under_cursor().y)});
+			fpscounter.set_positions({glm::vec2{-1.f}});
+			glDisable(GL_DEPTH_TEST);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			fpscounter.draw();
 
 			glfwSwapBuffers(_window.get());
 			glfwPollEvents();

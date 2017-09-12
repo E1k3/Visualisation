@@ -4,10 +4,8 @@ namespace vis
 {
 	Visualisation::Visualisation(InputManager& input, const std::vector<Field>& fields)
 		: _input{input},
-		  _fields{fields},
-		  _cursor_line{{{0.f, 0.f, 0.f}, {0.f, 0.f, 2.f}}}
-	{
-	}
+		  _fields{fields}
+	{	}
 
 	void Visualisation::setup()
 	{
@@ -15,7 +13,7 @@ namespace vis
 		setup_shaders();
 	}
 
-	void Visualisation::update_selection_cursor(glm::vec2 mouse_offset, glm::mat4 modelview, glm::mat4 projection, float aspect_ratio)
+	void Visualisation::update_selection_cursor(glm::vec2 mouse_offset, glm::mat4 modelview, float aspect_ratio)
 	{
 		constexpr auto cursor_speed = 0.0005f;
 		auto mv_inv = glm::inverse(modelview);
@@ -30,8 +28,10 @@ namespace vis
 							 (glm::normalize(glm::vec2{x_mapped}) * mouse_offset.x * cursor_speed +
 							  glm::normalize(glm::vec2{y_mapped}) * mouse_offset.y * cursor_speed);
 		_selection_cursor = glm::clamp(_selection_cursor, glm::vec2(0.f), glm::vec2(1.f));
+	}
 
-		_cursor_line.set_translations({glm::vec3{_selection_cursor * 2.f - 1.f, 0.f}});
-		_cursor_line.update(projection * modelview);
+	glm::vec2 Visualisation::get_cursor() const
+	{
+		return _selection_cursor;
 	}
 }

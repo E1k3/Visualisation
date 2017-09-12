@@ -130,22 +130,22 @@ namespace vis
 		_selected_step = step_index;
 		_cluster_size = count;
 		_cluster_stride = stride;
-		_fields.clear();
-		_fields.reserve(fields.size());
-		std::copy(fields.front().begin(), fields.front().end(), std::back_inserter(_fields));
+		_headers.clear();
+		_headers.reserve(fields.size());
+		std::copy(fields.front().begin(), fields.front().end(), std::back_inserter(_headers));
 	}
 
 	void Ensemble::analyse_field(int field_index, Ensemble::Analysis analysis)
 	{
-		if(field_index < 0 || static_cast<size_t>(field_index) >= _fields.size())
+		if(field_index < 0 || static_cast<size_t>(field_index) >= _headers.size())
 		{
 			Logger::error() << "Analysing field failed, field at index " << field_index << " does not exist. "
-							<< "Number of fields: " << _fields.size();
+							<< "Number of fields: " << _headers.size();
 			throw std::invalid_argument("No field exists at index.");
 		}
 
 		// Read fields from file
-		const auto& layout = _fields[static_cast<size_t>(field_index)];
+		const auto& layout = _headers[static_cast<size_t>(field_index)];
 		auto fields = std::vector<Field>(static_cast<size_t>(_num_simulations * _cluster_size), Field(layout, true));
 
 		for(int c = 0; c < _cluster_size; ++c)

@@ -48,6 +48,7 @@ namespace vis
 		int _cluster_stride;
 		int _cluster_size;
 
+		std::vector<Field> _headers{};
 		std::vector<Field> _fields{};
 
 		std::vector<fs::path> _project_files{};

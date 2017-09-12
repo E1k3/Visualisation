@@ -388,4 +388,42 @@ namespace vis
 
 		return divs;
 	}
+
+	std::vector<float> math_util::combined_minima(const Field& mean_field, const Field& dev_field)
+	{
+		Expects(mean_field.equal_layout(dev_field));
+
+		auto minima = std::vector<float>(static_cast<size_t>(mean_field.point_dimension()), std::numeric_limits<float>::infinity());
+		for(int d = 0; d < mean_field.point_dimension(); ++d)
+			for(int i = 0; i < mean_field.volume(); ++i)
+				minima[static_cast<size_t>(d)] = std::min(minima[static_cast<size_t>(d)], mean_field.get_value(d, i) - std::abs(dev_field.get_value(d, i)));
+		for(const auto& min : minima)
+			std::cout << "\nmin" << min;
+		return minima;
+	}
+
+	float math_util::combined_minimum(const Field& mean_field, const Field& dev_field)
+	{
+		auto minima = combined_minima(mean_field, dev_field);
+		return *std::min_element(minima.begin(), minima.end());
+	}
+
+	std::vector<float> math_util::combined_maxima(const Field& mean_field, const Field& dev_field)
+	{
+		Expects(mean_field.equal_layout(dev_field));
+
+		auto maxima = std::vector<float>(static_cast<size_t>(mean_field.point_dimension()), -std::numeric_limits<float>::infinity());
+		for(int d = 0; d < mean_field.point_dimension(); ++d)
+			for(int i = 0; i < mean_field.volume(); ++i)
+				maxima[static_cast<size_t>(d)] = std::max(maxima[static_cast<size_t>(d)], mean_field.get_value(d, i) + std::abs(dev_field.get_value(d, i)));
+		for(const auto& max : maxima)
+			std::cout << "\nmax" << max;
+		return maxima;
+	}
+
+	float math_util::combined_maximum(const Field& mean_field, const Field& dev_field)
+	{
+		auto maxima = combined_maxima(mean_field, dev_field);
+		return *std::max_element(maxima.begin(), maxima.end());
+	}
 }

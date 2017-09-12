@@ -74,8 +74,8 @@ namespace vis
 		_vertex_count = mean_field.area();
 
 		// Set data bounds
-		_mean_bounds = glm::vec2(mean_field.minimum(), mean_field.maximum());
-		_dev_bounds = glm::vec2(dev_field.minimum(), dev_field.maximum());
+		_mean_bounds = glm::vec2(math_util::combined_minimum(mean_field, dev_field), math_util::combined_maximum(mean_field, dev_field));
+		_dev_bounds = glm::vec2(0, _mean_bounds.y - _mean_bounds.x);
 
 		_palette.set_bounds(_mean_bounds, 15);
 	}

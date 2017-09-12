@@ -18,8 +18,8 @@ uniform vec4 highlight_area;
 void main()
 {
 	gs_pos = pos;
-	gs_mean = (mean-bounds.x) / (bounds.y-bounds.x);
-	gs_dev = sqrt(dev) / (bounds.y - bounds.x);
+	gs_mean = (mean - bounds.x) / (bounds.y - bounds.x);
+	gs_dev = (dev - bounds.z) / (bounds.w - bounds.z);
 	gs_weight = weight;
 	gs_indicator = 1.f
 			+ 200.f * float(pos.x >= highlight_area.x && pos.y >= highlight_area.y && pos.x <= highlight_area.z && pos.y <= highlight_area.w)

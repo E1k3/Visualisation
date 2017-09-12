@@ -20,6 +20,8 @@ namespace vis
 		virtual void update(float delta_time, float total_time) override;
 		virtual void draw() const override;
 
+		virtual glm::ivec2 point_under_cursor() const override;
+
 	protected:
 		void setup_axes();
 
@@ -36,6 +38,9 @@ namespace vis
 		Primitives _axes;
 		Text _axes_labels;
 		std::vector<float> _axes_divisions;
+
+		// Cursor
+		Primitives _cursor_indicator{{{0.f, 0.f, 0.f}, {0.f, 0.f, 1.5f}}};
 
 		// Camera
 		float _scale{1.f};

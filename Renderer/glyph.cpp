@@ -13,7 +13,7 @@ namespace vis
 	Glyph::Glyph(InputManager& input, const std::vector<Field>& fields)
 		: Visualisation{input, fields}
 	{
-
+		_cursor_indicator.set_color({0.f, 0.f, 1.f, 1.f});
 	}
 
 	void Glyph::update(float /*delta_time*/, float /*total_time*/)
@@ -38,9 +38,9 @@ namespace vis
 		auto mvp = project * view * model;
 
 		if(!mouse_1_in)	// Only move cursor when not dragging
-			update_selection_cursor(mouse_in * vec2{1, -1}, view * model, project, _input.get_framebuffer_aspect_ratio());
+			update_selection_cursor(mouse_in * vec2{1, -1}, view * model, _input.get_framebuffer_aspect_ratio());
 		else
-			update_selection_cursor(vec2{0.f}, view * model, project, _input.get_framebuffer_aspect_ratio());
+			update_selection_cursor(vec2{0.f}, view * model, _input.get_framebuffer_aspect_ratio());
 
 		// Set uniforms
 		glUseProgram(_program);
@@ -49,11 +49,16 @@ namespace vis
 		glUniform2i(_fieldsize_loc, _fields.front().width(), _fields.front().height());
 
 		auto cell_width = vec2(1.f)	/ vec2(_fields.front().width(), _fields.front().height());
-		auto highlight = vec4(_selection_cursor - .5f * cell_width, _selection_cursor + .5f * cell_width) * 2.f - 1.f;
+		auto highlight = vec4(_selection_cursor - 1.f * cell_width, _selection_cursor + 0.f * cell_width) * 2.f - 1.f;
 		glUniform4fv(_highlight_loc, 1, value_ptr(highlight));
 
+
+		// UI
 		// Update palette
 		_palette.set_viewport(_input.get_framebuffer_size());
+		// Update cursor
+		_cursor_indicator.set_translations({glm::vec3{_selection_cursor * 2.f - 1.f, 0.f} * glm::vec3{_fields.front().width(), _fields.front().height(), 1.f}});
+		_cursor_indicator.update(mvp * glm::scale(glm::mat4{}, glm::vec3{1.f/_fields.front().width(), 1.f/_fields.front().height(), 1.f}));
 	}
 
 	void Glyph::draw() const
@@ -66,7 +71,11 @@ namespace vis
 
 		// Draw
 		glDrawArrays(GL_POINTS, 0, _vertex_count);
-
+		// Cursor
+		glDisable(GL_DEPTH_TEST);
+		glLineWidth(2.f);
+		_cursor_indicator.draw();
+		// Palette
 		_palette.draw();
 	}
 
@@ -122,8 +131,8 @@ namespace vis
 		_vertex_count = mean_field.area();
 
 		// Set data bounds
-		_mean_bounds = glm::vec2(mean_field.minima()[0], mean_field.maxima()[0]);
-		_dev_bounds = glm::vec2(dev_field.minima()[0], dev_field.maxima()[0]);
+		_mean_bounds = glm::vec2(math_util::combined_minima(mean_field, dev_field).front(), math_util::combined_maxima(mean_field, dev_field).front());
+		_dev_bounds = glm::vec2(0, _mean_bounds.y - _mean_bounds.x);
 
 		_palette.set_bounds(_mean_bounds, 15);
 	}
@@ -160,5 +169,10 @@ namespace vis
 		_bounds_loc = glGetUniformLocation(_program, "bounds");
 		_highlight_loc = glGetUniformLocation(_program, "highlight_area");
 		_fieldsize_loc = glGetUniformLocation(_program, "field_size");
+	}
+
+	glm::ivec2 Glyph::point_under_cursor() const
+	{
+		return _selection_cursor * glm::vec2{_fields.front().width()-1, _fields.front().height()-1};
 	}
 }

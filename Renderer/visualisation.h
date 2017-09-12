@@ -41,10 +41,14 @@ namespace vis
 		 */
 		virtual void draw() const = 0;
 
+		virtual glm::vec2 get_cursor() const;
+
+		virtual glm::ivec2 point_under_cursor() const = 0;
+
 	protected:
 		/// @brief update_selection_cursor Updates the cursor position.
 		/// Uses the model-view matrix to calculate view direction.
-		void update_selection_cursor(glm::vec2 mouse_offset, glm::mat4 modelview, glm::mat4 projection, float aspect_ratio);
+		void update_selection_cursor(glm::vec2 mouse_offset, glm::mat4 modelview, float aspect_ratio);
 
 
 
@@ -70,8 +74,6 @@ namespace vis
 		// Location of a vec4 uniform containing the LL and UR coordinates of a highlighted rectangle
 		// The vec4 looks like this (x1, y1, x2, y1) with (x1, y1) being LL and (x2, y2) being UR
 		GLint _highlight_loc{-1};
-
-		Primitives _cursor_line;
 	};
 }
 #endif // VISUALISATION_H
