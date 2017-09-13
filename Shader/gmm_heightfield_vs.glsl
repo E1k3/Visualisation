@@ -35,6 +35,6 @@ void main()
 	gl_Position = mvp*vec4(pos, mean_, 1.f);
 	fs_intensity = dev_;
 	fs_indicator = 1.f
-			+ 200.f * float(pos.x >= highlight_area.x && pos.y >= highlight_area.y && pos.x <= highlight_area.z && pos.y <= highlight_area.w)
-			- 100.f * float(mean.x == 0.f && dev.x == 0.f && weight.x == 1.f);
+			+ 200.f * float(pos.x >= highlight_area.x && pos.y >= highlight_area.y && pos.x < highlight_area.z && pos.y < highlight_area.w)
+			- 2.f * float(mean.x == 0.f && dev.x == 0.f && weight.x == 1.f);
 }

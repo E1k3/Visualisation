@@ -22,6 +22,6 @@ void main()
 	gs_dev = (dev - bounds.z) / (bounds.w - bounds.z);
 	gs_weight = weight;
 	gs_indicator = 1.f
-			+ 200.f * float(pos.x >= highlight_area.x && pos.y >= highlight_area.y && pos.x <= highlight_area.z && pos.y <= highlight_area.w)
-			- 100.f * float(mean.x == 0.f && dev.x == 0.f && weight.x == 1.f);
+			+ 200.f * float(pos.x >= highlight_area.x && pos.y >= highlight_area.y && pos.x < highlight_area.z && pos.y < highlight_area.w)
+			- 2.f * float(mean.x == 0.f && dev.x == 0.f && weight.x == 1.f);
 }

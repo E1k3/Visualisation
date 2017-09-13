@@ -397,8 +397,6 @@ namespace vis
 		for(int d = 0; d < mean_field.point_dimension(); ++d)
 			for(int i = 0; i < mean_field.volume(); ++i)
 				minima[static_cast<size_t>(d)] = std::min(minima[static_cast<size_t>(d)], mean_field.get_value(d, i) - std::abs(dev_field.get_value(d, i)));
-		for(const auto& min : minima)
-			std::cout << "\nmin" << min;
 		return minima;
 	}
 
@@ -416,8 +414,6 @@ namespace vis
 		for(int d = 0; d < mean_field.point_dimension(); ++d)
 			for(int i = 0; i < mean_field.volume(); ++i)
 				maxima[static_cast<size_t>(d)] = std::max(maxima[static_cast<size_t>(d)], mean_field.get_value(d, i) + std::abs(dev_field.get_value(d, i)));
-		for(const auto& max : maxima)
-			std::cout << "\nmax" << max;
 		return maxima;
 	}
 

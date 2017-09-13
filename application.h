@@ -20,7 +20,7 @@ namespace vis
 		static constexpr int aggregation_count = 1;
 		static constexpr int aggregation_stride = 4;
 		static constexpr int field_index_input = 2;
-		static constexpr Ensemble::Analysis analysis_input = Ensemble::Analysis::GAUSSIAN_MIXTURE;
+		static constexpr Ensemble::Analysis analysis_input = Ensemble::Analysis::GAUSSIAN_SINGLE;
 		static const float study_highlights[][4];
 		static const int study_steps[];
 		static unsigned study_select;

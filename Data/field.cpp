@@ -275,6 +275,14 @@ namespace vis
 
 	int Field::validate_index(int d, int x, int y, int z) const
 	{
-		return validate_index(d, validate_index(x, y, z));
+		if(d < 0 || d >= _dimension)
+		{
+			Logger::error() << "Data of field " << _name << " was accessed at point dimension:\n"
+							<< "d: " << d
+							<< "\nField point dimension:\n"
+							<< "dimension: " << _dimension ;
+			throw std::length_error("Field data access out of range.");	// ERROR handling. Negative index.
+		}
+		return validate_index(x, y, z) + d;
 	}
 }

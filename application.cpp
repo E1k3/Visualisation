@@ -209,8 +209,10 @@ namespace vis
 			vis->draw();
 
 			fpscounter.set_viewport(input.get_framebuffer_size());
-			fpscounter.set_lines({std::to_string(vis->point_under_cursor().x) + " " + std::to_string(vis->point_under_cursor().y)});
-			fpscounter.set_positions({glm::vec2{-1.f}});
+			fpscounter.set_lines({"Cursor (" + std::to_string(vis->point_under_cursor().x) + ", " + std::to_string(vis->point_under_cursor().y) + ")" +
+								 " mean " + std::to_string(_ensemble.fields().at(0).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0)) +
+								 " dev " + std::to_string(_ensemble.fields().at(1).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0))});
+			fpscounter.set_positions({glm::vec2{-1.f, 1.f - fpscounter.relative_sizes().front().y}});
 			glDisable(GL_DEPTH_TEST);
 			fpscounter.draw();
 
