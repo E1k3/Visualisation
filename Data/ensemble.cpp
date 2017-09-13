@@ -38,11 +38,13 @@ namespace vis
 						 [] (const fs::path& a, const fs::path& b) { return a.filename() < b.filename(); });
 	}
 
-	int Ensemble::num_steps() const                    { return _num_steps; }
+	int Ensemble::num_steps() const						{ return _num_steps; }
 
-	int Ensemble::num_simulations() const              { return _num_simulations; }
+	int Ensemble::num_simulations() const				{ return _num_simulations; }
 
-	const std::vector<Field>& Ensemble::fields() const { return _fields; }
+	const std::vector<Field>& Ensemble::fields() const	{ return _fields; }
+
+	const std::vector<Field>& Ensemble::headers() const	{ return _headers; }
 
 	void Ensemble::read_headers(int step_index, int count, int stride)
 	{

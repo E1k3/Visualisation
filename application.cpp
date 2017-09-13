@@ -12,11 +12,6 @@
 
 namespace vis
 {
-	constexpr float Application::study_highlights[][4] = {{85, 80, 85, 80},
-														  {102, 47, 102, 47},
-														  {102, 47, 102, 47}};
-	constexpr int Application::study_steps[] = {100, 1300};
-	unsigned Application::study_select = 1;
 	namespace fs = std::experimental::filesystem;
 	Application::Application(std::string path)
 		: _ensemble{fs::path{path}}
@@ -119,46 +114,37 @@ namespace vis
 		};
 		glfwSetWindowFocusCallback(_window.get(), focus_callback);
 
-		if(true)	// true->STUDYMODE
-		{
-			//STUDY
-			std::cout << "\nNumber:\n";
-			std::cin >> study_select;
-			_ensemble.read_headers(study_steps[study_select], aggregation_count, aggregation_stride);
-			_ensemble.analyse_field(field_index_input, Ensemble::Analysis(analysis_input));
-		}
-		else
-		{
-			// UI
-			// Select simulation step
-			int step_index_input = 0;
-			std::cout << "\nChoose a time step [0," << _ensemble.num_steps() << ")\n";
-			std::cin >> step_index_input;
-			int aggregation_count = 0;
-			std::cout << "\nChoose how many steps you want to aggregate (merge) [0, n)\n";
-			std::cin >> aggregation_count;
-			int aggregation_stride = 0;
-			std::cout << "\nChoose the aggregation stride [0, n)\n";
-			std::cin >> aggregation_stride;
-			_ensemble.read_headers(step_index_input, aggregation_count, aggregation_stride);
 
-			// Select field
-			std::cout << "\nThe simulations contain " << _ensemble.fields().size() << " fields.\n";
-			{
-				int i = 0;
-				for(const auto& field : _ensemble.fields())
-					std::cout << i++ << " " << field.layout_to_string() << '\n';
-			}
-			std::cout << "Choose one [0," << _ensemble.fields().size() << ")\n";
-			int field_index_input = 2;	// Magic number as default.
-			std::cin >> field_index_input;
+		// UI
+		// Select simulation step
+		int step_index_input = 0;
+		std::cout << "\nChoose a time step [0," << _ensemble.num_steps() << ")\n";
+		std::cin >> step_index_input;
+		int aggregation_count = 0;
+		std::cout << "\nChoose how many steps you want to aggregate (merge) [0, n)\n";
+		std::cin >> aggregation_count;
+		int aggregation_stride = 0;
+		std::cout << "\nChoose the aggregation stride [0, n)\n";
+		std::cin >> aggregation_stride;
+		_ensemble.read_headers(step_index_input, aggregation_count, aggregation_stride);
 
-			// Select analysis
-			std::cout << "\nAnalyze field using:\n0 Maximum likelihood Normal distribution\n1 Maximum likelihood GMM\n";
-			int analysis_input = 0;
-			std::cin >> analysis_input;
-			_ensemble.analyse_field(field_index_input, Ensemble::Analysis(analysis_input));
+		// Select field
+		std::cout << "\nThe simulations contain " << _ensemble.headers().size() << " fields.\n";
+		{
+			int i = 0;
+			for(const auto& field : _ensemble.headers())
+				std::cout << i++ << " " << field.layout_to_string() << '\n';
 		}
+		std::cout << "Choose one [0," << _ensemble.headers().size() << ")\n";
+		int field_index_input = 2;	// Magic number as default.
+		std::cin >> field_index_input;
+
+		// Select analysis
+		std::cout << "\nAnalyze field using:\n0 Maximum likelihood Normal distribution\n1 Maximum likelihood GMM\n";
+		int analysis_input = 0;
+		std::cin >> analysis_input;
+		_ensemble.analyse_field(field_index_input, Ensemble::Analysis(analysis_input));
+
 
 		// Select renderer
 		auto vis = std::unique_ptr<Visualisation>{};
@@ -168,13 +154,13 @@ namespace vis
 		switch (renderer_input)
 		{
 		case 0:
-			if(analysis_input == Ensemble::Analysis::GAUSSIAN_SINGLE)
+			if(static_cast<Ensemble::Analysis>(analysis_input) == Ensemble::Analysis::GAUSSIAN_SINGLE)
 				vis = std::make_unique<Heightfield>(input, _ensemble.fields());
 			else
 				vis = std::make_unique<HeightfieldGMM>(input, _ensemble.fields());
 			break;
 		case 1:
-			if(analysis_input == Ensemble::Analysis::GAUSSIAN_SINGLE)
+			if(static_cast<Ensemble::Analysis>(analysis_input) == Ensemble::Analysis::GAUSSIAN_SINGLE)
 				vis = std::make_unique<Glyph>(input, _ensemble.fields());
 			else
 				vis = std::make_unique<GlyphGMM>(input, _ensemble.fields());

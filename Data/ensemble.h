@@ -25,6 +25,7 @@ namespace vis
 		int num_simulations() const;
 
 		const std::vector<Field>& fields() const;
+		const std::vector<Field>& headers() const;
 
 		void read_headers(int step_index, int count = 0, int stride = 0);
 
