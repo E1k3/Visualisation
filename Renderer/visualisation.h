@@ -45,12 +45,12 @@ namespace vis
 
 		virtual glm::ivec2 point_under_cursor() const = 0;
 
+		virtual void set_highlight_area(const glm::ivec4& area);
+
 	protected:
 		/// @brief update_selection_cursor Updates the cursor position.
 		/// Uses the model-view matrix to calculate view direction.
 		void update_selection_cursor(glm::vec2 mouse_offset, glm::mat4 modelview, float aspect_ratio);
-
-
 
 		// Input manager that is used to access HID data
 		InputManager& _input;
@@ -69,8 +69,9 @@ namespace vis
 		// Number of vertices to draw
 		int _vertex_count{0};
 
+		glm::ivec4 _highlight_area{10};
 		// Point in [(-1,-1), (1,1)] that is currently selected by the cursor
-		glm::vec2 _selection_cursor{0.f};
+		glm::vec2 _cursor_position{0.f};
 		// Location of a vec4 uniform containing the LL and UR coordinates of a highlighted rectangle
 		// The vec4 looks like this (x1, y1, x2, y1) with (x1, y1) being LL and (x2, y2) being UR
 		GLint _highlight_loc{-1};

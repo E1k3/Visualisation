@@ -75,15 +75,10 @@ namespace vis
 		{
 			if(glfwGetWindowUserPointer(window))
 			{
-				switch(action)
-				{
-				case GLFW_PRESS:
+				if(action == GLFW_PRESS)
 					static_cast<InputManager*>(glfwGetWindowUserPointer(window))->press_key(keycode);
-					break;
-				case GLFW_RELEASE:
+				else if(action == GLFW_RELEASE)
 					static_cast<InputManager*>(glfwGetWindowUserPointer(window))->release_key(keycode);
-					break;
-				}
 			}
 		};
 		glfwSetKeyCallback(_window.get(), key_callback);
@@ -91,15 +86,10 @@ namespace vis
 		{
 			if(glfwGetWindowUserPointer(window))
 			{
-				switch(action)
-				{
-				case GLFW_PRESS:
+				if(action == GLFW_PRESS)
 					static_cast<InputManager*>(glfwGetWindowUserPointer(window))->press_button(buttoncode);
-					break;
-				case GLFW_RELEASE:
+				else if(action == GLFW_RELEASE)
 					static_cast<InputManager*>(glfwGetWindowUserPointer(window))->release_button(buttoncode);
-					break;
-				}
 			}
 		};
 		glfwSetMouseButtonCallback(_window.get(), button_callback);
@@ -201,6 +191,7 @@ namespace vis
 		auto time = glfwGetTime();
 		_delta = 0.0;
 
+//		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glEnable(GL_DEPTH_TEST);
 		glfwShowWindow(_window.get());
 
@@ -209,7 +200,6 @@ namespace vis
 		// Event loop
 		while(!glfwWindowShouldClose(_window.get()))
 		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			auto new_time = glfwGetTime();
 			_delta = static_cast<float>(new_time - time);
 			time = new_time;
@@ -222,7 +212,6 @@ namespace vis
 			fpscounter.set_lines({std::to_string(vis->point_under_cursor().x) + " " + std::to_string(vis->point_under_cursor().y)});
 			fpscounter.set_positions({glm::vec2{-1.f}});
 			glDisable(GL_DEPTH_TEST);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			fpscounter.draw();
 
 			glfwSwapBuffers(_window.get());

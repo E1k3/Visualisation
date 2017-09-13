@@ -30,5 +30,5 @@ void main()
 	                     comps.z * float(angle >= weightsum.y && angle < weightsum.z) +
 	                     comps.w * float(angle >= weightsum.z)), 1.f);
 	if(fs_indicator > 2.f)
-		color = vec4(1.f);
+		color += vec4(.5f);
 }

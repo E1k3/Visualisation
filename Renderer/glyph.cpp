@@ -26,6 +26,7 @@ namespace vis
 		auto mouse_in = _input.get_cursor_offset();
 		auto scroll_in = _input.get_scroll_offset_y();
 		auto mouse_1_in = _input.get_button(GLFW_MOUSE_BUTTON_1);
+		auto space_in = _input.get_key(GLFW_KEY_SPACE);
 
 		// Calculate mvp
 		_scale *= 1.f + scroll_in * scroll_speed;
@@ -48,8 +49,13 @@ namespace vis
 		glUniform4f(_bounds_loc, _mean_bounds.x, _mean_bounds.y, _dev_bounds.x, _dev_bounds.y);
 		glUniform2i(_fieldsize_loc, _fields.front().width(), _fields.front().height());
 
-		auto cell_width = vec2(1.f)	/ vec2(_fields.front().width(), _fields.front().height());
-		auto highlight = vec4(_selection_cursor - 1.f * cell_width, _selection_cursor + 0.f * cell_width) * 2.f - 1.f;
+		auto field_size = vec2{_fields.front().width(), _fields.front().height()};
+		auto cell_size = vec2{1.f}	/ (field_size - 1.f);
+		vec4 highlight;
+		if(space_in)
+			highlight = (vec4{_highlight_area} / (vec4{field_size, field_size} - 1.f) + .5f * vec4{-cell_size, cell_size}) * 2.f - 1.f;
+		else
+			highlight = vec4{_cursor_position - cell_size, _cursor_position} * 2.f - 1.f;
 		glUniform4fv(_highlight_loc, 1, value_ptr(highlight));
 
 
@@ -57,7 +63,7 @@ namespace vis
 		// Update palette
 		_palette.set_viewport(_input.get_framebuffer_size());
 		// Update cursor
-		_cursor_indicator.set_translations({glm::vec3{_selection_cursor * 2.f - 1.f, 0.f} * glm::vec3{_fields.front().width(), _fields.front().height(), 1.f}});
+		_cursor_indicator.set_translations({glm::vec3{_cursor_position * 2.f - 1.f, 0.f} * glm::vec3{_fields.front().width(), _fields.front().height(), 1.f}});
 		_cursor_indicator.update(mvp * glm::scale(glm::mat4{}, glm::vec3{1.f/_fields.front().width(), 1.f/_fields.front().height(), 1.f}));
 	}
 
@@ -173,6 +179,6 @@ namespace vis
 
 	glm::ivec2 Glyph::point_under_cursor() const
 	{
-		return _selection_cursor * glm::vec2{_fields.front().width()-1, _fields.front().height()-1};
+		return _cursor_position * glm::vec2{_fields.front().width()-1, _fields.front().height()-1};
 	}
 }
