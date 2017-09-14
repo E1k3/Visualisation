@@ -245,10 +245,11 @@ namespace vis
 				highlight = study_data(test, question);
 			}
 
-			if(static_cast<int>(time*4) % 2 == 0)
+			if(static_cast<int>(time*6) % 4 == 0)
 				vis->set_highlight_area(std::get<0>(highlight));
-			else
+			else if(static_cast<int>(time*6) % 4 == 2)
 				vis->set_highlight_area(std::get<1>(highlight));
+			else vis->set_highlight_area(glm::ivec4{-10});
 
 			vis->update(_delta, static_cast<float>(time));
 			vis->draw();

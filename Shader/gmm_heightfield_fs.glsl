@@ -15,5 +15,5 @@ void main()
 	color = vec4(palette(fs_intensity), 1.0f);
 
 	if(fs_indicator > 2.f)
-		color = vec4(.5f, .5f, 1.f, 1.f);
+		color = color * .2f + vec4(.5f, .5f, 1.f, 1.f);
 }
