@@ -30,6 +30,11 @@ namespace vis
 
 	private:
 
+		int study_timestep(int test, int question);
+		std::tuple<glm::ivec4, glm::ivec4> study_data(int test, int question);
+		Ensemble::Analysis study_analysis(int question);
+		int study_visualisation(int test, int question);
+
 		/**
 		 * @brief error_callback Callback function to be used by GLFW to indicate errors.
 		 * @param error The error id.

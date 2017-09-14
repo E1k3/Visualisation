@@ -30,7 +30,7 @@ namespace vis
 		void update();
 
 		Text _text{};
-		Primitives _division_lines{{{0.f, 0.f, 0.f}, {0.f, 1.f, 0.f}}};
+		Primitives _division_lines{{{0.f, 0.f, 0.f}, {0.f, 1.1f, 0.f}}};
 		std::vector<glm::vec2> _text_positions{};
 
 		glm::vec2 _position{-.75f, -1.f};

@@ -236,7 +236,7 @@ namespace vis
 
 		_axes_labels.set_lines(labels);
 
-		_palette.set_bounds(_dev_bounds, 10);
+		_palette.set_bounds(_dev_bounds, 20);
 	}
 
 	glm::ivec2 Heightfield::point_under_cursor() const
