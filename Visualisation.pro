@@ -54,10 +54,8 @@ DISTFILES += \
     Shader/glyph_vs.glsl \
     Shader/glyph_fs.glsl \
     Shader/gmm_glyph_vs.glsl \
-    Shader/gmm_glyph_fs.glsl \
     Shader/gmm_heightfield_vs.glsl \
     Shader/gmm_heightfield_fs.glsl \
-    Shader/gmm_glyph_fs_2.glsl \
     Shader/text_vs.glsl \
     Shader/text_fs.glsl \
     Shader/palette.glsl \
@@ -66,4 +64,6 @@ DISTFILES += \
     Shader/colormap_fs.glsl \
     Shader/colormap_vs.glsl \
     Shader/primitives_fs.glsl \
-    Shader/primitives_vs.glsl
+    Shader/primitives_vs.glsl \
+    Shader/gmm_glyph_fs_alt.glsl \
+    Shader/gmm_glyph_fs.glsl

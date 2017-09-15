@@ -115,7 +115,7 @@ namespace vis
 		glfwSetWindowFocusCallback(_window.get(), focus_callback);
 
 
-//		// UI
+//		// Crude CLI-UI
 //		// Select simulation step
 //		int step_index_input = 0;
 //		std::cout << "\nChoose a time step [0," << _ensemble.num_steps() << ")\n";
@@ -172,7 +172,7 @@ namespace vis
 //		vis->setup();
 
 		auto test = 0;
-		auto question = 11;
+		auto question = 23;
 
 		auto vis = std::unique_ptr<Visualisation>{};
 		std::cout << "\nTest Nr.: ";
@@ -190,7 +190,7 @@ namespace vis
 		auto time = glfwGetTime();
 		_delta = 0.0;
 
-//		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		GLenum polygon_mode = GL_FILL;
 		glEnable(GL_DEPTH_TEST);
 		glfwShowWindow(_window.get());
 
@@ -208,17 +208,16 @@ namespace vis
 
 			if(!init || input.release_get_key(GLFW_KEY_ENTER))
 			{
-				init = true;
-				question = (question + 1) % 12;//TODO look at this when adding gmms
+				question = (question + 1) % 24;// ...
 				auto new_timestep = study_timestep(test, question);
 				auto new_analysis = study_analysis(question);
 				auto new_visualisation = study_visualisation(test, question);
 
-				if(new_timestep != timestep)
+				if(!init || new_timestep != timestep)
 					_ensemble.read_headers(new_timestep, 1, 1);
-				if(new_timestep != timestep || new_analysis != analysis)
+				if(!init || new_timestep != timestep || new_analysis != analysis)
 					_ensemble.analyse_field(2, new_analysis);
-				if(new_visualisation != visualisation)
+				if(!init || new_visualisation != visualisation)
 					switch(new_visualisation)
 					{
 					case 0:
@@ -234,16 +233,28 @@ namespace vis
 						vis = std::make_unique<GlyphGMM>(input, _ensemble.fields());
 						break;
 					case 4:
-						vis = std::make_unique<GlyphGMM>(input, _ensemble.fields());//TODO add constructor for shader 2
+						vis = std::make_unique<GlyphGMM>(input, _ensemble.fields(), true);
 						break;
 					}
-				if(new_timestep != timestep || new_analysis != analysis || new_visualisation != visualisation)
+				if(!init || new_timestep != timestep || new_analysis != analysis || new_visualisation != visualisation)
 					vis->setup();
 				timestep = new_timestep;
 				analysis = new_analysis;
 				visualisation = new_visualisation;
 				highlight = study_data(test, question);
+
+				init = true;
 			}
+
+			if(input.release_get_key(GLFW_KEY_L))
+			{
+				if(polygon_mode == GL_FILL)
+					polygon_mode = GL_LINE;
+				else
+					polygon_mode = GL_FILL;
+				glPolygonMode(GL_FRONT_AND_BACK, polygon_mode);
+			}
+
 
 			if(static_cast<int>(time*6) % 4 == 0)
 				vis->set_highlight_area(std::get<0>(highlight));
@@ -256,8 +267,8 @@ namespace vis
 
 			statusline.set_viewport(input.get_framebuffer_size());
 			statusline.set_lines({"Cursor (" + std::to_string(vis->point_under_cursor().x) + ", " + std::to_string(vis->point_under_cursor().y) + ")" + " Question " + std::to_string(question)
-								 /*" mean " + std::to_string(_ensemble.fields().at(0).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0)) +
-								 " dev " + std::to_string(_ensemble.fields().at(1).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0))*/});
+								 + " mean " + std::to_string(_ensemble.fields().at(0).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0)) +
+								 " dev " + std::to_string(_ensemble.fields().at(1).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0))});
 			statusline.set_positions({glm::vec2{-1.f, 1.f - statusline.relative_sizes().front().y}});
 			glDisable(GL_DEPTH_TEST);
 			statusline.draw();
@@ -278,31 +289,64 @@ namespace vis
 	int Application::study_timestep(int test, int question)
 	{
 		int steps[] = {256, 1400};
-		return steps[static_cast<size_t>((question/3 + test) % 2)];
+		if(question < 12)
+			return steps[(question/3 + test) % 2];
+		else
+			return steps[(question/4 + test) % 2];
 	}
 	std::tuple<glm::ivec4, glm::ivec4> Application::study_data(int test, int question)
 	{
-		std::tuple<glm::ivec4, glm::ivec4> data[] = {
-			{{160, 64, 160, 64}, {160, 64, 160, 64}},
-			{{160, 64, 160, 64}, {180, 80, 180, 80}},
-			{{160, 64, 180, 80}, {160, 64, 180, 80}},
-			{{76, 30, 76, 30}, {76, 30, 76, 30}},
-			{{76, 30, 76, 30}, {105, 51, 105, 51}},
-			{{76, 30, 105, 51}, {76, 30, 105, 51}},
-			{{0, 35, 0, 35}, {0, 35, 0, 35}},
-			{{0, 35, 0, 35}, {45, 55, 45, 55}},
-			{{0, 35, 45, 55}, {0, 35, 45, 55}},
-			{{56, 68, 56, 68}, {56, 68, 56, 68}},
-			{{56, 68, 56, 68}, {85, 83, 85, 83}},
-			{{56, 68, 85, 83}, {56, 68, 85, 83}}};
-		return data[(question + test/2*3) % 12];
+		if(question < 12)
+		{
+			std::tuple<glm::ivec4, glm::ivec4> data[] = {
+				{{160, 64, 160, 64}, {160, 64, 160, 64}},	// Single point
+				{{160, 64, 160, 64}, {180, 80, 180, 80}},	// Point pair
+				{{160, 64, 180, 80}, {160, 64, 180, 80}},	// Region
+				{{76, 30, 76, 30}, {76, 30, 76, 30}},	// Single point
+				{{76, 30, 76, 30}, {105, 51, 105, 51}},	// Point pair
+				{{76, 30, 105, 51}, {76, 30, 105, 51}},	// Region
+				{{0, 35, 0, 35}, {0, 35, 0, 35}},	// Single point
+				{{0, 35, 0, 35}, {45, 55, 45, 55}},	// Point pair
+				{{0, 35, 45, 55}, {0, 35, 45, 55}},	// Region
+				{{56, 68, 56, 68}, {56, 68, 56, 68}},	// Single point
+				{{56, 68, 56, 68}, {85, 83, 85, 83}},	// Point pair
+				{{56, 68, 85, 83}, {56, 68, 85, 83}}};	// Region
+			return data[(question + test/2*3) % 12];
+		}
+		else
+		{
+			std::tuple<glm::ivec4, glm::ivec4> data[] = {
+				{{160, 64, 160, 64}, {160, 64, 160, 64}},	// Single point
+				{{160, 64, 160, 64}, {160, 64, 160, 64}},	// Single point
+				{{160, 64, 160, 64}, {180, 80, 180, 80}},	// Point pair
+				{{160, 64, 180, 80}, {160, 64, 180, 80}},	// Region
+				{{76, 30, 76, 30}, {76, 30, 76, 30}},	// Single point
+				{{76, 30, 76, 30}, {76, 30, 76, 30}},	// Single point
+				{{76, 30, 76, 30}, {105, 51, 105, 51}},	// Point pair
+				{{76, 30, 105, 51}, {76, 30, 105, 51}},	// Region
+				{{0, 35, 0, 35}, {0, 35, 0, 35}},	// Single point
+				{{0, 35, 0, 35}, {0, 35, 0, 35}},	// Single point
+				{{0, 35, 0, 35}, {45, 55, 45, 55}},	// Point pair
+				{{0, 35, 45, 55}, {0, 35, 45, 55}},	// Region
+				{{56, 68, 56, 68}, {56, 68, 56, 68}},	// Single point
+				{{56, 68, 56, 68}, {56, 68, 56, 68}},	// Single point
+				{{56, 68, 56, 68}, {85, 83, 85, 83}},	// Point pair
+				{{56, 68, 85, 83}, {56, 68, 85, 83}}};	// Region
+			return data[(question + test/2*4) % 12];
+		}
 	}
 	Ensemble::Analysis Application::study_analysis(int question)
 	{
-		return question < 12 ? Ensemble::Analysis::GAUSSIAN_SINGLE : Ensemble::Analysis::GAUSSIAN_MIXTURE;
+		if(question < 12)
+			return Ensemble::Analysis::GAUSSIAN_SINGLE;
+		else
+			return Ensemble::Analysis::GAUSSIAN_MIXTURE;
 	}
 	int Application::study_visualisation(int test, int question)
 	{
-		return (question/6 + test/2) % 2;
+		if(question < 12)
+			return (question/6 + test/2) % 2;
+		else
+			return 2 + ((question/4 + test/2) % 3);
 	}
 }

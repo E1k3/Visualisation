@@ -8,7 +8,7 @@ namespace vis
 	class GlyphGMM : public Glyph
 	{
 	public:
-		explicit GlyphGMM(InputManager& input, const std::vector<Field>& fields);
+		explicit GlyphGMM(InputManager& input, const std::vector<Field>& fields, bool alternative_shader = false);
 
 		void setup_data() override;
 		void setup_shaders() override;

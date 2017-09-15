@@ -8,7 +8,9 @@ in float fs_indicator;
 
 out vec4 color;
 
-const float pi = 3.141592653589793238462643383279502884197169399375105820974f;
+uniform sampler2D mask;
+
+const float dot_radius = 0.2613616004385317f;	// pi * dot_radius^2 = 1 - pi * 0.5^2 = background area
 vec3 palette(float x);
 
 void main()
@@ -16,19 +18,22 @@ void main()
 	if(fs_indicator < 0.f)
 		discard;
 
-	float distance = length(vec2(.5f) - fs_uv);
-	const float rad_in = 0.325735007935279947724256415225564669717257072129485134758f;
-	const float rad_out = 0.460658865961780639020326194709186244185836493768324417982f;
+	vec4 weightsum = vec4(fs_weight.x, fs_weight.x+fs_weight.y, fs_weight.x+fs_weight.y+fs_weight.z, fs_weight.x+fs_weight.y+fs_weight.z+fs_weight.w) * (1 - dot_radius) + dot_radius;
+	float distance = length(vec2(.5f) - fs_uv)*2.f;
 
-	vec4 comps = float(distance < rad_in)*(fs_mean + fs_dev) + float(distance >= rad_in && distance < rad_out)*fs_mean + float (distance >= rad_out)*(fs_mean - fs_dev);
+	int last = 0;
+	for(;last < 3;)
+	{
+		if(fs_weight[last+1] == 0.f) break;
+		else ++last;
+	}
 
-	float angle = acos((.5f-fs_uv.y) / length(fs_uv-vec2(.5f))) * (float(.5f-fs_uv.x < 0.f)*2 - 1) + pi;
-
-	vec4 weightsum = vec4(fs_weight.x, fs_weight.x+fs_weight.y, fs_weight.x+fs_weight.y+fs_weight.z, fs_weight.x+fs_weight.y+fs_weight.z+fs_weight.w) * pi * 2.f;
-	color = vec4(palette(comps.x * float(                        angle < weightsum.x) +
-	                     comps.y * float(angle >= weightsum.x && angle < weightsum.y) +
-	                     comps.z * float(angle >= weightsum.y && angle < weightsum.z) +
-	                     comps.w * float(angle >= weightsum.z)), 1.f);
+	color = vec4(palette((fs_mean.x - fs_dev.x) * float(distance < dot_radius) +
+	                     fs_mean.x            * float(distance < weightsum.x                 && distance >= dot_radius) +
+	                     fs_mean.y            * float(distance < weightsum.y                 && distance >= weightsum.x) +
+	                     fs_mean.z            * float(distance < weightsum.z                 && distance >= weightsum.y) +
+	                     fs_mean.w            * float(distance < weightsum.w                 && distance >= weightsum.z) +
+						 (fs_mean[last] + fs_dev[last]) * float(                                distance >= 1.f) ), 1.f);
 	if(fs_indicator > 2.f)
-		color = color * .2f + vec4(.5f, .5f, 1.f, 1.f);
+		color = color * .4f + vec4(0.f, .6f, 0.f, 1.f);
 }

@@ -5,10 +5,16 @@
 
 namespace vis
 {
-	GlyphGMM::GlyphGMM(InputManager& input, const std::vector<Field>& fields)
+	GlyphGMM::GlyphGMM(InputManager& input, const std::vector<Field>& fields, bool alternative_shader)
 		: Glyph{input, fields}
 	{
-
+		_vertex_shaders = {"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_vs.glsl"};
+		_geometry_shaders = {"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_gs.glsl"};
+		_fragment_shaders = {"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_fs.glsl",
+							 "/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"};
+		if(alternative_shader)
+			_fragment_shaders = {"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_fs_alt.glsl",
+								 "/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"};
 	}
 
 	void GlyphGMM::setup_data()
@@ -82,10 +88,6 @@ namespace vis
 
 	void GlyphGMM::setup_shaders()
 	{
-		_vertex_shaders = {"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_vs.glsl"};
-		_geometry_shaders = {"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_gs.glsl"};
-		_fragment_shaders = {"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_fs_2.glsl",
-							 "/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"};
 		Glyph::setup_shaders();
 	}
 }
