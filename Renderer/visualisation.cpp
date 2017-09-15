@@ -16,6 +16,10 @@ namespace vis
 	void Visualisation::update_selection_cursor(glm::vec2 mouse_offset, glm::mat4 modelview, float /*aspect_ratio*/)
 	{
 		constexpr auto cursor_speed = 0.0005f;
+
+		if(mouse_offset == glm::vec2{0})
+			return;
+
 		auto mv_inv = glm::inverse(modelview);
 		auto zero_mapped = mv_inv * glm::vec4{0.f, 0.f, 0.f, 1.f};
 		auto x_mapped = mv_inv * glm::vec4{1.f, 0.f, 0.f, 1.f};
