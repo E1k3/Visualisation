@@ -13,7 +13,7 @@ namespace vis
 		setup_shaders();
 	}
 
-	void Visualisation::update_selection_cursor(glm::vec2 mouse_offset, glm::mat4 modelview, float /*aspect_ratio*/)
+	void Visualisation::update_selection_cursor(glm::vec2 mouse_offset, glm::mat4 modelview, float aspect_ratio)
 	{
 		constexpr auto cursor_speed = 0.0005f;
 
@@ -28,7 +28,7 @@ namespace vis
 		x_mapped = x_mapped / x_mapped.w - zero_mapped;
 		y_mapped = y_mapped / y_mapped.w - zero_mapped;
 
-		_cursor_position += glm::vec2{x_mapped} * mouse_offset.x * cursor_speed + glm::vec2{y_mapped} * mouse_offset.y * cursor_speed;
+		_cursor_position += 1.f/aspect_ratio * glm::normalize(glm::vec2{x_mapped}) * mouse_offset.x * cursor_speed + glm::normalize(glm::vec2{y_mapped}) * mouse_offset.y * cursor_speed;
 		_cursor_position = glm::clamp(_cursor_position, glm::vec2(0.f), glm::vec2(1.f));
 	}
 

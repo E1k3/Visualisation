@@ -221,6 +221,7 @@ namespace vis
 		_axes_divisions.push_back(_mean_bounds.y);
 
 		auto labels = std::vector<std::string>();
+		_axes.clear_translations();
 		for(const auto& div : _axes_divisions)
 			_axes.add_translation({0.f, 0.f, (div - _mean_bounds.x) / (_mean_bounds.y - _mean_bounds.x)});
 
@@ -230,7 +231,7 @@ namespace vis
 			{
 				auto label_string = std::to_string(div);
 				label_string.erase ( label_string.find_last_not_of('0') + 1, std::string::npos );
-				label_string += '0';
+				label_string.erase ( label_string.find_last_not_of('.') + 1, std::string::npos );
 				labels.push_back(label_string);
 			}
 

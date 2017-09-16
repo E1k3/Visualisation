@@ -37,7 +37,7 @@ vec3 palette(float x)
 	const float _palette_pi_ = 3.141592653589793238462643383279502884197169399375105820974f;
 	const float _sqrt_three_ = 1.732050807568877293527446341505872366942805253810380628055f;
 	x = clamp(x, 0.f, 1.f);
-//	x = x*.9f + .05f; // Cut off the first and last 5% for low contrast displays.
+	x = x*.9f + .05f; // Cut off the first and last 5% for low contrast displays.
 
 	vec3 color = vec3(0.f);
 //	color = vec3(x);                   // black->white

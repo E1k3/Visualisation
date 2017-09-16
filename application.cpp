@@ -266,9 +266,10 @@ namespace vis
 			vis->draw();
 
 			statusline.set_viewport(input.get_framebuffer_size());
-			statusline.set_lines({"fps " + std::to_string(1/_delta) + " Cursor (" + std::to_string(vis->point_under_cursor().x) + ", " + std::to_string(vis->point_under_cursor().y) + ")" + " Question " + std::to_string(question)
-								 + " mean " + std::to_string(_ensemble.fields().at(0).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0)) +
-								 " dev " + std::to_string(_ensemble.fields().at(1).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0))});
+			statusline.set_lines({/*std::to_string(1.f/_delta) + */" Cursor (" + std::to_string(vis->point_under_cursor().x) + ", " + std::to_string(vis->point_under_cursor().y) + ") Highlight (" + std::to_string(std::get<0>(highlight).x) + ", " + std::to_string(std::get<0>(highlight).y)
+								  + ") Question " + std::to_string(question)
+								 /*+ " mean " + std::to_string(_ensemble.fields().at(0).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0)) +
+								 " dev " + std::to_string(_ensemble.fields().at(1).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0))*/});
 			statusline.set_positions({glm::vec2{-1.f, 1.f - statusline.relative_sizes().front().y}});
 			glDisable(GL_DEPTH_TEST);
 			statusline.draw();
@@ -299,39 +300,39 @@ namespace vis
 		if(question < 12)
 		{
 			std::tuple<glm::ivec4, glm::ivec4> data[] = {
-				{{160, 64, 160, 64}, {160, 64, 160, 64}},	// Single point
-				{{160, 64, 160, 64}, {180, 80, 180, 80}},	// Point pair
-				{{160, 64, 180, 80}, {160, 64, 180, 80}},	// Region
-				{{76, 30, 76, 30}, {76, 30, 76, 30}},	// Single point
-				{{76, 30, 76, 30}, {105, 51, 105, 51}},	// Point pair
-				{{76, 30, 105, 51}, {76, 30, 105, 51}},	// Region
-				{{0, 35, 0, 35}, {0, 35, 0, 35}},	// Single point
-				{{0, 35, 0, 35}, {45, 55, 45, 55}},	// Point pair
-				{{0, 35, 45, 55}, {0, 35, 45, 55}},	// Region
-				{{56, 68, 56, 68}, {56, 68, 56, 68}},	// Single point
-				{{56, 68, 56, 68}, {85, 83, 85, 83}},	// Point pair
-				{{56, 68, 85, 83}, {56, 68, 85, 83}}};	// Region
+				{{160,  64, 180,  80}, {160,  64, 180,  80}},	// Region
+				{{175,  67, 175,  67}, {175,  67, 175,  67}},	// Single point
+				{{160,  64, 160,  64}, {180,  80, 180,  80}},	// Point pair
+				{{ 76,  30, 105,  51}, { 76,  30, 105,  51}},	// Region
+				{{103,  36, 103,  36}, {103,  36, 103,  36}},	// Single point
+				{{ 76,  30,  76,  30}, {105,  51, 105,  51}},	// Point pair
+				{{  0,  35,  45,  55}, {  0,  35,  45,  55}},	// Region
+				{{  5,  53,   5,  53}, {  5,  53,   5,  53}},	// Single point
+				{{  0,  35,   0,  35}, { 45,  55,  45,  55}},	// Point pair
+				{{ 56,  68,  85,  83}, { 56,  68,  85,  83}},	// Region
+				{{ 65,  80,  65,  80}, { 65,  80,  65,  80}},	// Single point
+				{{ 56,  68,  56,  68}, { 85,  83,  85,  83}}};	// Point pair
 			return data[(question + test/2*3) % 12];
 		}
 		else
 		{
 			std::tuple<glm::ivec4, glm::ivec4> data[] = {
-				{{160, 64, 160, 64}, {160, 64, 160, 64}},	// Single point
-				{{160, 64, 160, 64}, {160, 64, 160, 64}},	// Single point
-				{{160, 64, 160, 64}, {180, 80, 180, 80}},	// Point pair
-				{{160, 64, 180, 80}, {160, 64, 180, 80}},	// Region
-				{{76, 30, 76, 30}, {76, 30, 76, 30}},	// Single point
-				{{76, 30, 76, 30}, {76, 30, 76, 30}},	// Single point
-				{{76, 30, 76, 30}, {105, 51, 105, 51}},	// Point pair
-				{{76, 30, 105, 51}, {76, 30, 105, 51}},	// Region
-				{{0, 35, 0, 35}, {0, 35, 0, 35}},	// Single point
-				{{0, 35, 0, 35}, {0, 35, 0, 35}},	// Single point
-				{{0, 35, 0, 35}, {45, 55, 45, 55}},	// Point pair
-				{{0, 35, 45, 55}, {0, 35, 45, 55}},	// Region
-				{{56, 68, 56, 68}, {56, 68, 56, 68}},	// Single point
-				{{56, 68, 56, 68}, {56, 68, 56, 68}},	// Single point
-				{{56, 68, 56, 68}, {85, 83, 85, 83}},	// Point pair
-				{{56, 68, 85, 83}, {56, 68, 85, 83}}};	// Region
+				{{160,  64, 180,  80}, {160,  64, 180,  80}},	// Region
+				{{160,  64, 160,  64}, {160,  64, 160,  64}},	// Single point
+				{{160,  64, 160,  64}, {160,  64, 160,  64}},	// Single point
+				{{160,  64, 160,  64}, {180,  80, 180,  80}},	// Point pair
+				{{ 76,  30, 105,  51}, { 76,  30, 105,  51}},	// Region
+				{{ 76,  30,  76,  30}, { 76,  30,  76,  30}},	// Single point
+				{{ 76,  30,  76,  30}, { 76,  30,  76,  30}},	// Single point
+				{{ 76,  30,  76,  30}, {105,  51, 105,  51}},	// Point pair
+				{{  0,  35,  45,  55}, {  0,  35,  45,  55}},	// Region
+				{{  0,  35,   0,  35}, {  0,  35,   0,  35}},	// Single point
+				{{  0,  35,   0,  35}, {  0,  35,   0,  35}},	// Single point
+				{{  0,  35,   0,  35}, { 45,  55,  45,  55}},	// Point pair
+				{{ 56,  68,  85,  83}, { 56,  68,  85,  83}},	// Region
+				{{ 56,  68,  56,  68}, { 56,  68,  56,  68}},	// Single point
+				{{ 56,  68,  56,  68}, { 56,  68,  56,  68}},	// Single point
+				{{ 56,  68,  56,  68}, { 85,  83,  85,  83}}};	// Point pair
 			return data[(question + test/2*4) % 12];
 		}
 	}
