@@ -35,5 +35,5 @@ void main()
 	                     fs_mean.w            * float(distance < weightsum.w                 && distance >= weightsum.z) +
 						 (fs_mean[last] + fs_dev[last]) * float(                                distance >= 1.f) ), 1.f);
 	if(fs_indicator > 2.f)
-		color = color * .4f + vec4(0.f, .6f, 0.f, 1.f);
+		color = color * .2f + vec4(0.f, .3f, .5f, 1.f);
 }

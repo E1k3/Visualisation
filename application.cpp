@@ -103,8 +103,11 @@ namespace vis
 		auto framebuffer_callback = [] (GLFWwindow* window, int x, int y)
 		{
 			glViewport(0, 0, x, y);
-			if(glfwGetWindowUserPointer(window))
+			if(glfwGetWindowUserPointer(window))	
+			{
 				static_cast<InputManager*>(glfwGetWindowUserPointer(window))->resize_framebuffer(x, y);
+				static_cast<InputManager*>(glfwGetWindowUserPointer(window))->reset();
+			}
 		};
 		glfwSetFramebufferSizeCallback(_window.get(), framebuffer_callback);
 		auto focus_callback = [] (GLFWwindow* window, int /*focused*/)
@@ -256,9 +259,9 @@ namespace vis
 			}
 
 
-			if(static_cast<int>(time*6) % 4 == 0)
+			if(static_cast<int>(time*3) % 4 <= 2)
 				vis->set_highlight_area(std::get<0>(highlight));
-			else if(static_cast<int>(time*6) % 4 == 2)
+			else if(static_cast<int>(time*3) % 4 > 2)
 				vis->set_highlight_area(std::get<1>(highlight));
 			else vis->set_highlight_area(glm::ivec4{-10});
 
@@ -289,7 +292,7 @@ namespace vis
 
 	int Application::study_timestep(int test, int question)
 	{
-		int steps[] = {256, 1400};
+		int steps[] = {512, 1440};
 		if(question < 12)
 			return steps[(question/3 + test) % 2];
 		else
@@ -302,37 +305,43 @@ namespace vis
 			std::tuple<glm::ivec4, glm::ivec4> data[] = {
 				{{160,  64, 180,  80}, {160,  64, 180,  80}},	// Region
 				{{175,  67, 175,  67}, {175,  67, 175,  67}},	// Single point
-				{{160,  64, 160,  64}, {180,  80, 180,  80}},	// Point pair
+				{{175,  61, 175,  61}, {173,  60, 173,  60}},	// Point pair
+
 				{{ 76,  30, 105,  51}, { 76,  30, 105,  51}},	// Region
 				{{103,  36, 103,  36}, {103,  36, 103,  36}},	// Single point
-				{{ 76,  30,  76,  30}, {105,  51, 105,  51}},	// Point pair
+				{{ 81,  45,  81,  45}, { 84,  47,  84,  47}},	// Point pair
+
 				{{  0,  35,  45,  55}, {  0,  35,  45,  55}},	// Region
 				{{  5,  53,   5,  53}, {  5,  53,   5,  53}},	// Single point
-				{{  0,  35,   0,  35}, { 45,  55,  45,  55}},	// Point pair
+				{{ 34,  43,  34,  43}, { 34,  50,  34,  50}},	// Point pair
+
 				{{ 56,  68,  85,  83}, { 56,  68,  85,  83}},	// Region
 				{{ 65,  80,  65,  80}, { 65,  80,  65,  80}},	// Single point
-				{{ 56,  68,  56,  68}, { 85,  83,  85,  83}}};	// Point pair
+				{{ 67,  70,  67,  70}, { 70,  71,  70,  71}}};	// Point pair
 			return data[(question + test/2*3) % 12];
 		}
 		else
 		{
 			std::tuple<glm::ivec4, glm::ivec4> data[] = {
 				{{160,  64, 180,  80}, {160,  64, 180,  80}},	// Region
-				{{160,  64, 160,  64}, {160,  64, 160,  64}},	// Single point
-				{{160,  64, 160,  64}, {160,  64, 160,  64}},	// Single point
-				{{160,  64, 160,  64}, {180,  80, 180,  80}},	// Point pair
+				{{175,  67, 175,  67}, {175,  67, 175,  67}},	// Single point
+				{{175,  67, 175,  67}, {175,  67, 175,  67}},	// Single point
+				{{175,  61, 175,  61}, {173,  60, 173,  60}},	// Point pair
+
 				{{ 76,  30, 105,  51}, { 76,  30, 105,  51}},	// Region
-				{{ 76,  30,  76,  30}, { 76,  30,  76,  30}},	// Single point
-				{{ 76,  30,  76,  30}, { 76,  30,  76,  30}},	// Single point
-				{{ 76,  30,  76,  30}, {105,  51, 105,  51}},	// Point pair
+				{{103,  36, 103,  36}, {103,  36, 103,  36}},	// Single point
+				{{103,  36, 103,  36}, {103,  36, 103,  36}},	// Single point
+				{{ 81,  45,  81,  45}, { 84,  47,  84,  47}},	// Point pair
+
 				{{  0,  35,  45,  55}, {  0,  35,  45,  55}},	// Region
-				{{  0,  35,   0,  35}, {  0,  35,   0,  35}},	// Single point
-				{{  0,  35,   0,  35}, {  0,  35,   0,  35}},	// Single point
-				{{  0,  35,   0,  35}, { 45,  55,  45,  55}},	// Point pair
+				{{  5,  53,   5,  53}, {  5,  53,   5,  53}},	// Single point
+				{{  5,  53,   5,  53}, {  5,  53,   5,  53}},	// Single point
+				{{ 34,  43,  34,  43}, { 34,  50,  34,  50}},	// Point pair
+
 				{{ 56,  68,  85,  83}, { 56,  68,  85,  83}},	// Region
-				{{ 56,  68,  56,  68}, { 56,  68,  56,  68}},	// Single point
-				{{ 56,  68,  56,  68}, { 56,  68,  56,  68}},	// Single point
-				{{ 56,  68,  56,  68}, { 85,  83,  85,  83}}};	// Point pair
+				{{ 65,  80,  65,  80}, { 65,  80,  65,  80}},	// Single point
+				{{ 65,  80,  65,  80}, { 65,  80,  65,  80}},	// Single point
+				{{ 67,  70,  67,  70}, { 70,  71,  70,  71}}};	// Point pair
 			return data[(question + test/2*4) % 12];
 		}
 	}
