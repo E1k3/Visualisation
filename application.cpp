@@ -175,7 +175,7 @@ namespace vis
 //		vis->setup();
 
 		auto test = 0;
-		auto question = 23;
+		auto question = 0;
 
 		auto vis = std::unique_ptr<Visualisation>{};
 		std::cout << "\nTest Nr.: ";
@@ -208,10 +208,15 @@ namespace vis
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-			if(!init || input.release_get_key(GLFW_KEY_ENTER))
+			auto enter_in = input.release_get_key(GLFW_KEY_ENTER);
+			auto backspace_in = input.release_get_key(GLFW_KEY_BACKSPACE);
+			if(!init || enter_in || backspace_in)
 			{
-				question = (question + 1) % 24;// ...
+				if(enter_in)
+					question = (question + 1) % 24;
+				if(backspace_in)
+					question = (question + 23) % 24;
+
 				auto new_timestep = study_timestep(test, question);
 				auto new_analysis = study_analysis(question);
 				auto new_visualisation = study_visualisation(test, question);
@@ -271,8 +276,8 @@ namespace vis
 			statusline.set_viewport(input.get_framebuffer_size());
 			statusline.set_lines({/*std::to_string(1.f/_delta) + */" Cursor (" + std::to_string(vis->point_under_cursor().x) + ", " + std::to_string(vis->point_under_cursor().y) + ") Highlight (" + std::to_string(std::get<0>(highlight).x) + ", " + std::to_string(std::get<0>(highlight).y)
 								  + ") Question " + std::to_string(question)
-								 /*+ " mean " + std::to_string(_ensemble.fields().at(0).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0)) +
-								 " dev " + std::to_string(_ensemble.fields().at(1).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0))*/});
+								 + " mean " + std::to_string(_ensemble.fields().at(0).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0)) +
+								 " dev " + std::to_string(_ensemble.fields().at(1).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0))});
 			statusline.set_positions({glm::vec2{-1.f, 1.f - statusline.relative_sizes().front().y}});
 			glDisable(GL_DEPTH_TEST);
 			statusline.draw();
@@ -323,24 +328,19 @@ namespace vis
 		else
 		{
 			std::tuple<glm::ivec4, glm::ivec4> data[] = {
-				{{160,  64, 180,  80}, {160,  64, 180,  80}},	// Region
-				{{175,  67, 175,  67}, {175,  67, 175,  67}},	// Single point
-				{{175,  67, 175,  67}, {175,  67, 175,  67}},	// Single point
-				{{175,  61, 175,  61}, {173,  60, 173,  60}},	// Point pair
-
 				{{ 76,  30, 105,  51}, { 76,  30, 105,  51}},	// Region
-				{{103,  36, 103,  36}, {103,  36, 103,  36}},	// Single point
-				{{103,  36, 103,  36}, {103,  36, 103,  36}},	// Single point
-				{{ 81,  45,  81,  45}, { 84,  47,  84,  47}},	// Point pair
+				{{ 98,  51,  98,  51}, { 98,  51,  98,  51}},	// Single point
+				{{ 82,  34,  82,  34}, { 82,  34,  82,  34}},	// Single point
+				{{ 90,  46,  90,  46}, { 91,  47,  91,  47}},	// Point pair
 
 				{{  0,  35,  45,  55}, {  0,  35,  45,  55}},	// Region
-				{{  5,  53,   5,  53}, {  5,  53,   5,  53}},	// Single point
-				{{  5,  53,   5,  53}, {  5,  53,   5,  53}},	// Single point
-				{{ 34,  43,  34,  43}, { 34,  50,  34,  50}},	// Point pair
+				{{  9,  50,   9,  50}, {  9,  50,   9,  50}},	// Single point
+				{{  2,  49,   2,  49}, {  2,  49,   2,  49}},	// Single point
+				{{  7,  49,   7,  49}, {  8,  49,   8,  49}},	// Point pair
 
 				{{ 56,  68,  85,  83}, { 56,  68,  85,  83}},	// Region
 				{{ 65,  80,  65,  80}, { 65,  80,  65,  80}},	// Single point
-				{{ 65,  80,  65,  80}, { 65,  80,  65,  80}},	// Single point
+				{{ 75,  80,  75,  80}, { 75,  80,  75,  80}},	// Single point
 				{{ 67,  70,  67,  70}, { 70,  71,  70,  71}}};	// Point pair
 			return data[(question + test/2*4) % 12];
 		}
@@ -357,6 +357,14 @@ namespace vis
 		if(question < 12)
 			return (question/6 + test/2) % 2;
 		else
-			return 2 + ((question/4 + test/2) % 3);
+		{
+			int vis[][3] = {{0, 1, 2},
+							{0, 2, 1},
+							{1, 0, 2},
+							{1, 2, 0},
+							{2, 0, 1},
+							{2, 1, 0}};
+			return 2 + vis[test/2][question/4];
+		}
 	}
 }

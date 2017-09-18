@@ -50,7 +50,7 @@ namespace vis
 	protected:
 		/// @brief update_selection_cursor Updates the cursor position.
 		/// Uses the model-view matrix to calculate view direction.
-		void update_selection_cursor(glm::vec2 mouse_offset, glm::mat4 modelview, float aspect_ratio);
+		void update_selection_cursor(glm::vec2 mouse_offset, glm::mat4 modelview, float aspect_ratio, float scale);
 
 		// Input manager that is used to access HID data
 		InputManager& _input;

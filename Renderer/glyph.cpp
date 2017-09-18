@@ -20,7 +20,7 @@ namespace vis
 	{
 		using namespace glm;
 		constexpr vec2 mouse_speed = vec2(0.001f, -0.001);	// Invert y-axis
-		constexpr float scroll_speed = -0.1f;	// Invert scrolling
+		constexpr float scroll_speed = 0.1f;	// Invert scrolling
 
 		// Get input
 		auto mouse_in = _input.get_cursor_offset();
@@ -28,10 +28,18 @@ namespace vis
 		auto mouse_1_in = _input.get_button(GLFW_MOUSE_BUTTON_1);
 		auto space_in = _input.get_key(GLFW_KEY_SPACE);
 
-		// Calculate mvp
+		// Calculate camera
 		_scale *= 1.f + scroll_in * scroll_speed;
 		if(mouse_1_in)	// Only move model when dragging
 			_translation += mouse_in * mouse_speed * 1.f/_scale;
+
+		// Preset perspectives
+		if(_input.release_get_key(GLFW_KEY_1))
+		{
+			_scale = 1.f;
+			_translation = vec2();
+		}
+
 
 		auto model = scale(mat4{}, vec3{1.f, 1.f/_fields.front().aspect_ratio(), 1.f});
 		auto view = translate(scale(mat4{1.f}, vec3{_scale, _scale, 1.f}), vec3{_translation, 0.f});
@@ -39,9 +47,9 @@ namespace vis
 		auto mvp = project * view * model;
 
 		if(!mouse_1_in)	// Only move cursor when not dragging
-			update_selection_cursor(mouse_in * vec2{1, -1}, view * model, _input.get_framebuffer_aspect_ratio());
+			update_selection_cursor(mouse_in * vec2{1, -1}, view * model, _input.get_framebuffer_aspect_ratio(), _scale);
 		else
-			update_selection_cursor(vec2{0.f}, view * model, _input.get_framebuffer_aspect_ratio());
+			update_selection_cursor(vec2{0.f}, view * model, _input.get_framebuffer_aspect_ratio(), _scale);
 
 		// Set uniforms
 		glUseProgram(_program);
