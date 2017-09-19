@@ -11,7 +11,7 @@
 namespace vis
 {
 	Glyph::Glyph(InputManager& input, const std::vector<Field>& fields)
-		: Visualisation{input, fields}
+		: Visualization{input, fields}
 	{
 		_cursor_indicator.set_color({0.f, 0.f, 1.f, 1.f});
 	}

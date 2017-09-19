@@ -43,7 +43,7 @@ namespace vis
 		glfwSwapInterval(1);	// VSYNC
 
 		//DBG
-		Logger::debug() << "GLFW initialised.";
+		Logger::debug() << "GLFW initialized.";
 
 		// GLEW init
 		glewExperimental = GL_TRUE;
@@ -56,7 +56,7 @@ namespace vis
 		}
 
 		//DBG
-		Logger::debug() << "GLEW initialised.";
+		Logger::debug() << "GLEW initialized.";
 	}
 
 	void Application::execute()
@@ -150,7 +150,7 @@ namespace vis
 
 
 //		// Select renderer
-//		auto vis = std::unique_ptr<Visualisation>{};
+//		auto vis = std::unique_ptr<Visualization>{};
 //		std::cout << "\nRender result using:\n0 Heightfield renderer\n1 Glyph renderer\n";
 //		int renderer_input = 0;
 //		std::cin >> renderer_input;
@@ -177,13 +177,13 @@ namespace vis
 		auto test = 0;
 		auto question = 0;
 
-		auto vis = std::unique_ptr<Visualisation>{};
+		auto vis = std::unique_ptr<Visualization>{};
 		std::cout << "\nTest Nr.: ";
 		std::cin >> test;
 
 		auto timestep = study_timestep(test, question);
 		auto analysis = study_analysis(question);
-		auto visualisation = study_visualisation(test, question);
+		auto visualization = study_visualization(test, question);
 		auto highlight = study_data(test, question);
 		bool init = false;
 
@@ -219,14 +219,14 @@ namespace vis
 
 				auto new_timestep = study_timestep(test, question);
 				auto new_analysis = study_analysis(question);
-				auto new_visualisation = study_visualisation(test, question);
+				auto new_visualization = study_visualization(test, question);
 
 				if(!init || new_timestep != timestep)
 					_ensemble.read_headers(new_timestep, 1, 1);
 				if(!init || new_timestep != timestep || new_analysis != analysis)
 					_ensemble.analyse_field(2, new_analysis);
-				if(!init || new_visualisation != visualisation)
-					switch(new_visualisation)
+				if(!init || new_visualization != visualization)
+					switch(new_visualization)
 					{
 					case 0:
 						vis = std::make_unique<Heightfield>(input, _ensemble.fields());
@@ -244,11 +244,11 @@ namespace vis
 						vis = std::make_unique<GlyphGMM>(input, _ensemble.fields(), true);
 						break;
 					}
-				if(!init || new_timestep != timestep || new_analysis != analysis || new_visualisation != visualisation)
+				if(!init || new_timestep != timestep || new_analysis != analysis || new_visualization != visualization)
 					vis->setup();
 				timestep = new_timestep;
 				analysis = new_analysis;
-				visualisation = new_visualisation;
+				visualization = new_visualization;
 				highlight = study_data(test, question);
 
 				init = true;
@@ -352,7 +352,7 @@ namespace vis
 		else
 			return Ensemble::Analysis::GAUSSIAN_MIXTURE;
 	}
-	int Application::study_visualisation(int test, int question)
+	int Application::study_visualization(int test, int question)
 	{
 		if(question < 12)
 			return (question/6 + test/2) % 2;

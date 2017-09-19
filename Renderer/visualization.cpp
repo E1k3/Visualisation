@@ -1,19 +1,19 @@
-#include "visualisation.h"
+#include "visualization.h"
 
 namespace vis
 {
-	Visualisation::Visualisation(InputManager& input, const std::vector<Field>& fields)
+	Visualization::Visualization(InputManager& input, const std::vector<Field>& fields)
 		: _input{input},
 		  _fields{fields}
 	{	}
 
-	void Visualisation::setup()
+	void Visualization::setup()
 	{
 		setup_data();
 		setup_shaders();
 	}
 
-	void Visualisation::update_selection_cursor(glm::vec2 mouse_offset, glm::mat4 modelview, float aspect_ratio, float scale)
+	void Visualization::update_selection_cursor(glm::vec2 mouse_offset, glm::mat4 modelview, float aspect_ratio, float scale)
 	{
 		constexpr auto cursor_speed = 0.0005f;
 
@@ -32,12 +32,12 @@ namespace vis
 		_cursor_position = glm::clamp(_cursor_position, glm::vec2(0.f), glm::vec2(1.f));
 	}
 
-	glm::vec2 Visualisation::get_cursor() const
+	glm::vec2 Visualization::get_cursor() const
 	{
 		return _cursor_position;
 	}
 
-	void Visualisation::set_highlight_area(const glm::ivec4& area)
+	void Visualization::set_highlight_area(const glm::ivec4& area)
 	{
 		_highlight_area = area;
 	}

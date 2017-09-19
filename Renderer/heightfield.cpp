@@ -12,7 +12,7 @@
 namespace vis
 {
 	Heightfield::Heightfield(InputManager& input, const std::vector<Field>& fields)
-		: Visualisation{input, fields},
+		: Visualization{input, fields},
 		  _axes{{
 	{-1.f, -1.f, 0.f}, {1.f, -1.f, 0.f},
 	{1.f, 1.f, 0.f}, {-1.f, 1.f, 0.f}}}

@@ -1,11 +1,11 @@
 #ifndef GLYPH_H
 #define GLYPH_H
 
-#include "visualisation.h"
+#include "visualization.h"
 
 namespace vis
 {
-	class Glyph : public Visualisation
+	class Glyph : public Visualization
 	{
 	public:
 		explicit Glyph(InputManager& input, const std::vector<Field>& fields);

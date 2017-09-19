@@ -1,5 +1,5 @@
-#ifndef VISUALISATION_H
-#define VISUALISATION_H
+#ifndef VISUALIZATION_H
+#define VISUALIZATION_H
 
 #include <vector>
 #include <glm/glm.hpp>
@@ -12,11 +12,11 @@
 
 namespace vis
 {
-	class Visualisation
+	class Visualization
 	{
 	public:
-		explicit Visualisation(InputManager& input, const std::vector<Field>& fields);
-		virtual ~Visualisation() = default;
+		explicit Visualization(InputManager& input, const std::vector<Field>& fields);
+		virtual ~Visualization() = default;
 
 		virtual void setup();
 
@@ -30,14 +30,14 @@ namespace vis
 		virtual void setup_shaders() = 0;
 
 		/**
-		 * @brief update Updates visualisation state.
+		 * @brief update Updates visualization state.
 		 * Uses input to alter uniforms, data, whetever is needed.
 		 * @param delta_time The time since the last frame/update.
 		 * @param total_time The time since application start.
 		 */
 		virtual void update(float delta_time, float total_time) = 0;
 		/**
-		 * @brief draw Renders the visualisation at its current state.
+		 * @brief draw Renders the visualization at its current state.
 		 */
 		virtual void draw() const = 0;
 
@@ -54,7 +54,7 @@ namespace vis
 
 		// Input manager that is used to access HID data
 		InputManager& _input;
-		// Collection of data fields (visualisation input)
+		// Collection of data fields (visualization input)
 		const std::vector<Field>& _fields;
 		// Renders the color map with divisions
 		Colormap _palette;
@@ -77,4 +77,4 @@ namespace vis
 		GLint _highlight_loc{-1};
 	};
 }
-#endif // VISUALISATION_H
+#endif // VISUALIZATION_H

@@ -1,14 +1,14 @@
 #ifndef HEIGHTFIELD_H
 #define HEIGHTFIELD_H
 
-#include "visualisation.h"
+#include "visualization.h"
 
 #include "primitives.h"
 #include "text.h"
 
 namespace vis
 {
-	class Heightfield : public Visualisation
+	class Heightfield : public Visualization
 	{
 	public:
 		explicit Heightfield(InputManager& input, const std::vector<Field>& fields);
