@@ -53,8 +53,7 @@ namespace vis
 		}
 		if(_input.release_get_key(GLFW_KEY_2))
 		{
-			_scale = 1.f;
-			_camera_position = length(_camera_position) * normalize(vec3(_camera_position.x, _camera_position.y, 0.f));
+			_camera_position = length(_camera_position) * normalize(vec3(_camera_position.x, _camera_position.y, 0.001f));
 		}
 
 		// MVP calculation
