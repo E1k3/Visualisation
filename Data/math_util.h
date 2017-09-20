@@ -17,7 +17,7 @@ namespace vis
 		static constexpr int fit_gmm_random_init_tries = 10;
 		static constexpr int fit_gmm_max_iterations = 30;
 		static constexpr float fit_gmm_log_likelihood_epsilon = 0.1f;
-		static constexpr float fit_gmm_component_penalty_factor = 0.6f;
+		static constexpr float fit_gmm_component_penalty_factor = 1.f;
 
 		struct GMMComponent
 		{

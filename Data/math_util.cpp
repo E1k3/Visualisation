@@ -58,48 +58,47 @@ namespace vis
 
 	void math_util::em_step(const std::vector<float>& samples, std::vector<math_util::GMMComponent>& gmm)
 	{
-		auto sample_weights = std::vector<float>{};
-		sample_weights.resize(samples.size() * gmm.size());
+		auto sample_weights = std::vector<std::vector<float>>(samples.size(), std::vector<float>(gmm.size()));
 
 		// E-step
-		{	// Scope i
-			size_t i = 0;
-			for(const auto& samp : samples)
-			{
-				auto sample_gmm_density = gmm_density(samp, gmm);
-				for(const auto& comp : gmm)
-					sample_weights[i++] = normal_density(samp, comp._mean, comp._variance) * comp._weight / sample_gmm_density;
-			}
+		for(size_t s = 0; s < samples.size(); ++s)
+		{
+			auto sample_gmm_density = gmm_density(samples[s], gmm);
+			for(size_t c = 0; c < gmm.size(); ++c)
+				sample_weights[s][c] = normal_density(samples[s], gmm[c]._mean, gmm[c]._variance) * gmm[c]._weight / sample_gmm_density;
 		}
 
 		// M-step
-		for(unsigned c = 0; c < gmm.size(); ++c)
+		for(size_t c = 0; c < gmm.size(); ++c)
 		{
 			// Sum of the membership weights of the current component
 			auto weight_sum = 0.f;
 
 			// Weight
 			for(size_t s = 0; s < samples.size(); ++s)
-				weight_sum += sample_weights[s * gmm.size() + c];
+				weight_sum += sample_weights[s][c];
 			gmm[c]._weight = weight_sum / samples.size();
 
 			// Mean
 			gmm[c]._mean = 0.f;
 			for(size_t s = 0; s < samples.size(); ++s)
-				gmm[c]._mean += sample_weights[s * gmm.size() + c] * samples[s];
+				gmm[c]._mean += sample_weights[s][c] * samples[s];
 			gmm[c]._mean /= weight_sum;
 
 			// Variance
 			gmm[c]._variance = 0.f;
 			for(size_t s = 0; s < samples.size(); ++s)
-				gmm[c]._variance += sample_weights[s * gmm.size() + c] * square(samples[s] - gmm[c]._mean);
+				gmm[c]._variance += sample_weights[s][c] * square(samples[s] - gmm[c]._mean);
 			gmm[c]._variance /= weight_sum;
 
 			// Avoid singularity (variance == 0 -> mean == NaN, weight == NaN, etc)
 			if(gmm[c]._variance <= std::numeric_limits<float>::min())
 			{
 				// Reset mean to a random sample and variance to the squared average deviation
-				gmm[c]._mean = pick_randomly(samples);
+				if(fit_gmm_random_init)
+					gmm[c]._mean = pick_randomly(samples);
+				else
+					gmm[c]._mean = samples.front();
 				gmm[c]._variance = variance(samples, gmm[c]._mean);
 			}
 		}
@@ -117,7 +116,7 @@ namespace vis
 		result.front()._variance = variance(samples, result.front()._mean);
 		result.front()._weight = 1.f;
 
-		auto min_aic = gmm_aic(samples, result, fit_gmm_component_penalty_factor);
+		auto min_bic = gmm_bic(samples, result, fit_gmm_component_penalty_factor);
 
 		// Try MLE GMMs with [2, max_components] components
 		// k = current number of components
@@ -145,13 +144,9 @@ namespace vis
 					}
 				}
 			}
-			else
-			{
+			else	// Initialize from equally spaced points in samples
 				for(unsigned s = 0; s < k; ++s)
-				{
-					gmm.push_back({samples[samples.size() / k * s], variance(samples, samples[samples.size() / k * s]), 1.f/k});
-				}
-			}
+					gmm.push_back({samples[static_cast<size_t>(samples.size() / k * (s + .5f))], variance(samples, samples[samples.size() / k * s]), 1.f/k});
 
 			// Iterate until difference in log-likelihood <= epsilon
 			auto confidence = gmm_log_likelihood(samples, gmm);
@@ -163,20 +158,19 @@ namespace vis
 					break;
 				confidence = new_confidence;
 			}
-			std::sort(gmm.begin(), gmm.end(), [] (const auto& a, const auto& b) { return a._mean < b._mean && a._weight != 0.f; });
 
-			// If current model has lowest AIC (Akaike Information criterion), keep iterating
-			auto cur_aic = gmm_aic(samples, gmm, fit_gmm_component_penalty_factor);
-			if(cur_aic < min_aic)
+			// If current model has lowest BIC (Bayesian Information criterion), keep iterating
+			auto cur_bic = gmm_bic(samples, gmm, fit_gmm_component_penalty_factor);
+			if(cur_bic < min_bic)
 			{
-				min_aic = cur_aic;
+				min_bic = cur_bic;
 				result = gmm;
 			}
-			// If not, the previous model is assumed best
 			else
 				break;
 		}
 
+		std::sort(result.begin(), result.end(), [] (const auto& a, const auto& b) { return a._mean < b._mean && a._weight != 0.f; });
 		result.resize(max_components);
 		return result;
 	}

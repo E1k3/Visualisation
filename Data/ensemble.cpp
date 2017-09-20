@@ -1,10 +1,12 @@
 #include "ensemble.h"
 
 #include <exception>
-#include <algorithm>
 #include <fstream>
 #include <string>
 #include <cmath>
+#include <algorithm>
+
+#include <thread>
 
 
 #include "logger.h"
@@ -55,7 +57,7 @@ namespace vis
 
 			throw std::out_of_range("Index of simulation step is out of range");
 		}
-		if(count < 0 || stride < 0 || stride > _num_steps || count * stride > _num_steps)
+		if(count < 0 || stride < 0 || stride > _num_steps || step_index + count * stride > _num_steps)
 		{
 			Logger::error() << "Headers of step " << step_index << " cannot be read. "
 							<< "Aggregation count or stride are out of range: steps:" << _num_steps
@@ -202,16 +204,27 @@ namespace vis
 		result[0].set_name(layout.name() + "_mean");
 		result[1].set_name(layout.name() + "_deviation");
 
-		for(int i = 0; i < result.front().volume(); ++i)
+		auto thread_count = std::min(std::max(static_cast<int>(std::thread::hardware_concurrency()), 1), result.front().volume());
+		auto threads = std::vector<std::thread>();
+		for(int t = 0; t < thread_count; ++t)
 		{
-			auto samples = std::vector<float>();
-			samples.reserve(fields.size());
-			for(const auto& field : fields)
-				samples.push_back(field.get_value(0, i));
+			int start = result.front().volume() * t / thread_count;
+			int end = result.front().volume() * (t+1) / thread_count;
+			threads.emplace_back([&fields, &result, start, end] () {
+				for(int i = start; i < end; ++i)
+				{
+					auto samples = std::vector<float>();
+					samples.reserve(fields.size());
+					for(const auto& field : fields)
+						samples.push_back(field.get_value(0, i));
 
-			result[0].set_value(0, i, math_util::mean(samples));
-			result[1].set_value(0, i, std::sqrt(math_util::variance(samples, result[0].get_value(0, i))));
+					result[0].set_value(0, i, math_util::mean(samples));
+					result[1].set_value(0, i, std::sqrt(math_util::variance(samples, result[0].get_value(0, i))));
+				}
+			});
 		}
+		for(auto& thread : threads)
+			thread.join();
 
 		Logger::debug() << "Fields " << result[0].name() << " and "<< result[1].name() << " have been calculated successfully.";
 
@@ -233,23 +246,35 @@ namespace vis
 		result[1].set_name(layout.name() + "_deviation");
 		result[2].set_name(layout.name() + "_weight");
 
-		for(int i = 0; i < result.front().volume(); ++i)
+		auto thread_count = std::min(std::max(static_cast<int>(std::thread::hardware_concurrency()), 1), result.front().volume());
+		auto threads = std::vector<std::thread>();
+		for(int t = 0; t < thread_count; ++t)
 		{
-			auto samples = std::vector<float>();
-			samples.reserve(fields.size());
-			for(const auto& field : fields)
-				samples.push_back(field.get_value(0, i));
+			int start = result.front().volume() * t / thread_count;
+			int end = result.front().volume() * (t+1) / thread_count;
+			threads.emplace_back([&fields, &result, start, end] () {
+				for(int i = start; i < end; ++i)
+				{
+					auto samples = std::vector<float>();
+					samples.reserve(fields.size());
+					for(const auto& field : fields)
+						samples.push_back(field.get_value(0, i));
 
-			auto gmm = math_util::fit_gmm(samples, gmm_components);
-			for(int c = 0; c < gmm_components; ++c)
-			{
-				//				result[0].set_value(c, i, math_util::find_max(samples, gmm[static_cast<size_t>(c)]));
-				//				result[0].set_value(c, i, math_util::find_median(samples, gmm[static_cast<size_t>(c)]));
-				result[0].set_value(c, i, gmm[static_cast<size_t>(c)]._mean);
-				result[1].set_value(c, i, std::sqrt(gmm[static_cast<size_t>(c)]._variance));
-				result[2].set_value(c, i, gmm[static_cast<size_t>(c)]._weight);
-			}
+					std::sort(samples.begin(), samples.end());
+					auto gmm = math_util::fit_gmm(samples, gmm_components);
+					for(int c = 0; c < gmm_components; ++c)
+					{
+						//				result[0].set_value(c, i, math_util::find_max(samples, gmm[static_cast<size_t>(c)]));
+						//				result[0].set_value(c, i, math_util::find_median(samples, gmm[static_cast<size_t>(c)]));
+						result[0].set_value(c, i, gmm[static_cast<size_t>(c)]._mean);
+						result[1].set_value(c, i, std::sqrt(gmm[static_cast<size_t>(c)]._variance));
+						result[2].set_value(c, i, gmm[static_cast<size_t>(c)]._weight);
+					}
+				}
+			});
 		}
+		for(auto& thread : threads)
+			thread.join();
 
 		Logger::debug() << "Fields " << result[0].name()
 						<< ", "<< result[1].name()

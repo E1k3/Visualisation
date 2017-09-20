@@ -297,7 +297,7 @@ namespace vis
 
 	int Application::study_timestep(int test, int question)
 	{
-		int steps[] = {512, 1440};
+		int steps[] = {512, 1340};
 		if(question < 12)
 			return steps[(question/3 + test) % 2];
 		else

@@ -8,7 +8,8 @@ LIBS += -lGL \
         -lGLEW \
         -lglfw \
         -lstdc++fs \
-		-lfreetype
+		-lfreetype \
+		-lpthread
 
 INCLUDEPATH += /usr/include/freetype2
 
