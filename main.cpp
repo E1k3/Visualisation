@@ -22,8 +22,11 @@ int main(int /*argc*/, char */*argv*/[])
 //	std::cout << '\n';
 //	std::sort(sample.begin(), sample.end());
 //	auto gmms = math_util::fit_gmm(sample, 4);
+
+//	auto ofs = std::ofstream{"/home/eike/Documents/Uni/Bachelor/python/data/ensemble.dat"};
 //	for(const auto& gmm : gmms)
-//		std::cout << gmm._mean << ' ' << std::sqrt(gmm._variance) << ' ' << gmm._weight << '\n';
+//		if(gmm._weight != 0.f)
+//			ofs << gmm._mean << ' ' << std::sqrt(gmm._variance) << ' ' << gmm._weight << '\n';
 //	return 0;
 
 	try
