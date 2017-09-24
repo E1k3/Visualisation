@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <functional>
 
 namespace vis
 {
@@ -61,21 +62,29 @@ namespace vis
 		void set_name(const std::string& name);
 
 		/// @brief Returns the smallest value of this field.
-		float minimum() const;
+		/// /// If provided, uses comp as comparator.
+		float minimum(std::function<bool(float, float)> comp = std::less<float>()) const;
 		/// @brief Returns the largest value of this field.
-		float maximum() const;
+		/// /// If provided, uses comp as comparator.
+		float maximum(std::function<bool(float, float)> comp = std::less<float>()) const;
 		/// @brief Returns a collection containing the smallest value for each dimension of this field.
-		std::vector<float> minima() const;
+		/// /// If provided, uses comp as comparator.
+		std::vector<float> minima(std::function<bool(float, float)> comp = std::less<float>()) const;
 		/// @brief Returns a collection containing the largest value for each dimension of this field.
-		std::vector<float> maxima() const;
+		/// /// If provided, uses comp as comparator.
+		std::vector<float> maxima(std::function<bool(float, float)> comp = std::less<float>()) const;
 		/// @brief Returns the smallest value inside the volume that spans between (x1,y2,z1) and (x2,y2,z2).
-		float partial_minimum(int x1, int y1, int z1, int x2, int y2, int z2) const;
+		/// /// If provided, uses comp as comparator.
+		float partial_minimum(int x1, int y1, int z1, int x2, int y2, int z2, std::function<bool(float, float)> comp = std::less<float>()) const;
 		/// @brief Returns the largest value inside the volume that spans between (x1,y2,z1) and (x2,y2,z2).
-		float partial_maximum(int x1, int y1, int z1, int x2, int y2, int z2) const;
+		/// /// If provided, uses comp as comparator.
+		float partial_maximum(int x1, int y1, int z1, int x2, int y2, int z2, std::function<bool(float, float)> comp = std::less<float>()) const;
 		/// @brief Returns a collection containing the smallest value for each dimension inside the volume that spans between (x1,y2,z1) and (x2,y2,z2).
-		std::vector<float> partial_minima(int x1, int y1, int z1, int x2, int y2, int z2) const;
+		/// If provided, uses comp as comparator.
+		std::vector<float> partial_minima(int x1, int y1, int z1, int x2, int y2, int z2, std::function<bool(float, float)> comp = std::less<float>()) const;
 		/// @brief Returns a collection containing the largest value for each dimension inside the volume that spans between (x1,y2,z1) and (x2,y2,z2).
-		std::vector<float> partial_maxima(int x1, int y1, int z1, int x2, int y2, int z2) const;
+		/// If provided, uses comp as comparator.
+		std::vector<float> partial_maxima(int x1, int y1, int z1, int x2, int y2, int z2, std::function<bool(float, float)> comp = std::less<float>()) const;
 
 		/// @brief Returns true if other field has the same layout (dimension, width, ...).
 		/// Name and content are ignored.

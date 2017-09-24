@@ -210,7 +210,7 @@ namespace vis
 		{
 			std::cout << "\nTEST " << t << '\n';
 			question = 0;
-			for(int q = 0; q < 12; ++q)
+			for(int q = 0; q < 14; ++q)
 			{
 				timestep = study_timestep(t, q);
 				analysis = study_analysis(q);
@@ -248,17 +248,20 @@ namespace vis
 				}
 				else
 				{
+					auto less_or_zero = [](float a, float b) { return a < b || a == 0.f; };
+					auto less_not_zero = [](float a, float b) { return a < b && a != 0.f; };
 					switch(q % 4)
 					{
 					case 0:	// Region
-						std::cout << "MAX-MEAN " << _ensemble.fields().front().partial_maximum(p1.x, p1.y, 0, p1.z, p1.w, 0) << "  MIN-MEAN " << _ensemble.fields().front().partial_minimum(p1.x, p1.y, 0, p1.z, p1.w, 0) << "\n";
+						std::cout << "MAX-MEAN " << _ensemble.fields().front().partial_maximum(p1.x, p1.y, 0, p1.z, p1.w, 0, less_or_zero) << "  MIN-MEAN " << _ensemble.fields().front().partial_minimum(p1.x, p1.y, 0, p1.z, p1.w, 0, less_not_zero) << "\n";
 						break;
 					case 1:	// Single (means)
 					{
 						auto means = _ensemble.fields().front().get_point(p1.x, p1.y, 0);
 						auto weights = _ensemble.fields().at(2).get_point(p1.x, p1.y, 0);
 						for(size_t i = 0; i < means.size(); ++i)
-							std::cout << "MEAN " << means.at(i) << " WEIGHT " << weights.at(i) << "  ";
+							if(weights.at(i) != 0.f)
+								std::cout << "MEAN " << means.at(i) << " WEIGHT " << weights.at(i) << "  ";
 					}
 						break;
 					case 2:	// Single (min,max)
