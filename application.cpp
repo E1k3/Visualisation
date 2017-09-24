@@ -1,6 +1,7 @@
 #include "application.h"
 
 #include <experimental/filesystem>
+#include <fstream>
 
 #include "logger.h"
 #include "inputmanager.h"
@@ -174,6 +175,7 @@ namespace vis
 //		}
 //		vis->setup();
 
+		// TODO STUDY MODE REMOVE \/--\/--\/--\/--\/--\/
 		auto test = 0;
 		auto question = 0;
 
@@ -186,6 +188,7 @@ namespace vis
 		auto visualization = study_visualization(test, question);
 		auto highlight = study_data(test, question);
 		bool init = false;
+		// TODO STUDY MODE REMOVE /\--/\--/\--/\--/\--/|
 
 		// OpenGL & window state
 		glClearColor(.1f, .1f, .1f, 1.f);
@@ -199,6 +202,81 @@ namespace vis
 
 		Text statusline;
 
+		// TODO STUDY RESULTS REMOVE \/--\/--\/--\/--\/--\/
+		auto nullstream = std::ofstream{};
+		Logger::instance().set_stream(&nullstream);
+
+		for(int t = 0; t < 8; ++t)
+		{
+			std::cout << "\nTEST " << t << '\n';
+			question = 0;
+			for(int q = 0; q < 12; ++q)
+			{
+				timestep = study_timestep(t, q);
+				analysis = study_analysis(q);
+				visualization = study_visualization(t, q);
+				highlight = study_data(t, q);
+
+				_ensemble.read_headers(timestep, 1, 1);
+				_ensemble.analyse_field(2, analysis);
+
+				auto p1 = std::get<0>(highlight);
+				auto p2 = std::get<1>(highlight);
+				std::cout << "QUESTION " << q << "\t";
+				if(q < 12)
+				{
+					switch(q % 3)
+					{
+					case 0:	// Region
+						std::cout << "MAX-MEAN " << _ensemble.fields().front().partial_maxima(p1.x, p1.y, 0, p1.z, p1.w, 0)[0] << "  MAX-DEV " << _ensemble.fields().at(1).partial_maxima(p1.x, p1.y, 0, p1.z, p1.w, 0)[0] << "\n";
+						break;
+					case 1:	// Single
+						std::cout << "MEAN " << _ensemble.fields().front().get_value(0, p1.x, p1.y, 0) << "  DEV " << _ensemble.fields().at(1).get_value(0, p1.x, p1.y, 0) << "\n";
+						break;
+					case 2:	// Pair
+						if(_ensemble.fields().front().get_value(0, p1.x, p1.y, 0) > _ensemble.fields().front().get_value(0, p2.x, p2.y, 0))
+							std::cout  << "MEAN LU ";
+						else
+							std::cout  << "MEAN UR ";
+
+						if(_ensemble.fields().at(1).get_value(0, p1.x, p1.y, 0) > _ensemble.fields().at(1).get_value(0, p2.x, p2.y, 0))
+							std::cout  << "  DEV LU\n";
+						else
+							std::cout  << "  DEV UR\n";
+						break;
+					}
+				}
+				else
+				{
+					switch(q % 4)
+					{
+					case 0:	// Region
+						std::cout << "MAX-MEAN " << _ensemble.fields().front().partial_maximum(p1.x, p1.y, 0, p1.z, p1.w, 0) << "  MIN-MEAN " << _ensemble.fields().front().partial_minimum(p1.x, p1.y, 0, p1.z, p1.w, 0) << "\n";
+						break;
+					case 1:	// Single (means)
+					{
+						auto means = _ensemble.fields().front().get_point(p1.x, p1.y, 0);
+						auto weights = _ensemble.fields().at(2).get_point(p1.x, p1.y, 0);
+						for(size_t i = 0; i < means.size(); ++i)
+							std::cout << "MEAN " << means.at(i) << " WEIGHT " << weights.at(i) << "  ";
+					}
+						break;
+					case 2:	// Single (min,max)
+					{
+						auto means = _ensemble.fields().front().get_point(p1.x, p1.y, 0);
+						auto devs = _ensemble.fields().at(1).get_point(p1.x, p1.y, 0);
+
+					}
+						break;
+					case 3:	// Pair
+
+						break;
+					}
+				}
+			}
+		}
+		// TODO STUDY RESULTS REMOVE /\--/\--/\--/\--/\--/|
+
 		// Event loop
 		while(!glfwWindowShouldClose(_window.get()))
 		{
@@ -208,6 +286,7 @@ namespace vis
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+			// STUDY MODE REMOVE \/--\/--\/--\/--\/--\/
 			auto enter_in = input.release_get_key(GLFW_KEY_ENTER);
 			auto backspace_in = input.release_get_key(GLFW_KEY_BACKSPACE);
 			if(!init || enter_in || backspace_in)
@@ -264,21 +343,25 @@ namespace vis
 			}
 
 
+
 			if(static_cast<int>(time*3) % 4 <= 2)
 				vis->set_highlight_area(std::get<0>(highlight));
 			else if(static_cast<int>(time*3) % 4 > 2)
 				vis->set_highlight_area(std::get<1>(highlight));
 			else vis->set_highlight_area(glm::ivec4{-10});
+			// TODO STUDY MODE REMOVE /\--/\--/\--/\--/\--/|
 
 			vis->update(_delta, static_cast<float>(time));
 			vis->draw();
 
 			statusline.set_viewport(input.get_framebuffer_size());
+			// TODO STUDY MODE CHANGE \/--\/--\/--\/--\/--\/
 			statusline.set_lines({/*std::to_string(1.f/_delta) + */" Cursor (" + std::to_string(vis->point_under_cursor().x) + ", " + std::to_string(vis->point_under_cursor().y) + ") Highlight (" + std::to_string(std::get<0>(highlight).x) + ", " + std::to_string(std::get<0>(highlight).y)
 								  + ") Question " + std::to_string(question)
 								 /*+ " mean " + std::to_string(_ensemble.fields().at(0).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0)) +
 								 " dev " + std::to_string(_ensemble.fields().at(1).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0))*/});
 			statusline.set_positions({glm::vec2{-1.f, 1.f - statusline.relative_sizes().front().y}});
+			// TODO STUDY MODE CHANGE /\--/\--/\--/\--/\--/|
 			glDisable(GL_DEPTH_TEST);
 			statusline.draw();
 
@@ -295,6 +378,7 @@ namespace vis
 		throw std::runtime_error("GLFW ERROR");
 	}
 
+	// TODO STUDY MODE REMOVE \/--\/--\/--\/--\/--\/
 	int Application::study_timestep(int test, int question)
 	{
 		int steps[] = {512, 1440};
@@ -310,7 +394,7 @@ namespace vis
 			std::tuple<glm::ivec4, glm::ivec4> data[] = {
 				{{160,  64, 180,  80}, {160,  64, 180,  80}},	// Region
 				{{175,  67, 175,  67}, {175,  67, 175,  67}},	// Single point
-				{{175,  61, 175,  61}, {173,  60, 173,  60}},	// Point pair
+				{{173,  60, 173,  60}, {175,  61, 175,  61}},	// Point pair
 
 				{{ 76,  30, 105,  51}, { 76,  30, 105,  51}},	// Region
 				{{103,  36, 103,  36}, {103,  36, 103,  36}},	// Single point
@@ -367,4 +451,5 @@ namespace vis
 			return 2 + vis[test/2][question/4];
 		}
 	}
+	// TODO STUDY MODE REMOVE /\--/\--/\--/\--/\--/|
 }

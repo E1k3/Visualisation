@@ -41,6 +41,32 @@ namespace vis
 			initialize();
 	}
 
+	Field Field::operator+(Field other) const
+	{
+		if(!equal_layout(other))
+		{
+			Logger::error() << "Fields with different layouts cannot be added.";
+			throw std::runtime_error("Addition of Fields with different layout");
+		}
+		for(int d = 0; d < _dimension; ++d)
+			for(int i = 0; i < volume(); ++i)
+				other.set_value(d, i, get_value(d, i) + other.get_value(d, i));
+		return other;
+	}
+
+	Field Field::operator-(Field other) const
+	{
+		if(!equal_layout(other))
+		{
+			Logger::error() << "Fields with different layouts cannot be added.";
+			throw std::runtime_error("Addition of Fields with different layout");
+		}
+		for(int d = 0; d < _dimension; ++d)
+			for(int i = 0; i < volume(); ++i)
+				other.set_value(d, i, get_value(d, i) - other.get_value(d, i));
+		return other;
+	}
+
 	bool Field::initialized() const               { return _initialized; }
 
 	void Field::initialize()
@@ -92,11 +118,6 @@ namespace vis
 
 	std::vector<float> Field::minima() const
 	{
-		if(!_initialized)
-		{
-			Logger::error() << "Data access on uninitialized field.";
-			throw std::runtime_error("Field data accessed before initializing");	// ERROR handling. Field not initialized.
-		}
 		auto minima = std::vector<float>(static_cast<size_t>(_dimension), std::numeric_limits<float>::infinity());
 		for(int d = 0; d < _dimension; ++d)
 			for(int i = 0; i < volume(); ++i)
@@ -106,15 +127,74 @@ namespace vis
 
 	std::vector<float> Field::maxima() const
 	{
-		if(!_initialized)
-		{
-			Logger::error() << "Data access on uninitialized field.";
-			throw std::runtime_error("Field data accessed before initializing");	// ERROR handling. Field not initialized.
-		}
 		auto maxima = std::vector<float>(static_cast<size_t>(_dimension), -std::numeric_limits<float>::infinity());
 		for(int d = 0; d < _dimension; ++d)
 			for(int i = 0; i < volume(); ++i)
 				maxima[static_cast<size_t>(d)] = std::max(maxima[static_cast<size_t>(d)], get_value(d, i));
+		return maxima;
+	}
+
+	float Field::partial_minimum(int x1, int y1, int z1, int x2, int y2, int z2) const
+	{
+		if(x1 > x2 || y1 > y2 || z1 > z2)
+		{
+			Logger::error() << "Volume boundaries have to be LL to UR.";
+			throw std::runtime_error("Volume boundaries in reverse order");
+		}
+		float minimum = std::numeric_limits<float>::infinity();
+		for(int d = 0; d < _dimension; ++d)
+			for(int x = x1; x <= x2; ++x)
+				for(int y = y1; y <= y2; ++y)
+					for(int z = z1; z <= z2; ++z)
+						minimum = std::min(minimum, get_value(d, x, y, z));
+		return minimum;
+	}
+
+	float Field::partial_maximum(int x1, int y1, int z1, int x2, int y2, int z2) const
+	{
+		if(x1 > x2 || y1 > y2 || z1 > z2)
+		{
+			Logger::error() << "Volume boundaries have to be LL to UR.";
+			throw std::runtime_error("Volume boundaries in reverse order");
+		}
+		float maximum = -std::numeric_limits<float>::infinity();
+		for(int d = 0; d < _dimension; ++d)
+			for(int x = x1; x <= x2; ++x)
+				for(int y = y1; y <= y2; ++y)
+					for(int z = z1; z <= z2; ++z)
+						maximum = std::max(maximum, get_value(d, x, y, z));
+		return maximum;
+	}
+
+	std::vector<float> Field::partial_minima(int x1, int y1, int z1, int x2, int y2, int z2) const
+	{
+		if(x1 > x2 || y1 > y2 || z1 > z2)
+		{
+			Logger::error() << "Volume boundaries have to be LL to UR.";
+			throw std::runtime_error("Volume boundaries in reverse order");
+		}
+		auto minima = std::vector<float>(static_cast<size_t>(_dimension), std::numeric_limits<float>::infinity());
+		for(int d = 0; d < _dimension; ++d)
+			for(int x = x1; x <= x2; ++x)
+				for(int y = y1; y <= y2; ++y)
+					for(int z = z1; z <= z2; ++z)
+						minima[static_cast<size_t>(d)] = std::min(minima[static_cast<size_t>(d)], get_value(d, x, y, z));
+		return minima;
+	}
+
+	std::vector<float> Field::partial_maxima(int x1, int y1, int z1, int x2, int y2, int z2) const
+	{
+		if(x1 > x2 || y1 > y2 || z1 > z2)
+		{
+			Logger::error() << "Volume boundaries have to be LL to UR.";
+			throw std::runtime_error("Volume boundaries in reverse order");
+		}
+		auto maxima = std::vector<float>(static_cast<size_t>(_dimension), -std::numeric_limits<float>::infinity());
+		for(int d = 0; d < _dimension; ++d)
+			for(int x = x1; x <= x2; ++x)
+				for(int y = y1; y <= y2; ++y)
+					for(int z = z1; z <= z2; ++z)
+						maxima[static_cast<size_t>(d)] = std::max(maxima[static_cast<size_t>(d)], get_value(d, x, y, z));
 		return maxima;
 	}
 
