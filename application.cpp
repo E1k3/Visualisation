@@ -210,7 +210,7 @@ namespace vis
 		{
 			std::cout << "\nTEST " << t << '\n';
 			question = 0;
-			for(int q = 0; q < 14; ++q)
+			for(int q = 0; q < 24; ++q)
 			{
 				timestep = study_timestep(t, q);
 				analysis = study_analysis(q);
@@ -228,10 +228,10 @@ namespace vis
 					switch(q % 3)
 					{
 					case 0:	// Region
-						std::cout << "MAX-MEAN " << _ensemble.fields().front().partial_maxima(p1.x, p1.y, 0, p1.z, p1.w, 0)[0] << "  MAX-DEV " << _ensemble.fields().at(1).partial_maxima(p1.x, p1.y, 0, p1.z, p1.w, 0)[0] << "\n";
+						std::cout << "MAX-MEAN " << _ensemble.fields().front().partial_maxima(p1.x, p1.y, 0, p1.z, p1.w, 0)[0] << "  MAX-DEV " << _ensemble.fields().at(1).partial_maxima(p1.x, p1.y, 0, p1.z, p1.w, 0)[0];
 						break;
 					case 1:	// Single
-						std::cout << "MEAN " << _ensemble.fields().front().get_value(0, p1.x, p1.y, 0) << "  DEV " << _ensemble.fields().at(1).get_value(0, p1.x, p1.y, 0) << "\n";
+						std::cout << "MEAN " << _ensemble.fields().front().get_value(0, p1.x, p1.y, 0) << "  DEV " << _ensemble.fields().at(1).get_value(0, p1.x, p1.y, 0);
 						break;
 					case 2:	// Pair
 						if(_ensemble.fields().front().get_value(0, p1.x, p1.y, 0) > _ensemble.fields().front().get_value(0, p2.x, p2.y, 0))
@@ -240,9 +240,9 @@ namespace vis
 							std::cout  << "MEAN UR ";
 
 						if(_ensemble.fields().at(1).get_value(0, p1.x, p1.y, 0) > _ensemble.fields().at(1).get_value(0, p2.x, p2.y, 0))
-							std::cout  << "  DEV LU\n";
+							std::cout  << "  DEV LU";
 						else
-							std::cout  << "  DEV UR\n";
+							std::cout  << "  DEV UR";
 						break;
 					}
 				}
@@ -253,7 +253,7 @@ namespace vis
 					switch(q % 4)
 					{
 					case 0:	// Region
-						std::cout << "MAX-MEAN " << _ensemble.fields().front().partial_maximum(p1.x, p1.y, 0, p1.z, p1.w, 0, less_or_zero) << "  MIN-MEAN " << _ensemble.fields().front().partial_minimum(p1.x, p1.y, 0, p1.z, p1.w, 0, less_not_zero) << "\n";
+						std::cout << "MAX-MEAN " << _ensemble.fields().front().partial_maximum(p1.x, p1.y, 0, p1.z, p1.w, 0, less_or_zero) << "  MIN-MEAN " << _ensemble.fields().front().partial_minimum(p1.x, p1.y, 0, p1.z, p1.w, 0, less_not_zero);
 						break;
 					case 1:	// Single (means)
 					{
@@ -276,6 +276,7 @@ namespace vis
 						break;
 					}
 				}
+				std::cout << '\n';
 			}
 		}
 		// TODO STUDY RESULTS REMOVE /\--/\--/\--/\--/\--/|
