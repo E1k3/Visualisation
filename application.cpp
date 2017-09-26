@@ -2,6 +2,7 @@
 
 #include <experimental/filesystem>
 #include <fstream>
+#include <algorithm>
 
 #include "logger.h"
 #include "inputmanager.h"
@@ -228,21 +229,21 @@ namespace vis
 					switch(q % 3)
 					{
 					case 0:	// Region
-						std::cout << "MAX-MEAN " << _ensemble.fields().front().partial_maxima(p1.x, p1.y, 0, p1.z, p1.w, 0)[0] << "  MAX-DEV " << _ensemble.fields().at(1).partial_maxima(p1.x, p1.y, 0, p1.z, p1.w, 0)[0];
+						std::cout << _ensemble.fields().front().partial_maxima(p1.x, p1.y, 0, p1.z, p1.w, 0)[0] << " " << _ensemble.fields().at(1).partial_maxima(p1.x, p1.y, 0, p1.z, p1.w, 0)[0];
 						break;
 					case 1:	// Single
-						std::cout << "MEAN " << _ensemble.fields().front().get_value(0, p1.x, p1.y, 0) << "  DEV " << _ensemble.fields().at(1).get_value(0, p1.x, p1.y, 0);
+						std::cout << _ensemble.fields().front().get_value(0, p1.x, p1.y, 0) << " " << _ensemble.fields().at(1).get_value(0, p1.x, p1.y, 0);
 						break;
 					case 2:	// Pair
 						if(_ensemble.fields().front().get_value(0, p1.x, p1.y, 0) > _ensemble.fields().front().get_value(0, p2.x, p2.y, 0))
-							std::cout  << "MEAN LU ";
+							std::cout  << "LL";
 						else
-							std::cout  << "MEAN UR ";
+							std::cout  << "UR";
 
 						if(_ensemble.fields().at(1).get_value(0, p1.x, p1.y, 0) > _ensemble.fields().at(1).get_value(0, p2.x, p2.y, 0))
-							std::cout  << "  DEV LU";
+							std::cout  << " LL\n";
 						else
-							std::cout  << "  DEV UR";
+							std::cout  << " UR\n";
 						break;
 					}
 				}
@@ -253,7 +254,7 @@ namespace vis
 					switch(q % 4)
 					{
 					case 0:	// Region
-						std::cout << "MAX-MEAN " << _ensemble.fields().front().partial_maximum(p1.x, p1.y, 0, p1.z, p1.w, 0, less_or_zero) << "  MIN-MEAN " << _ensemble.fields().front().partial_minimum(p1.x, p1.y, 0, p1.z, p1.w, 0, less_not_zero);
+						std::cout << _ensemble.fields().front().partial_maximum(p1.x, p1.y, 0, p1.z, p1.w, 0, less_or_zero) << " " << _ensemble.fields().front().partial_minimum(p1.x, p1.y, 0, p1.z, p1.w, 0, less_not_zero);
 						break;
 					case 1:	// Single (means)
 					{
@@ -261,18 +262,27 @@ namespace vis
 						auto weights = _ensemble.fields().at(2).get_point(p1.x, p1.y, 0);
 						for(size_t i = 0; i < means.size(); ++i)
 							if(weights.at(i) != 0.f)
-								std::cout << "MEAN " << means.at(i) << " WEIGHT " << weights.at(i) << "  ";
+								std::cout << means.at(i) << weights.at(i) << " ";
 					}
 						break;
 					case 2:	// Single (min,max)
 					{
 						auto means = _ensemble.fields().front().get_point(p1.x, p1.y, 0);
 						auto devs = _ensemble.fields().at(1).get_point(p1.x, p1.y, 0);
-
-					}
+						auto max_mean = std::max_element(means.begin(), means.end(), less_or_zero);
+						auto min_mean = std::min_element(means.begin(), means.end(), less_not_zero);
+						std::cout << *max_mean + devs.at(static_cast<size_t>(std::distance(means.begin(), max_mean))) << " " << *min_mean - devs.at(static_cast<size_t>(std::distance(means.begin(), min_mean)));
+//						for(size_t i = 0; i < means.size(); ++i)
+//							std::cout << "\n" << means.at(i) << " " << devs.at(i) << " -> " << means.at(i) + devs.at(i) << " " << means.at(i) - devs.at(i);
+						}
 						break;
 					case 3:	// Pair
-
+						auto means1 = _ensemble.fields().front().get_point(p1.x, p1.y, 0);
+						auto means2 = _ensemble.fields().front().get_point(p2.x, p2.y, 0);
+						if(*std::max_element(means1.begin(), means1.end(), less_or_zero) > *std::max_element(means2.begin(), means2.end(), less_or_zero))
+							std::cout << "LL\n";
+						else
+							std::cout << "UR\n";
 						break;
 					}
 				}
