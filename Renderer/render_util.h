@@ -10,6 +10,9 @@
 
 namespace vis
 {
+	/**
+	 * General utility class for renderer or OpenGL related problems.
+	 */
 	namespace render_util
 	{
 		void load_compile_shader(GLuint id, const std::vector<std::string>& paths);

@@ -8,6 +8,9 @@
 
 namespace vis
 {
+	/**
+	 * @brief The Heightfield class renders fields of normal distribution parameters using a 3D height field based visualization.
+	 */
 	class Heightfield : public Visualization
 	{
 	public:

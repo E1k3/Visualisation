@@ -9,20 +9,38 @@
 
 namespace vis
 {
+	/**
+	 * @brief The Colormap class is capable of rendering a color map with division lines and labels.
+	 */
 	class Colormap
 	{
 	public:
 		explicit Colormap();
 		virtual ~Colormap() = default;
 
+		/**
+		 * @brief draw Draws the color map using the active OpenGL context.
+		 */
 		void draw() const;
 
+		/**
+		 * @brief set_position Sets the position of the lower left corner of the map in world coords.
+		 */
 		void set_position(const glm::vec2& position);
 
+		/**
+		 * @brief set_size Sets the size of the colormap in world coords.
+		 */
 		void set_size(const glm::vec2& size);
 
+		/**
+		 * @brief set_viewport Sets the viewport size in pixels that is used to calculate font size.
+		 */
 		void set_viewport(const glm::ivec2& viewport);
-
+		/**
+		 * @brief set_bounds Sets the lower and upper bound of the label values.
+		 * Divisions will be created to get human readable label values and tries to stay close to the preferred amount.
+		 */
 		void set_bounds(const glm::vec2& bounds, int preferred_divisions);
 
 

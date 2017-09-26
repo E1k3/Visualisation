@@ -35,7 +35,7 @@ namespace vis
 		glfwWindowHint(GLFW_SAMPLES, 16);	// 16xMSAA
 
 		auto deleter = [] (GLFWwindow* window) { glfwDestroyWindow(window); glfwTerminate(); };	// Destroy window and terminate GLFW, when _window gets out of scope.
-		_window = std::unique_ptr<GLFWwindow, decltype (deleter)>(glfwCreateWindow(1520, 855, "Test", NULL, NULL), deleter);
+		_window = std::unique_ptr<GLFWwindow, decltype (deleter)>(glfwCreateWindow(1520, 855, "Test", nullptr, nullptr), deleter);
 		if(!_window)
 		{
 			Logger::error() << "GLFW window creation failed";
@@ -120,7 +120,7 @@ namespace vis
 		glfwSetWindowFocusCallback(_window.get(), focus_callback);
 
 
-//		// Crude CLI-UI
+//		// Crude CLI
 //		// Select simulation step
 //		int step_index_input = 0;
 //		std::cout << "\nChoose a time step [0," << _ensemble.num_steps() << ")\n";
@@ -207,7 +207,145 @@ namespace vis
 		auto nullstream = std::ofstream{};
 		Logger::instance().set_stream(&nullstream);
 
-		for(int t = 0; t < 8; ++t)
+//		for(int t = 0; t < 9; ++t)
+//		{
+//			for(int q = 0; q < 12/3; ++q)
+//			{
+//				timestep = study_timestep(t, q*3);
+//				analysis = study_analysis(q*3);
+//				visualization = study_visualization(t, q*3);
+//				highlight = study_data(t, q*3);
+
+//				_ensemble.read_headers(timestep, 1, 1);
+//				_ensemble.analyse_field(2, analysis);
+
+//				std::tuple<int, int> answers[] = {{164,64},{172,68},
+//												  {102,45},{103,36},
+//												  {45,53},{31,48},
+//												  {57,68},{73,72},
+
+//												  {164,64},{172,69},
+//												  {103,42},{92,50},
+//												  {0,43},{30,49},
+//												  {57,68},{71,71},
+
+//												  {103,41},{92,50},
+//												  {0,43},{30,49},
+//												  {57,68},{71,71},
+//												  {164,64},{172,69},
+
+//												  {102,39},{100,30},
+//												  {5,43},{31,47},
+//												  {57,68},{72,72},
+//												  {172,69},{164,64},
+
+//												  {45,53},{32,47},
+//												  {57,68},{72,72},
+//												  {167,65},{172,68},
+//												  {102,43},{103,33},
+
+//												  {2,43},{31,49},
+//												  {57,68},{64,80},
+//												  {166,64},{172,69},
+//												  {102,42},{92,50},
+
+//												  {58,68},{71,71},
+//												  {166,64},{172,69},
+//												  {103,43},{92,50},
+//												  {0,43},{30,49},
+
+//												  {61,68},{69,70},
+//												  {166,64},{172,68},
+//												  {102,45},{103,36},
+//												  {45,53},{35,47},
+
+//												  {164,64},{172,68},
+//												  {99,49},{103,36},
+//												  {45,52},{34,47},
+//												  {57,68},{69,70}};
+//				auto x = std::get<0>(answers[t * 8 + q*2]);
+//				auto y = std::get<1>(answers[t * 8 + q*2]);
+//				std::cout << "MEAN(" << x << ',' << y << ")=";
+//				auto means = _ensemble.fields().front().get_point(x, y, 0);
+//				for(const auto& m : means)
+//					if(m != 0.f)
+//						std::cout << m << ' ';
+
+//				x = std::get<0>(answers[t * 8 + q*2 + 1]);
+//				y = std::get<1>(answers[t * 8 + q*2 + 1]);
+//				std::cout << "  DEV(" << x << ',' << y << ")=";
+//				auto devs = _ensemble.fields().at(1).get_point(x, y, 0);
+//				for(const auto& d :devs)
+//					std::cout << d << ' ';
+//				std::cout << '\n';
+//			}
+//			std::cout << '\n';
+
+//			for(int q = 0; q < 12/4; ++q)
+//			{
+//				timestep = study_timestep(t, 12 + q*4);
+//				analysis = study_analysis(12 + q*4);
+//				visualization = study_visualization(t, 12 + q*4);
+//				highlight = study_data(t, 12 + q*4);
+
+//				_ensemble.read_headers(timestep, 1, 1);
+//				_ensemble.analyse_field(2, analysis);
+//				std::tuple<int, int> answers[] = {{81,30},{102,45},
+//												  {35,47},{45,53},
+//												  {56,83},{57,68},
+
+//												  {87,30},{100,50},
+//												  {36,48},{6,42},
+//												  {65,82},{57,68},
+
+//												  {36,48},{1,42},
+//												  {56,82},{57,68},
+//												  {103,33},{103,43},
+
+//												  {35,47},{43,53},
+//												  {63,83},{57,68},
+//												  {77,30},{102,42},
+
+//												  {66,76},{57,68},
+//												  {93,30},{102,42},
+//												  {37,47},{2,43},
+
+//												  {64,78},{57,68},
+//												  {104,33},{103,42},
+//												  {45,35},{45,53},
+
+//												  {97,30},{102,42},
+//												  {45,35},{45,53},
+//												  {76,83},{58,68},
+
+//												  {86,30},{103,42},
+//												  {3,35},{24,41},
+//												  {62,83},{58,68},
+
+//												  {36,48},{1,42},
+//												  {64,80},{57,68},
+//												  {104,33},{102,45}};
+//				auto x = std::get<0>(answers[t * 6 + q*2]);
+//				auto y = std::get<1>(answers[t * 6 + q*2]);
+//				std::cout << "LMEAN(" << x << ',' << y << ")=";
+//				auto means = _ensemble.fields().front().get_point(x, y, 0);
+//				for(const auto& m : means)
+//					if(m != 0.f)
+//						std::cout << m << ' ';
+
+//				x = std::get<0>(answers[t * 6 + q*2 + 1]);
+//				y = std::get<1>(answers[t * 6 + q*2 + 1]);
+//				std::cout << "  HMEAN(" << x << ',' << y << ")=";
+//				means = _ensemble.fields().front().get_point(x, y, 0);
+//				for(const auto& m : means)
+//					if(m != 0.f)
+//						std::cout << m << ' ';
+//				std::cout << '\n';
+//			}
+//			std::cout << "\n\n";
+//		}
+
+		for(int t = 0; t < 9; ++t)
 		{
 			std::cout << "\nTEST " << t << '\n';
 			question = 0;

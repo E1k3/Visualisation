@@ -18,25 +18,54 @@ namespace vis
 	};
 
 	template<GLType Type>
+	/**
+	 * @brief The GLObject class is a helper class that provides RAII style destruction of OpenGL objects.
+	 * It losely followes the mechanics of std::unique_ptr.
+	 */
 	class GLObject
 	{
 	public:
+		/**
+		 * @brief GLObject<Type> Constructs a GL object from an OpenGL object ID
+		 */
 		explicit GLObject<Type>(GLuint id = 0);
 
+		/**
+		 * @brief GLObject Move constructor.
+		 * Releases others object id and takes it.
+		 */
 		GLObject(GLObject<Type>&& other);
+		/**
+		 * @brief operator = Move assignment operator.
+		 * Releases others object id and resets to it.
+		 */
 		GLObject<Type>& operator=(GLObject<Type>&& other);
 
 		GLObject(const GLObject<Type>& other) = delete;
 		GLObject<Type>& operator=(GLObject<Type>& other) = delete;
 
+		/**
+		 * @brief operator GLuint Enables implicit conversion of a GLObject to its GLuint id.
+		 * This way, the object can be used in usual GL calls seamlessly.
+		 */
 		operator GLuint() const;
 
+		/**
+		 * @brief ~GLObject Destroys the object according to its type.
+		 */
 		virtual ~GLObject<Type>();
 
+		/**
+		 * @brief get Returns the id.
+		 */
 		GLuint get() const;
-
+		/**
+		 * @brief release Returns the id and gives up ownership of the object.
+		 */
 		GLuint release();
-
+		/**
+		 * @brief reset Destroys the currently held object and takes a new object by id.
+		 */
 		void reset(GLuint id);
 
 	private:

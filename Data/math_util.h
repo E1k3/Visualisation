@@ -9,6 +9,9 @@
 
 namespace vis
 {
+	/**
+	 * General math utility functions.
+	 */
 	namespace math_util
 	{
 		constexpr float pi = static_cast<float>(M_PI);

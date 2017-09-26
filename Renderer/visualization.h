@@ -12,6 +12,9 @@
 
 namespace vis
 {
+	/**
+	 * @brief The Visualization class is a pure virtual base class for Visualizations.
+	 */
 	class Visualization
 	{
 	public:

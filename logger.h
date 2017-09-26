@@ -10,7 +10,8 @@
 namespace vis
 {
 	/**
-	 * SINGLETON
+	 * @brief The Logger class is a singleton that is used to print any information regarding application state.
+	 * The output stream can be changed to print into a file instead of cout.
 	 */
 	class Logger
 	{
@@ -30,12 +31,21 @@ namespace vis
 		 */
 		static Logger& instance();
 
+		/**
+		 * @brief log Returns a reference to the single static instance of the Logger and sets the severity.
+		 */
 		static Logger& log(const Severity& severity);
-
+		/**
+		 * @brief Returns a reference to the single static instance of the Logger and sets the severity to ERROR.
+		 */
 		static Logger& error();
-
+		/**
+		 * @brief debug Returns a reference to the single static instance of the Logger and sets the severity to DEBUG.
+		 */
 		static Logger& debug();
-
+		/**
+		 * @brief warning Returns a reference to the single static instance of the Logger and sets the severity to WARNING.
+		 */
 		static Logger& warning();
 
 		/**
@@ -51,7 +61,7 @@ namespace vis
 		template<typename T>
 		/**
 		 * @brief operator << prints @param message to _stream.
-		 * @return Returns a reference to this logger.
+		 * @return Returns a reference to the stream.
 		 */
 		std::ostream& operator<<(const T& message)
 		{

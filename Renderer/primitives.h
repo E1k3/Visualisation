@@ -9,6 +9,9 @@
 
 namespace vis
 {
+	/**
+	 * @brief The Primitives class renders a collection of vertices at different locations with different colors using instancing.
+	 */
 	class Primitives
 	{
 	public:

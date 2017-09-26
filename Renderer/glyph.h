@@ -5,6 +5,9 @@
 
 namespace vis
 {
+	/**
+	 * @brief The Glyph class renders fields of normal distribution parameters using a 2D glyph based visualization.
+	 */
 	class Glyph : public Visualization
 	{
 	public:

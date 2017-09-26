@@ -1,5 +1,4 @@
 #include "globject.h"
-#include <memory>
 
 namespace vis
 {

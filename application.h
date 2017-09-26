@@ -13,6 +13,9 @@
 
 namespace vis
 {
+	/**
+	 * @brief The Application class manages the window and general control.
+	 */
 	class Application
 	{
 	public:

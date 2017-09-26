@@ -7,6 +7,9 @@
 
 namespace vis
 {
+	/**
+	 * @brief The InputManager class collects inputs from GLFW callbacks and provides through a relatively simple interface.
+	 */
 	class InputManager
 	{
 	public:

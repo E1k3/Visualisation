@@ -11,6 +11,11 @@
 
 namespace vis
 {
+	/**
+	 * @brief The Text class renders multiple lines of text at different locations.
+	 * It uses freetype to render a font into a texture atlas at creation.
+	 * Changing line locations is low overhead, changing text requires the upload of new data.
+	 */
 	class Text
 	{
 	public:

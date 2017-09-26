@@ -5,6 +5,9 @@
 
 namespace vis
 {
+	/**
+	 * @brief The HeightfieldGMM class renders fields of gaussian mixture model parameters using an animated 3D height field based visualization.
+	 */
 	class HeightfieldGMM : public Heightfield
 	{
 	public:
