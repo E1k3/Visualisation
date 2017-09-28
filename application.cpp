@@ -345,88 +345,137 @@ namespace vis
 //			std::cout << "\n\n";
 //		}
 
-		for(int t = 0; t < 9; ++t)
-		{
-			std::cout << "\nTEST " << t << '\n';
-			question = 0;
-			for(int q = 0; q < 24; ++q)
-			{
-				timestep = study_timestep(t, q);
-				analysis = study_analysis(q);
-				visualization = study_visualization(t, q);
-				highlight = study_data(t, q);
+//		for(int t = 0; t < 9; ++t)
+//		{
+//			std::cout << "\nTEST " << t << '\n';
+//			question = 0;
+//			for(int q = 0; q < 24; ++q)
+//			{
+//				timestep = study_timestep(t, q);
+//				analysis = study_analysis(q);
+//				visualization = study_visualization(t, q);
+//				highlight = study_data(t, q);
 
-				_ensemble.read_headers(timestep, 1, 1);
-				_ensemble.analyse_field(2, analysis);
+//				_ensemble.read_headers(timestep, 1, 1);
+//				_ensemble.analyse_field(2, analysis);
 
-				auto p1 = std::get<0>(highlight);
-				auto p2 = std::get<1>(highlight);
-				std::cout << "QUESTION " << q << "\t";
-				if(q < 12)
+//				auto p1 = std::get<0>(highlight);
+//				auto p2 = std::get<1>(highlight);
+
+				//TODO PRINT VIS ORDER
+				auto broken_study_vis = [](int test, int question){	// USE THIS UNTIL TEST 10, then use the correct study_visualization(test, question) function
+					if(question < 12)
+						return (question/6 + test/2) % 2;
+					else
+					{
+						int vis[][3] = {{0, 1, 2},
+										{0, 2, 1},
+										{1, 0, 2},
+										{1, 2, 0},
+										{2, 0, 1},
+										{2, 1, 0}};
+						return 2 + vis[(test/2)][(question/4)];
+					}};
+				std::cout << "\n\n";
+				for(int t = 0; t < 10; ++t)
 				{
-					switch(q % 3)
+					for(int q = 12; q < 24; q+=4)
 					{
-					case 0:	// Region
-						std::cout << _ensemble.fields().front().partial_maxima(p1.x, p1.y, 0, p1.z, p1.w, 0)[0] << " " << _ensemble.fields().at(1).partial_maxima(p1.x, p1.y, 0, p1.z, p1.w, 0)[0];
-						break;
-					case 1:	// Single
-						std::cout << _ensemble.fields().front().get_value(0, p1.x, p1.y, 0) << " " << _ensemble.fields().at(1).get_value(0, p1.x, p1.y, 0);
-						break;
-					case 2:	// Pair
-						if(_ensemble.fields().front().get_value(0, p1.x, p1.y, 0) > _ensemble.fields().front().get_value(0, p2.x, p2.y, 0))
-							std::cout  << "LL";
-						else
-							std::cout  << "UR";
-
-						if(_ensemble.fields().at(1).get_value(0, p1.x, p1.y, 0) > _ensemble.fields().at(1).get_value(0, p2.x, p2.y, 0))
-							std::cout  << " LL\n";
-						else
-							std::cout  << " UR\n";
-						break;
+						std::cout << broken_study_vis(t, q)-2 << "\n";
 					}
+					std::cout << "\n";
 				}
-				else
+				for(int t = 10; t < 20; ++t)
 				{
-					auto less_or_zero = [](float a, float b) { return a < b || a == 0.f; };
-					auto less_not_zero = [](float a, float b) { return a < b && a != 0.f; };
-					switch(q % 4)
+					for(int q = 12; q < 24; q+=4)
 					{
-					case 0:	// Region
-						std::cout << _ensemble.fields().front().partial_maximum(p1.x, p1.y, 0, p1.z, p1.w, 0, less_or_zero) << " " << _ensemble.fields().front().partial_minimum(p1.x, p1.y, 0, p1.z, p1.w, 0, less_not_zero);
-						break;
-					case 1:	// Single (means)
-					{
-						auto means = _ensemble.fields().front().get_point(p1.x, p1.y, 0);
-						auto weights = _ensemble.fields().at(2).get_point(p1.x, p1.y, 0);
-						for(size_t i = 0; i < means.size(); ++i)
-							if(weights.at(i) != 0.f)
-								std::cout << means.at(i) << weights.at(i) << " ";
+						std::cout << study_visualization(t, q)-2 << "\n";
 					}
-						break;
-					case 2:	// Single (min,max)
-					{
-						auto means = _ensemble.fields().front().get_point(p1.x, p1.y, 0);
-						auto devs = _ensemble.fields().at(1).get_point(p1.x, p1.y, 0);
-						auto max_mean = std::max_element(means.begin(), means.end(), less_or_zero);
-						auto min_mean = std::min_element(means.begin(), means.end(), less_not_zero);
-						std::cout << *max_mean + devs.at(static_cast<size_t>(std::distance(means.begin(), max_mean))) << " " << *min_mean - devs.at(static_cast<size_t>(std::distance(means.begin(), min_mean)));
-//						for(size_t i = 0; i < means.size(); ++i)
-//							std::cout << "\n" << means.at(i) << " " << devs.at(i) << " -> " << means.at(i) + devs.at(i) << " " << means.at(i) - devs.at(i);
-						}
-						break;
-					case 3:	// Pair
-						auto means1 = _ensemble.fields().front().get_point(p1.x, p1.y, 0);
-						auto means2 = _ensemble.fields().front().get_point(p2.x, p2.y, 0);
-						if(*std::max_element(means1.begin(), means1.end(), less_or_zero) > *std::max_element(means2.begin(), means2.end(), less_or_zero))
-							std::cout << "LL\n";
-						else
-							std::cout << "UR\n";
-						break;
-					}
+					std::cout << "\n";
 				}
-				std::cout << '\n';
-			}
-		}
+
+//				std::cout << "QUESTION " << q << "\t";
+//				if(q < 12)
+//				{
+//					switch(q % 3)
+//					{
+//					case 0:	// Region
+//					{
+//						auto max_mean = _ensemble.fields().front().partial_maxima(p1.x, p1.y, 0, p1.z, p1.w, 0)[0];
+//						auto min_mean = _ensemble.fields().front().partial_minima(p1.x, p1.y, 0, p1.z, p1.w, 0)[0];
+//						auto max_dev = _ensemble.fields().at(1).partial_maxima(p1.x, p1.y, 0, p1.z, p1.w, 0)[0];
+//						auto min_dev = _ensemble.fields().at(1).partial_minima(p1.x, p1.y, 0, p1.z, p1.w, 0)[0];
+//						std::cout << min_mean + (max_mean - min_mean)*0.95f << " " << min_dev + (max_dev - min_dev)*0.95f;
+//						break;
+//					}
+//					case 1:	// Single
+//						std::cout << _ensemble.fields().front().get_value(0, p1.x, p1.y, 0) << " " << _ensemble.fields().at(1).get_value(0, p1.x, p1.y, 0);
+//						break;
+//					case 2:	// Pair
+//						if(_ensemble.fields().front().get_value(0, p1.x, p1.y, 0) > _ensemble.fields().front().get_value(0, p2.x, p2.y, 0))
+//							std::cout  << "LL";
+//						else
+//							std::cout  << "UR";
+
+//						if(_ensemble.fields().at(1).get_value(0, p1.x, p1.y, 0) > _ensemble.fields().at(1).get_value(0, p2.x, p2.y, 0))
+//							std::cout  << " LL";
+//						else
+//							std::cout  << " UR";
+//						break;
+//					}
+//				}
+//				else
+//				{
+//					auto less_or_zero = [](float a, float b) { return a < b || a == 0.f; };
+//					auto less_not_zero = [](float a, float b) { return a < b && a != 0.f; };
+//					switch(q % 4)
+//					{
+//					case 0:	// Region
+//						std::cout << _ensemble.fields().front().partial_minimum(p1.x, p1.y, 0, p1.z, p1.w, 0, less_not_zero) << " " << _ensemble.fields().front().partial_maximum(p1.x, p1.y, 0, p1.z, p1.w, 0, less_or_zero);
+//						break;
+//					case 1:	// Single (means)
+//					{
+//						auto means = _ensemble.fields().front().get_point(p1.x, p1.y, 0);
+//						means.erase(std::remove(means.begin(), means.end(), 0.f), means.end());
+//						auto weights = _ensemble.fields().at(2).get_point(p1.x, p1.y, 0);
+//						weights.erase(std::remove(weights.begin(), weights.end(), 0.f), weights.end());
+//						if(means.size() == 1)
+//							std::cout << means.front();
+//						else if(means.size() == 2)
+//						{
+//							if(weights.front() > weights.at(1))
+//								std::cout << means.front() << " " << means.back();
+//							else
+//								std::cout << means.back() << " " << means.front();
+//						}
+//						else
+//							std::cout << "FAIL";
+//					}
+//						break;
+//					case 2:	// Single (min,max)
+//					{
+//						auto means = _ensemble.fields().front().get_point(p1.x, p1.y, 0);
+//						auto devs = _ensemble.fields().at(1).get_point(p1.x, p1.y, 0);
+//						auto max_mean = std::max_element(means.begin(), means.end(), less_or_zero);
+//						auto min_mean = std::min_element(means.begin(), means.end(), less_not_zero);
+//						std::cout << *min_mean - devs.at(static_cast<size_t>(std::distance(means.begin(), min_mean))) << " " << *max_mean + devs.at(static_cast<size_t>(std::distance(means.begin(), max_mean)));
+////						for(size_t i = 0; i < means.size(); ++i)
+////							std::cout << "\n" << means.at(i) << " " << devs.at(i) << " -> " << means.at(i) + devs.at(i) << " " << means.at(i) - devs.at(i);
+//						}
+//						break;
+//					case 3:	// Pair
+//						auto means1 = _ensemble.fields().front().get_point(p1.x, p1.y, 0);
+//						auto means2 = _ensemble.fields().front().get_point(p2.x, p2.y, 0);
+//						if(*std::max_element(means1.begin(), means1.end(), less_or_zero) > *std::max_element(means2.begin(), means2.end(), less_or_zero))
+//							std::cout << "LL";
+//						else
+//							std::cout << "UR";
+//						break;
+//					}
+//				}
+//				std::cout << '\n';
+//			}
+//		}
 		// TODO STUDY RESULTS REMOVE /\--/\--/\--/\--/\--/|
 
 		// Event loop
@@ -600,7 +649,7 @@ namespace vis
 							{1, 2, 0},
 							{2, 0, 1},
 							{2, 1, 0}};
-			return 2 + vis[test/2][question/4];
+			return 2 + vis[(test/2) % 6][(question/4) % 3];
 		}
 	}
 	// TODO STUDY MODE REMOVE /\--/\--/\--/\--/\--/|
