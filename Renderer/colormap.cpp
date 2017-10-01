@@ -26,6 +26,16 @@ namespace vis
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
 
+		// Texture (palette)
+		_texture = gen_texture();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_1D, _texture);
+		auto tex_data = uniform_colormap();
+		glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, static_cast<GLsizei>(tex_data.size())/3, 0, GL_RGB, GL_FLOAT, tex_data.data());
+		glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		// Shaders
 		_program = gen_program();
@@ -115,6 +125,8 @@ namespace vis
 
 		glUseProgram(_program);
 		glBindVertexArray(_vao);
+		glBindVertexArray(_vao);
+		glUseProgram(_program);
 
 		glUniform2f(_position_loc, _position.x, _position.y);
 		glUniform2f(_size_loc, _size.x, _size.y);

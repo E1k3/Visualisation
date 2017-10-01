@@ -67,6 +67,7 @@ namespace vis
 		VertexArray _vao;
 		Buffer _vbo;
 		Program _program;
+		Texture _texture;
 	};
 }
 #endif // COLORMAPRENDERER_H

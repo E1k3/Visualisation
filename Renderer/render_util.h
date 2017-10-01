@@ -21,6 +21,8 @@ namespace vis
 
 		std::vector<GLuint> gen_grid_indices(int width, int height);
 
+		std::vector<float> uniform_colormap();
+
 		VertexArray gen_vertex_array();
 		Buffer gen_buffer();
 		Texture gen_texture();

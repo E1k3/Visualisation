@@ -82,6 +82,8 @@ namespace vis
 
 		glBindVertexArray(_vao);
 		glUseProgram(_program);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_1D, _texture);
 
 		// Draw
 		glDrawArrays(GL_POINTS, 0, _vertex_count);
@@ -125,7 +127,7 @@ namespace vis
 
 		// Vertex grid (position)
 		glBufferSubData(GL_ARRAY_BUFFER, buffer_offset, static_cast<GLsizeiptr>(sizeof(float)*grid.size()),	grid.data());
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(0);
 		buffer_offset += grid.size() * sizeof(float);
 
@@ -143,6 +145,17 @@ namespace vis
 
 		// Set number of vertices to render
 		_vertex_count = mean_field.area();
+
+		// Texture (palette)
+		_texture = gen_texture();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_1D, _texture);
+		auto tex_data = uniform_colormap();
+		glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, static_cast<GLsizei>(tex_data.size())/3, 0, GL_RGB, GL_FLOAT, tex_data.data());
+		glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		// Set data bounds
 		_mean_bounds = glm::vec2(math_util::combined_minima(mean_field, dev_field).front(), math_util::combined_maxima(mean_field, dev_field).front());

@@ -66,6 +66,8 @@ namespace vis
 		VertexArray _vao;
 		// Collection of OpenGL buffers
 		std::vector<Buffer> _buffers;
+		// Texture
+		Texture _texture;
 		// OpenGL shader program
 		Program _program;
 

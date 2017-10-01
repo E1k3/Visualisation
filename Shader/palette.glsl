@@ -1,3 +1,5 @@
+uniform sampler1D tex;
+
 vec3 _palette_interpolate_(float x)
 {
 	// hot
@@ -37,7 +39,7 @@ vec3 palette(float x)
 	const float _palette_pi_ = 3.141592653589793238462643383279502884197169399375105820974f;
 	const float _sqrt_three_ = 1.732050807568877293527446341505872366942805253810380628055f;
 	x = clamp(x, 0.f, 1.f);
-	x = x*.9f + .05f; // Cut off the first and last 5% for low contrast displays.
+//	x = x*.9f + .05f; // Cut off the first and last 5% for low contrast displays.
 
 	vec3 color = vec3(0.f);
 //	color = vec3(x);                   // black->white
@@ -54,9 +56,8 @@ vec3 palette(float x)
 //	color = vec3(1.f-x, 0.f, x);
 //	color = vec3(0.f, 1.f-x, x);
 
-	color = _palette_interpolate_(x);
+//	color = _palette_interpolate_(x);
 
-//	color = vec3(sqrt(x), pow(x,3.f), clamp(sin(2.f * _palette_pi_ * x), 0.f, 1.f));
-
+	color = texture(tex, x).rgb;
 	return color;
 }
