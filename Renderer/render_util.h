@@ -21,7 +21,12 @@ namespace vis
 
 		std::vector<GLuint> gen_grid_indices(int width, int height);
 
-		std::vector<float> uniform_colormap();
+		/**
+		 * @brief get_uniform_colormap_texture Singleton-like access to a CET perceptually uniform 1D colormap texture.
+		 */
+		Texture& get_uniform_colormap_texture();
+
+		Texture create_colormap_texture(const std::vector<float>& data);
 
 		VertexArray gen_vertex_array();
 		Buffer gen_buffer();
