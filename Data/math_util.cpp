@@ -99,7 +99,10 @@ namespace vis
 			if(gmm[c]._variance <= std::numeric_limits<float>::min())
 			{
 				// Reset mean to a random sample and variance to the squared average deviation
-				gmm[c]._mean = pick_randomly(samples);
+				if(fit_gmm_random_init)
+					gmm[c]._mean = pick_randomly(samples);
+				else // In case randomness is turned off, use the first sample to be constistent between runs
+					gmm[c]._mean = samples.front();
 				gmm[c]._variance = variance(samples, gmm[c]._mean);
 			}
 		}
@@ -145,12 +148,10 @@ namespace vis
 					}
 				}
 			}
-			else
+			else // Initialize using evenly spaced samples
 			{
 				for(unsigned s = 0; s < k; ++s)
-				{
-					gmm.push_back({samples[samples.size() / k * s], variance(samples, samples[samples.size() / k * s]), 1.f/k});
-				}
+					gmm.push_back({samples[static_cast<size_t>(samples.size() / k * (s + .5f))], variance(samples, samples[static_cast<size_t>(samples.size() / k * (s + .5f))]), 1.f/k});
 			}
 
 			// Iterate until difference in log-likelihood <= epsilon
@@ -163,7 +164,6 @@ namespace vis
 					break;
 				confidence = new_confidence;
 			}
-			std::sort(gmm.begin(), gmm.end(), [] (const auto& a, const auto& b) { return a._mean < b._mean && a._weight != 0.f; });
 
 			// If current model has lowest AIC (Akaike Information criterion), keep iterating
 			auto cur_aic = gmm_aic(samples, gmm, fit_gmm_component_penalty_factor);
@@ -177,6 +177,7 @@ namespace vis
 				break;
 		}
 
+		std::sort(result.begin(), result.end(), [] (const auto& a, const auto& b) { return a._mean < b._mean && a._weight != 0.f; });
 		result.resize(max_components);
 		return result;
 	}

@@ -264,6 +264,7 @@ namespace vis
 					for(const auto& field : fields)
 						samples.push_back(field.get_value(0, i));
 
+					std::sort(samples.begin(), samples.end());
 					auto gmm = math_util::fit_gmm(samples, gmm_components);
 					for(int c = 0; c < gmm_components; ++c)
 					{

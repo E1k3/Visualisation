@@ -231,6 +231,8 @@ namespace vis
 				if(!init || new_timestep != timestep || new_analysis != analysis)
 					_ensemble.analyse_field(2, new_analysis);
 				if(!init || new_visualization != visualization)
+				{
+					vis.reset(nullptr);
 					switch(new_visualization)
 					{
 					case 0:
@@ -249,6 +251,7 @@ namespace vis
 						vis = std::make_unique<GlyphGMM>(input, _ensemble.fields(), true);
 						break;
 					}
+				}
 				if(!init || new_timestep != timestep || new_analysis != analysis || new_visualization != visualization)
 					vis->setup();
 				timestep = new_timestep;
@@ -280,6 +283,7 @@ namespace vis
 			vis->draw();
 
 			statusline.set_viewport(input.get_framebuffer_size());
+
 			// TODO STUDY MODE CHANGE \/--\/--\/--\/--\/--\/
 			statusline.set_lines({/*std::to_string(1.f/_delta) + */" Cursor (" + std::to_string(vis->point_under_cursor().x) + ", " + std::to_string(vis->point_under_cursor().y) + ") Question " + std::to_string(question)
 								 /*+ " mean " + std::to_string(_ensemble.fields().at(0).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0)) +
