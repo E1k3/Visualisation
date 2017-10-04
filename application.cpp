@@ -268,8 +268,7 @@ namespace vis
 				glPolygonMode(GL_FRONT_AND_BACK, polygon_mode);
 			}
 
-
-
+			// TODO STUDY MODE REMOVE \/--\/--\/--\/--\/--\/
 			if(static_cast<int>(time*3) % 4 <= 2)
 				vis->set_highlight_area(std::get<0>(highlight));
 			else if(static_cast<int>(time*3) % 4 > 2)
@@ -282,8 +281,7 @@ namespace vis
 
 			statusline.set_viewport(input.get_framebuffer_size());
 			// TODO STUDY MODE CHANGE \/--\/--\/--\/--\/--\/
-			statusline.set_lines({/*std::to_string(1.f/_delta) + */" Cursor (" + std::to_string(vis->point_under_cursor().x) + ", " + std::to_string(vis->point_under_cursor().y) + ") Highlight (" + std::to_string(std::get<0>(highlight).x) + ", " + std::to_string(std::get<0>(highlight).y)
-								  + ") Question " + std::to_string(question)
+			statusline.set_lines({/*std::to_string(1.f/_delta) + */" Cursor (" + std::to_string(vis->point_under_cursor().x) + ", " + std::to_string(vis->point_under_cursor().y) + ") Question " + std::to_string(question)
 								 /*+ " mean " + std::to_string(_ensemble.fields().at(0).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0)) +
 								 " dev " + std::to_string(_ensemble.fields().at(1).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0))*/});
 			statusline.set_positions({glm::vec2{-1.f, 1.f - statusline.relative_sizes().front().y}});

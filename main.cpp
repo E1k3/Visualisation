@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
 		if(std::string{argv[1]} == std::string{"-h"})
 		{
 			std::cout << "Usage: " << argv[0] << " [DATA LOCATION]\n"
-					  << "If no directory is specified, ./data will be assumed"
+					  << "If no directory is specified, \"./data\" will be assumed"
 					  << std::endl;
 			return 0;
 		}
@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 	else if(argc > 2)
 	{
 		std::cerr << "Usage: " << argv[0] << " [DATA LOCATION]\n"
-				  << "If no directory is specified, ./data will be assumed"
+				  << "If no directory is specified, \"./data\" will be assumed"
 				  << std::endl;
 		return -1;
 	}
