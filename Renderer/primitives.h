@@ -31,8 +31,8 @@ namespace vis
 		void clear_colors();
 
 	private:
-		std::vector<std::string> _vertex_shaders{"/home/eike/Documents/Code/Visualisation/Shader/primitives_vs.glsl"};
-		std::vector<std::string> _fragment_shaders{"/home/eike/Documents/Code/Visualisation/Shader/primitives_fs.glsl"};
+		std::vector<std::string> _vertex_shaders{"Shader/primitives_vs.glsl"};
+		std::vector<std::string> _fragment_shaders{"Shader/primitives_fs.glsl"};
 		int _vertex_count{0};
 
 		// GL objects

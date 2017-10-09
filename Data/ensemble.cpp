@@ -17,27 +17,40 @@ namespace vis
 	Ensemble::Ensemble(const fs::path& root)
 	{
 		_num_simulations = count_directories(root);
-		auto not_equal = [] (const auto& a, const auto& b) { return count_files(a) != count_files(b); };
-		if(_num_simulations <= 0
-				|| std::adjacent_find(fs::directory_iterator{root}, fs::directory_iterator{}, not_equal)
-				!= fs::directory_iterator{})	// Search for a subdirectory of root with amount of files not equal to the others
+		// Load ensemble with a single timestep
+		if(_num_simulations == 0)
 		{
-			Logger::error() << "Ensemble root directory does not contain subdirectories of the same size. "
-							<< "Path: " << root;
-
-			throw std::invalid_argument("Path does not follow the expected ensemble directory structure");
+			_num_simulations = count_files(root);
+			_num_steps = 1;
+			_project_files.reserve(static_cast<size_t>(_num_simulations));
+			std::copy_if(fs::directory_iterator{root}, fs::directory_iterator{}, std::back_inserter(_project_files),
+						 [] (const fs::path& p) { return fs::is_regular_file(p); });
 		}
+		else
+		{
+			// Load Ensemble with multiple time steps
+			auto not_equal = [] (const auto& a, const auto& b) { return count_files(a) != count_files(b); };
+			if(_num_simulations <= 0
+					|| std::adjacent_find(fs::directory_iterator{root}, fs::directory_iterator{}, not_equal)
+					!= fs::directory_iterator{})	// Search for a subdirectory of root with amount of files not equal to the others
+			{
+				Logger::error() << "Ensemble root directory does not contain subdirectories of the same size. "
+								<< "Path: " << root;
 
-		_num_steps = count_files(*fs::directory_iterator{root});
-		_project_files.reserve(static_cast<size_t>(_num_simulations * _num_steps));	// Class invariant, has to be >= 0
+				throw std::invalid_argument("Path does not follow the expected ensemble directory structure");
+			}
 
-		// Copy all directories
-		std::copy_if(fs::recursive_directory_iterator{root}, fs::recursive_directory_iterator{}, std::back_inserter(_project_files),
-					 [] (const fs::path& p) { return fs::is_regular_file(p); });
-		// Sort by path (simulation), then stably by name (timestep)
-		std::sort(_project_files.begin(), _project_files.end());
-		std::stable_sort(_project_files.begin(), _project_files.end(),
-						 [] (const fs::path& a, const fs::path& b) { return a.filename() < b.filename(); });
+			_num_steps = count_files(*fs::directory_iterator{root});
+			_project_files.reserve(static_cast<size_t>(_num_simulations * _num_steps));	// Class invariant, has to be >= 0
+
+			// Copy all directories
+			std::copy_if(fs::recursive_directory_iterator{root}, fs::recursive_directory_iterator{}, std::back_inserter(_project_files),
+						 [] (const fs::path& p) { return fs::is_regular_file(p); });
+			// Sort by path (simulation), then stably by name (timestep)
+			std::sort(_project_files.begin(), _project_files.end());
+			std::stable_sort(_project_files.begin(), _project_files.end(),
+							 [] (const fs::path& a, const fs::path& b) { return a.filename() < b.filename(); });
+		}
 	}
 
 	int Ensemble::num_steps() const						{ return _num_steps; }

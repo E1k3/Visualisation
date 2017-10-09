@@ -28,9 +28,9 @@ namespace vis
 	protected:
 		void setup_axes();
 
-		std::vector<std::string> _vertex_shaders{"/home/eike/Documents/Code/Visualisation/Shader/heightfield_vs.glsl"};
-		std::vector<std::string> _fragment_shaders{"/home/eike/Documents/Code/Visualisation/Shader/heightfield_fs.glsl",
-												   "/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"};
+		std::vector<std::string> _vertex_shaders{"Shader/heightfield_vs.glsl"};
+		std::vector<std::string> _fragment_shaders{"Shader/heightfield_fs.glsl",
+												   "Shader/palette.glsl"};
 
 		// Data
 		glm::vec2 _mean_bounds;	// (min, max)

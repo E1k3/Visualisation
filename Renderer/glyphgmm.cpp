@@ -8,13 +8,13 @@ namespace vis
 	GlyphGMM::GlyphGMM(InputManager& input, const std::vector<Field>& fields, bool alternative_shader)
 		: Glyph{input, fields}
 	{
-		_vertex_shaders = {"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_vs.glsl"};
-		_geometry_shaders = {"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_gs.glsl"};
-		_fragment_shaders = {"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_fs.glsl",
-							 "/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"};
+		_vertex_shaders = {"Shader/gmm_glyph_vs.glsl"};
+		_geometry_shaders = {"Shader/gmm_glyph_gs.glsl"};
+		_fragment_shaders = {"Shader/gmm_glyph_fs.glsl",
+							 "Shader/palette.glsl"};
 		if(alternative_shader)
-			_fragment_shaders = {"/home/eike/Documents/Code/Visualisation/Shader/gmm_glyph_fs_alt.glsl",
-								 "/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"};
+			_fragment_shaders = {"Shader/gmm_glyph_fs_alt.glsl",
+								 "Shader/palette.glsl"};
 	}
 
 	void GlyphGMM::setup_data()
@@ -83,7 +83,7 @@ namespace vis
 		_mean_bounds = glm::vec2(math_util::combined_minimum(mean_field, dev_field), math_util::combined_maximum(mean_field, dev_field));
 		_dev_bounds = glm::vec2(0, _mean_bounds.y - _mean_bounds.x);
 
-		_palette.set_bounds(_mean_bounds, 20);
+		_palette.set_bounds(_mean_bounds, 10);
 	}
 
 	void GlyphGMM::setup_shaders()

@@ -9,7 +9,7 @@ using namespace vis;
 
 int main(int argc, char* argv[])
 {
-	auto project_path = "/home/eike/CurrentStuff/bachelor/weatherdata"; // "data";
+	auto project_path = "data";
 
 	if(argc == 2)
 	{

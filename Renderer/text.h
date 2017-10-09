@@ -19,7 +19,7 @@ namespace vis
 	class Text
 	{
 	public:
-		explicit Text(unsigned height = 35, const std::string& font = "/usr/share/fonts/TTF/DroidSansMono.ttf");
+		explicit Text(unsigned height = 35, const std::string& font = "font.ttf");
 		virtual ~Text() = default;
 
 		void draw() const;
@@ -65,8 +65,8 @@ namespace vis
 		int _atlas_width{0};
 		int _atlas_height{0};
 
-		std::vector<std::string> _vertex_shaders{"/home/eike/Documents/Code/Visualisation/Shader/text_vs.glsl"};
-		std::vector<std::string> _fragment_shaders{"/home/eike/Documents/Code/Visualisation/Shader/text_fs.glsl"};
+		std::vector<std::string> _vertex_shaders{"Shader/text_vs.glsl"};
+		std::vector<std::string> _fragment_shaders{"Shader/text_fs.glsl"};
 
 		VertexArray _vao;
 		Buffer _vbo;

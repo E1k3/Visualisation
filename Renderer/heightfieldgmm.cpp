@@ -88,9 +88,9 @@ namespace vis
 
 	void HeightfieldGMM::setup_shaders()
 	{
-		_vertex_shaders = {"/home/eike/Documents/Code/Visualisation/Shader/gmm_heightfield_vs.glsl"};
-		_fragment_shaders = {"/home/eike/Documents/Code/Visualisation/Shader/gmm_heightfield_fs.glsl",
-							 "/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"};
+		_vertex_shaders = {"Shader/gmm_heightfield_vs.glsl"};
+		_fragment_shaders = {"Shader/gmm_heightfield_fs.glsl",
+							 "Shader/palette.glsl"};
 
 		Heightfield::setup_shaders();
 	}

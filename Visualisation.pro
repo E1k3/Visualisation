@@ -11,7 +11,17 @@ LIBS += -lGL \
 		-lpthread \
 		-lfreetype
 
+# Adapt to your freetype2 include directory
 INCLUDEPATH += /usr/include/freetype2
+
+debug {
+	DESTDIR = debug
+	OBJECTS_DIR = debug/obj
+}
+release {
+	DESTDIR = release
+	OBJECTS_DIR = release/obj
+}
 
 SOURCES += main.cpp \
     logger.cpp \

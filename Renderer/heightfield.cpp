@@ -54,6 +54,7 @@ namespace vis
 		if(_input.release_get_key(GLFW_KEY_2))
 		{
 			_camera_position = length(_camera_position) * normalize(vec3(_camera_position.x, _camera_position.y, 0.001f));
+			_camera_position = length(_camera_position) * normalize(vec3(_camera_position.x, _camera_position.y, 0.001f));
 		}
 
 		// MVP calculation
@@ -249,7 +250,7 @@ namespace vis
 
 		_axes_labels.set_lines(labels);
 
-		_palette.set_bounds(_dev_bounds, 20);
+		_palette.set_bounds(_dev_bounds, 10);
 	}
 
 	glm::ivec2 Heightfield::point_under_cursor() const

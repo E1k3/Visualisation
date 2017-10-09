@@ -70,6 +70,8 @@ namespace vis
 
 		auto key_callback = [] (GLFWwindow* window, int keycode, int /*scancode*/, int action, int /*mods*/)
 		{
+			if(keycode == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			if(glfwGetWindowUserPointer(window))
 			{
 				if(action == GLFW_PRESS)
@@ -81,6 +83,8 @@ namespace vis
 		glfwSetKeyCallback(_window.get(), key_callback);
 		auto button_callback = [] (GLFWwindow* window, int buttoncode, int action, int /*modifier*/)
 		{
+			if(buttoncode == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS)
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			if(glfwGetWindowUserPointer(window))
 			{
 				if(action == GLFW_PRESS)
@@ -120,76 +124,46 @@ namespace vis
 		glfwSetWindowFocusCallback(_window.get(), focus_callback);
 
 
-//		// Crude CLI
-//		// Select simulation step
-//		int step_index_input = 0;
-//		std::cout << "\nChoose a time step [0," << _ensemble.num_steps() << ")\n";
-//		std::cin >> step_index_input;
-//		int aggregation_count = 0;
-//		std::cout << "\nChoose how many steps you want to aggregate (merge) [0, n)\n";
-//		std::cin >> aggregation_count;
-//		int aggregation_stride = 0;
-//		std::cout << "\nChoose the aggregation stride [0, n)\n";
-//		std::cin >> aggregation_stride;
-//		_ensemble.read_headers(step_index_input, aggregation_count, aggregation_stride);
+		// Crude CLI
+		// Select simulation step
+		int step_index_input = 0;
+		std::cout << "\nChoose a time step [0," << _ensemble.num_steps() << ")\n";
+		std::cin >> step_index_input;
+		int aggregation_count = 0;
+		std::cout << "\nChoose how many steps you want to aggregate (merge) [0, n)\n";
+		std::cin >> aggregation_count;
+		int aggregation_stride = 0;
+		std::cout << "\nChoose the aggregation stride [0, n)\n";
+		std::cin >> aggregation_stride;
+		_ensemble.read_headers(step_index_input, aggregation_count, aggregation_stride);
 
-//		// Select field
-//		std::cout << "\nThe simulations contain " << _ensemble.headers().size() << " fields.\n";
-//		{
-//			int i = 0;
-//			for(const auto& field : _ensemble.headers())
-//				std::cout << i++ << " " << field.layout_to_string() << '\n';
-//		}
-//		std::cout << "Choose one [0," << _ensemble.headers().size() << ")\n";
-//		int field_index_input = 2;	// Magic number as default.
-//		std::cin >> field_index_input;
+		// Select field
+		std::cout << "\nThe simulations contain " << _ensemble.headers().size() << " fields.\n";
+		{
+			int i = 0;
+			for(const auto& field : _ensemble.headers())
+				std::cout << i++ << " " << field.layout_to_string() << '\n';
+		}
+		std::cout << "Choose one [0," << _ensemble.headers().size() << ")\n";
+		int field_index_input = 2;	// Magic number as default.
+		std::cin >> field_index_input;
 
-//		// Select analysis
-//		std::cout << "\nAnalyze field using:\n0 Maximum likelihood Normal distribution\n1 Maximum likelihood GMM\n";
-//		int analysis_input = 0;
-//		std::cin >> analysis_input;
-//		_ensemble.analyse_field(field_index_input, Ensemble::Analysis(analysis_input));
+		// Select analysis
+		std::cout << "\nAnalyze field using:\n0 MLE for Normal distribution\n1 MLE for GMM\n";
+		int analysis_input = 0;
+		std::cin >> analysis_input;
+		_ensemble.analyse_field(field_index_input, Ensemble::Analysis(analysis_input));
 
 
-//		// Select renderer
-//		auto vis = std::unique_ptr<Visualization>{};
-//		std::cout << "\nRender result using:\n0 Heightfield renderer\n1 Glyph renderer\n";
-//		int renderer_input = 0;
-//		std::cin >> renderer_input;
-//		switch (renderer_input)
-//		{
-//		case 0:
-//			if(static_cast<Ensemble::Analysis>(analysis_input) == Ensemble::Analysis::GAUSSIAN_SINGLE)
-//				vis = std::make_unique<Heightfield>(input, _ensemble.fields());
-//			else
-//				vis = std::make_unique<HeightfieldGMM>(input, _ensemble.fields());
-//			break;
-//		case 1:
-//			if(static_cast<Ensemble::Analysis>(analysis_input) == Ensemble::Analysis::GAUSSIAN_SINGLE)
-//				vis = std::make_unique<Glyph>(input, _ensemble.fields());
-//			else
-//				vis = std::make_unique<GlyphGMM>(input, _ensemble.fields());
-//			break;
-//		default:
-//			// error
-//			break;
-//		}
-//		vis->setup();
-
-		// TODO STUDY MODE REMOVE \/--\/--\/--\/--\/--\/
-		auto test = 0;
-		auto question = 0;
-
-		auto vis = std::unique_ptr<Visualization>{};
-		std::cout << "\nTest Nr.: ";
-		std::cin >> test;
-
-		auto timestep = study_timestep(test, question);
-		auto analysis = study_analysis(question);
-		auto visualization = study_visualization(test, question);
-		auto highlight = study_data(test, question);
-		bool init = false;
-		// TODO STUDY MODE REMOVE /\--/\--/\--/\--/\--/|
+		// Select renderer
+		auto vis = std::unique_ptr<Visualization>{nullptr};
+		if(Ensemble::Analysis(analysis_input) == Ensemble::Analysis::GAUSSIAN_SINGLE)
+			std::cout << "\nRender result using:\n0 Heightfield renderer\n1 Glyph renderer\n";
+		else
+			std::cout << "\nRender result using:\n0 Heightfield renderer\n1 Circular Sector Glyph renderer\n2 Multi-ring Glyph renderer\n";
+		int renderer_input = 0;
+		std::cin >> renderer_input;
+		bool renderer_initialized = false;
 
 		// OpenGL & window state
 		glClearColor(.1f, .1f, .1f, 1.f);
@@ -197,7 +171,6 @@ namespace vis
 		auto time = glfwGetTime();
 		_delta = 0.0;
 
-		GLenum polygon_mode = GL_FILL;
 		glEnable(GL_DEPTH_TEST);
 		glfwShowWindow(_window.get());
 
@@ -212,84 +185,83 @@ namespace vis
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			// STUDY MODE REMOVE \/--\/--\/--\/--\/--\/
-			auto enter_in = input.release_get_key(GLFW_KEY_ENTER);
-			auto backspace_in = input.release_get_key(GLFW_KEY_BACKSPACE);
-			if(!init || enter_in || backspace_in)
+			// Quick-switch renderers
+			if(input.release_get_key(GLFW_KEY_ENTER))
 			{
-				if(enter_in)
-					question = (question + 1) % 24;
-				if(backspace_in)
-					question = (question + 23) % 24;
-
-				auto new_timestep = study_timestep(test, question);
-				auto new_analysis = study_analysis(question);
-				auto new_visualization = study_visualization(test, question);
-
-				if(!init || new_timestep != timestep)
-					_ensemble.read_headers(new_timestep, 1, 1);
-				if(!init || new_timestep != timestep || new_analysis != analysis)
-					_ensemble.analyse_field(2, new_analysis);
-				if(!init || new_visualization != visualization)
+				if(Ensemble::Analysis(analysis_input) == Ensemble::Analysis::GAUSSIAN_SINGLE)
 				{
-					vis.reset(nullptr);
-					switch(new_visualization)
-					{
-					case 0:
-						vis = std::make_unique<Heightfield>(input, _ensemble.fields());
-						break;
-					case 1:
-						vis = std::make_unique<Glyph>(input, _ensemble.fields());
-						break;
-					case 2:
-						vis = std::make_unique<HeightfieldGMM>(input, _ensemble.fields());
-						break;
-					case 3:
-						vis = std::make_unique<GlyphGMM>(input, _ensemble.fields());
-						break;
-					case 4:
-						vis = std::make_unique<GlyphGMM>(input, _ensemble.fields(), true);
-						break;
-					}
+					if(renderer_initialized)
+						renderer_input = (renderer_input + 1) % 2;
 				}
-				if(!init || new_timestep != timestep || new_analysis != analysis || new_visualization != visualization)
-					vis->setup();
-				timestep = new_timestep;
-				analysis = new_analysis;
-				visualization = new_visualization;
-				highlight = study_data(test, question);
-
-				init = true;
-			}
-
-			if(input.release_get_key(GLFW_KEY_L))
-			{
-				if(polygon_mode == GL_FILL)
-					polygon_mode = GL_LINE;
 				else
-					polygon_mode = GL_FILL;
-				glPolygonMode(GL_FRONT_AND_BACK, polygon_mode);
+				{
+					if(renderer_initialized)
+						renderer_input = (renderer_input + 1) % 3;
+				}
+				renderer_initialized = false;
+			}
+			if(input.release_get_key(GLFW_KEY_BACKSPACE))
+			{
+				if(Ensemble::Analysis(analysis_input) == Ensemble::Analysis::GAUSSIAN_SINGLE)
+				{
+					if(renderer_initialized)
+						renderer_input = (renderer_input + 1) % 2;
+				}
+				else
+				{
+					if(renderer_initialized)
+						renderer_input = (renderer_input + 2) % 3;
+				}
+				renderer_initialized = false;
+			}
+			if(!renderer_initialized || input.release_get_key(GLFW_KEY_ENTER))
+			{
+				vis.reset(nullptr);
+				switch (renderer_input)
+				{
+				case 0:
+					if(static_cast<Ensemble::Analysis>(analysis_input) == Ensemble::Analysis::GAUSSIAN_SINGLE)
+						vis = std::make_unique<Heightfield>(input, _ensemble.fields());
+					else
+						vis = std::make_unique<HeightfieldGMM>(input, _ensemble.fields());
+					break;
+				case 1:
+					if(static_cast<Ensemble::Analysis>(analysis_input) == Ensemble::Analysis::GAUSSIAN_SINGLE)
+						vis = std::make_unique<Glyph>(input, _ensemble.fields());
+					else
+						vis = std::make_unique<GlyphGMM>(input, _ensemble.fields(), true);
+					break;
+				case 2:
+					if(static_cast<Ensemble::Analysis>(analysis_input) == Ensemble::Analysis::GAUSSIAN_MIXTURE)
+						vis = std::make_unique<GlyphGMM>(input, _ensemble.fields());
+					else
+					{
+						Logger::error() << "The renderer selection is invalid.";
+						throw std::runtime_error{"Invalid renderer selection"};
+					}
+					break;
+				default:
+					Logger::error() << "The renderer selection is invalid.";
+					throw std::runtime_error{"Invalid renderer selection"};
+				}
+				vis->setup();
+				renderer_initialized = true;
 			}
 
-			// TODO STUDY MODE REMOVE \/--\/--\/--\/--\/--\/
-			if(static_cast<int>(time*3) % 4 <= 2)
-				vis->set_highlight_area(std::get<0>(highlight));
-			else if(static_cast<int>(time*3) % 4 > 2)
-				vis->set_highlight_area(std::get<1>(highlight));
-			else vis->set_highlight_area(glm::ivec4{-10});
-			// TODO STUDY MODE REMOVE /\--/\--/\--/\--/\--/|
-
+			// Update and draw visualizations
 			vis->update(_delta, static_cast<float>(time));
 			vis->draw();
 
 			statusline.set_viewport(input.get_framebuffer_size());
+			auto statusline_text = std::string{" Cursor (" + std::to_string(vis->point_under_cursor().x) + ", " + std::to_string(vis->point_under_cursor().y) + ") "};
+			if(Ensemble::Analysis(analysis_input) == Ensemble::Analysis::GAUSSIAN_SINGLE)
+				statusline_text += "mean = " + std::to_string(_ensemble.fields().at(0).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0))
+								   + " deviation = " + std::to_string(_ensemble.fields().at(1).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0));
 
-			// TODO STUDY MODE CHANGE \/--\/--\/--\/--\/--\/
-			statusline.set_lines({/*std::to_string(1.f/_delta) + */" Cursor (" + std::to_string(vis->point_under_cursor().x) + ", " + std::to_string(vis->point_under_cursor().y) + ") Question " + std::to_string(question)
-								 /*+ " mean " + std::to_string(_ensemble.fields().at(0).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0)) +
-								 " dev " + std::to_string(_ensemble.fields().at(1).get_value(0, vis->point_under_cursor().x, vis->point_under_cursor().y, 0))*/});
+			statusline.set_lines({statusline_text});
 			statusline.set_positions({glm::vec2{-1.f, 1.f - statusline.relative_sizes().front().y}});
 			// TODO STUDY MODE CHANGE /\--/\--/\--/\--/\--/|
+
 			glDisable(GL_DEPTH_TEST);
 			statusline.draw();
 
@@ -305,79 +277,4 @@ namespace vis
 		Logger::error() << "GLFW ERROR: " << error << " " << description;
 		throw std::runtime_error("GLFW ERROR");
 	}
-
-	// TODO STUDY MODE REMOVE \/--\/--\/--\/--\/--\/
-	int Application::study_timestep(int test, int question)
-	{
-		int steps[] = {512, 1440};
-		if(question < 12)
-			return steps[(question/3 + test) % 2];
-		else
-			return steps[(question/4 + test) % 2];
-	}
-	std::tuple<glm::ivec4, glm::ivec4> Application::study_data(int test, int question)
-	{
-		if(question < 12)
-		{
-			std::tuple<glm::ivec4, glm::ivec4> data[] = {
-				{{160,  64, 180,  80}, {160,  64, 180,  80}},	// Region
-				{{175,  67, 175,  67}, {175,  67, 175,  67}},	// Single point
-				{{173,  60, 173,  60}, {175,  61, 175,  61}},	// Point pair
-
-				{{ 76,  30, 105,  51}, { 76,  30, 105,  51}},	// Region
-				{{103,  36, 103,  36}, {103,  36, 103,  36}},	// Single point
-				{{ 81,  45,  81,  45}, { 84,  47,  84,  47}},	// Point pair
-
-				{{  0,  35,  45,  55}, {  0,  35,  45,  55}},	// Region
-				{{  5,  53,   5,  53}, {  5,  53,   5,  53}},	// Single point
-				{{ 34,  43,  34,  43}, { 34,  50,  34,  50}},	// Point pair
-
-				{{ 56,  68,  85,  83}, { 56,  68,  85,  83}},	// Region
-				{{ 65,  80,  65,  80}, { 65,  80,  65,  80}},	// Single point
-				{{ 67,  70,  67,  70}, { 70,  71,  70,  71}}};	// Point pair
-			return data[(question + test/2*3) % 12];
-		}
-		else
-		{
-			std::tuple<glm::ivec4, glm::ivec4> data[] = {
-				{{ 76,  30, 105,  51}, { 76,  30, 105,  51}},	// Region
-				{{ 98,  51,  98,  51}, { 98,  51,  98,  51}},	// Single point
-				{{ 82,  34,  82,  34}, { 82,  34,  82,  34}},	// Single point
-				{{ 90,  46,  90,  46}, { 91,  47,  91,  47}},	// Point pair
-
-				{{  0,  35,  45,  55}, {  0,  35,  45,  55}},	// Region
-				{{  9,  50,   9,  50}, {  9,  50,   9,  50}},	// Single point
-				{{  2,  49,   2,  49}, {  2,  49,   2,  49}},	// Single point
-				{{  7,  49,   7,  49}, {  8,  49,   8,  49}},	// Point pair
-
-				{{ 56,  68,  85,  83}, { 56,  68,  85,  83}},	// Region
-				{{ 65,  80,  65,  80}, { 65,  80,  65,  80}},	// Single point
-				{{ 75,  80,  75,  80}, { 75,  80,  75,  80}},	// Single point
-				{{ 67,  70,  67,  70}, { 70,  71,  70,  71}}};	// Point pair
-			return data[(question + test/2*4) % 12];
-		}
-	}
-	Ensemble::Analysis Application::study_analysis(int question)
-	{
-		if(question < 12)
-			return Ensemble::Analysis::GAUSSIAN_SINGLE;
-		else
-			return Ensemble::Analysis::GAUSSIAN_MIXTURE;
-	}
-	int Application::study_visualization(int test, int question)
-	{
-		if(question < 12)
-			return (question/6 + test/2) % 2;
-		else
-		{
-			int vis[][3] = {{0, 1, 2},
-							{0, 2, 1},
-							{1, 0, 2},
-							{1, 2, 0},
-							{2, 0, 1},
-							{2, 1, 0}};
-			return 2 + vis[(test/2) % 6][(question/4) % 3];
-		}
-	}
-	// TODO STUDY MODE REMOVE /\--/\--/\--/\--/\--/|
 }

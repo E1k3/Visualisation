@@ -61,9 +61,9 @@ namespace vis
 		GLint _position_loc{-1};
 		GLint _size_loc{-1};
 
-		std::vector<std::string> _vertex_shaders{"/home/eike/Documents/Code/Visualisation/Shader/colormap_vs.glsl"};
-		std::vector<std::string> _fragment_shaders{"/home/eike/Documents/Code/Visualisation/Shader/colormap_fs.glsl",
-												   "/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"};
+		std::vector<std::string> _vertex_shaders{"Shader/colormap_vs.glsl"};
+		std::vector<std::string> _fragment_shaders{"Shader/colormap_fs.glsl",
+												   "Shader/palette.glsl"};
 		VertexArray _vao;
 		Buffer _vbo;
 		Program _program;

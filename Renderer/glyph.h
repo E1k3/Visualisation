@@ -23,10 +23,10 @@ namespace vis
 		virtual glm::ivec2 point_under_cursor() const override;
 
 	protected:
-		std::vector<std::string> _vertex_shaders{"/home/eike/Documents/Code/Visualisation/Shader/glyph_vs.glsl"};
-		std::vector<std::string> _geometry_shaders{"/home/eike/Documents/Code/Visualisation/Shader/glyph_gs.glsl"};
-		std::vector<std::string> _fragment_shaders{"/home/eike/Documents/Code/Visualisation/Shader/glyph_fs.glsl",
-												   "/home/eike/Documents/Code/Visualisation/Shader/palette.glsl"};
+		std::vector<std::string> _vertex_shaders{"Shader/glyph_vs.glsl"};
+		std::vector<std::string> _geometry_shaders{"Shader/glyph_gs.glsl"};
+		std::vector<std::string> _fragment_shaders{"Shader/glyph_fs.glsl",
+												   "Shader/palette.glsl"};
 		// Data
 		glm::vec2 _mean_bounds;	// (min, max)
 		glm::vec2 _dev_bounds;	// (min, max)
